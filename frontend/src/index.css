@@ -1,3 +1,126 @@
+/* ─────────────────────────────────────────────
+   StockSense — Global CSS
+   Order: Tailwind → Design Tokens → Base Styles
+──────────────────────────────────────────────── */
+
+/* 1. Tailwind Directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 2. CSS Design Tokens (Brand Variables)
+   Use these in components: var(--color-primary)
+──────────────────────────────────────────────── */
+:root {
+  /* Brand Colors */
+  --color-primary:     #6366f1;
+  --color-primary-dk:  #4f46e5;
+  --color-accent:      #10b981;
+  --color-warning:     #f59e0b;
+  --color-danger:      #f43f5e;
+
+  /* Surfaces (Light Mode) */
+  --surface-bg:        #f8fafc;
+  --surface-card:      #ffffff;
+  --surface-border:    #e2e8f0;
+  --surface-sidebar:   #0f172a;
+
+  /* Text */
+  --text-primary:      #0f172a;
+  --text-secondary:    #475569;
+  --text-muted:        #94a3b8;
+  --text-inverse:      #f8fafc;
+
+  /* Spacing */
+  --sidebar-width:     260px;
+  --navbar-height:     64px;
+
+  /* Transitions */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+}
+
+/* 3. Base / Reset Styles
+──────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    background-color: var(--surface-bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Focus ring for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Scrollbar styling (WebKit) */
+  ::-webkit-scrollbar       { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+}
+
+/* 4. Reusable Component Classes (Tailwind @layer components)
+──────────────────────────────────────────────── */
+@layer components {
+  /* Cards */
+  .card {
+    @apply bg-white rounded-2xl shadow-card border border-surface-200 p-5;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 active:bg-primary-700
+           text-white font-semibold px-4 py-2 rounded-xl
+           transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary (outlined) Button */
+  .btn-secondary {
+    @apply bg-white hover:bg-surface-50 border border-surface-200
+           text-surface-700 font-semibold px-4 py-2 rounded-xl
+           transition-colors duration-150 disabled:opacity-50;
+  }
+
+  /* Danger Button */
+  .btn-danger {
+    @apply bg-danger-500 hover:bg-danger-600
+           text-white font-semibold px-4 py-2 rounded-xl
+           transition-colors duration-150 disabled:opacity-50;
+  }
+
+  /* Text Input */
+  .input-field {
+    @apply w-full border border-surface-200 rounded-xl px-3 py-2 text-sm
+           bg-white text-surface-900 placeholder:text-surface-300
+           focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-400
+           transition-shadow duration-150;
+  }
+
+  /* Stock Badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-green  { @apply bg-accent-100  text-accent-600; }
+  .badge-amber  { @apply bg-warning-100 text-warning-600; }
+  .badge-red    { @apply bg-danger-100  text-danger-600; }
+  .badge-gray   { @apply bg-surface-100 text-surface-700; }
+
+  /* Page layout */
+  .page-wrapper {
+    @apply ml-[var(--sidebar-width)] pt-[var(--navbar-height)] min-h-screen p-6;
+  }
+}
