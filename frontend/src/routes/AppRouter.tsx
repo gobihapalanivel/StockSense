@@ -12,6 +12,10 @@ import OffersPage from '../pages/public/OffersPage'
 import LoginPage from '../pages/auth/LoginPage'
 import UnauthorizedPage from '../pages/auth/UnauthorizedPage'
 
+// Temporary test route
+import InventoryPage from '../pages/inventory/InventoryPage'
+import ProductManagement from '../pages/inventory/ProductManagement'
+
 // Protected Route Groups
 import AdminRoutes from './AdminRoutes'
 import CashierRoutes from './CashierRoutes'
@@ -35,6 +39,8 @@ export default function AppRouter() {
         ══════════════════════════════════════════════ */}
         <Route path="/login"        element={<LoginPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="/inventory"    element={<InventoryPage />} />
+        <Route path="/products"     element={<ProductManagement />} />
 
         {/* ══════════════════════════════════════════════
             ADMIN (Protected: ADMIN role only)
