@@ -9,6 +9,7 @@ import HomePage from '../pages/public/HomePage'
 import OffersPage from '../pages/public/OffersPage'
 import ProductsPage from '../pages/public/ProductsPage'
 import CategoryPage from '../pages/public/CategoryPage'
+import AboutUsPage from '../pages/public/AboutUsPage'
 
 // Auth Pages
 import LoginPage from '../pages/auth/LoginPage'
@@ -44,6 +45,7 @@ export default function AppRouter() {
           <Route path="/offers" element={<OffersPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/category/:categoryId" element={<CategoryPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
         </Route>
 
         {/* ══════════════════════════════════════════════
