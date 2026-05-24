@@ -17,10 +17,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="h-screen w-full flex bg-white overflow-hidden font-sans">
+    <div className="min-h-screen lg:h-screen w-full flex flex-col lg:flex-row bg-[#12362a] lg:bg-white overflow-y-auto lg:overflow-hidden font-sans">
       
       {/* ── LEFT PANEL (White with Blobs) ── */}
-      <div className="relative w-full lg:w-[55%] h-full items-center justify-center bg-white z-0 hidden lg:flex">
+      <div className="relative w-full lg:w-[55%] h-full hidden lg:flex items-center justify-center bg-white z-0">
         
         {/* Scattered light green circles / Bubbles */}
         <div className="absolute top-[20%] left-[10%] w-16 h-16 rounded-full bg-[#d3e3dc] opacity-60 animate-float-1"></div>
@@ -77,12 +77,12 @@ export default function LoginPage() {
       </div>
 
       {/* ── RIGHT PANEL (Dark Green Form) ── */}
-      <div className="relative w-full lg:w-[45%] h-full bg-[#12362a] flex flex-col items-center justify-center z-10">
+      <div className="relative w-full lg:w-[45%] min-h-screen lg:h-full bg-[#12362a] flex flex-col items-center justify-center py-16 lg:py-0 z-10">
         
         {/* Back to Home Button (Top Left - Arrow Only) */}
         <button 
           onClick={() => navigate('/')} 
-          className="absolute top-8 left-8 flex items-center justify-center w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all shadow-sm hover:shadow-md z-30 group"
+          className="absolute top-4 left-4 sm:top-8 sm:left-8 flex items-center justify-center w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all shadow-sm hover:shadow-md z-30 group"
           aria-label="Back to Home"
         >
           <ArrowLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
@@ -100,7 +100,7 @@ export default function LoginPage() {
         {/* Form Container */}
         <div className="relative z-20 w-full max-w-[400px] px-8 flex flex-col items-center">
           
-          <h1 className="text-[2.5rem] font-bold text-white tracking-wider mb-12">
+          <h1 className="text-3xl sm:text-4xl lg:text-[2.5rem] font-bold text-white tracking-wider mb-8 lg:mb-12">
             LOGIN
           </h1>
 
