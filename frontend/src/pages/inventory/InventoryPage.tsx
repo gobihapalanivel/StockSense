@@ -1,6 +1,6 @@
-import Sidebar from './Sidebar';
+import Sidebar from './Components/Sidebar';
 import { Link } from 'react-router-dom';
-import InventoryHeader from './InventoryHeader';
+import InventoryHeader from './Components/InventoryHeader';
 
 export default function InventoryPage() {
   return (

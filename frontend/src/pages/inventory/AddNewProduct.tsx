@@ -1,5 +1,5 @@
-import Sidebar from './Sidebar';
-import InventoryHeader from './InventoryHeader';
+import Sidebar from './Components/Sidebar';
+import InventoryHeader from './Components/InventoryHeader';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -26,9 +26,9 @@ export default function AddNewProduct() {
           {/* Search */}
           <div className="relative w-64 ml-8">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-sm">search</span>
-            <input 
-              type="text" 
-              placeholder="Search resources..." 
+            <input
+              type="text"
+              placeholder="Search resources..."
               className="w-full pl-9 pr-4 py-1.5 bg-background border border-outline-variant rounded-full focus:ring-2 focus:ring-primary outline-none text-sm text-on-surface-variant"
             />
           </div>
@@ -36,19 +36,19 @@ export default function AddNewProduct() {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto px-8 py-6 bg-surface-container-lowest flex flex-col">
-          
+
           <div className="max-w-[1100px] w-full mx-auto pb-12">
-            
+
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-on-surface mb-2 tracking-tight">Create New Inventory Item</h1>
               <p className="text-on-surface-variant text-sm">Fill in the primary details to list a new product in the central warehouse.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
+
               {/* Left Column - Form */}
               <div className="lg:col-span-2 space-y-6">
-                
+
                 {/* Basic Details Panel */}
                 <div className="border border-outline-variant rounded-xl p-6 bg-surface-container-lowest shadow-sm">
                   <div className="flex items-center gap-2 mb-6">
@@ -60,9 +60,9 @@ export default function AddNewProduct() {
                     {/* Product Name */}
                     <div>
                       <label className="block text-sm font-medium text-on-surface-variant mb-1.5">Product Name *</label>
-                      <input 
-                        type="text" 
-                        defaultValue="e.g. Organic Whole Milk" 
+                      <input
+                        type="text"
+                        defaultValue="e.g. Organic Whole Milk"
                         className="w-full px-4 py-2 bg-background border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm text-on-surface-variant"
                       />
                     </div>
@@ -112,9 +112,9 @@ export default function AddNewProduct() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-on-surface-variant mb-1.5">SKU (Stock Keeping Unit)</label>
-                        <input 
-                          type="text" 
-                          defaultValue="MILK-ORG-1L" 
+                        <input
+                          type="text"
+                          defaultValue="MILK-ORG-1L"
                           className="w-full px-4 py-2 bg-background border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm text-on-surface-variant"
                         />
                       </div>
@@ -141,8 +141,8 @@ export default function AddNewProduct() {
                     {/* Description */}
                     <div>
                       <label className="block text-sm font-medium text-on-surface-variant mb-1.5">Description</label>
-                      <textarea 
-                        placeholder="Brief details about the product..." 
+                      <textarea
+                        placeholder="Brief details about the product..."
                         rows={4}
                         className="w-full px-4 py-3 bg-background border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm text-on-surface-variant resize-none"
                       ></textarea>
@@ -166,9 +166,9 @@ export default function AddNewProduct() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-on-surface-variant mb-1.5">Supplier Product Code</label>
-                        <input 
-                          type="text" 
-                          defaultValue="SUP-12345" 
+                        <input
+                          type="text"
+                          defaultValue="SUP-12345"
                           className="w-full px-4 py-2 bg-background border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm text-on-surface-variant"
                         />
                       </div>
@@ -179,15 +179,15 @@ export default function AddNewProduct() {
 
                 {/* Additional Panels (Just to match layout feeling if there's more below) */}
                 <div className="grid grid-cols-2 gap-6 opacity-30 pointer-events-none">
-                    <div className="h-16 border border-outline-variant rounded-xl"></div>
-                    <div className="h-16 border border-outline-variant rounded-xl"></div>
+                  <div className="h-16 border border-outline-variant rounded-xl"></div>
+                  <div className="h-16 border border-outline-variant rounded-xl"></div>
                 </div>
 
               </div>
 
               {/* Right Column */}
               <div className="space-y-6">
-                
+
                 {/* Item Media */}
                 <div className="border border-outline-variant rounded-xl p-6 bg-surface-container-lowest shadow-sm">
                   <div className="flex items-center gap-2 mb-4">
@@ -245,7 +245,7 @@ export default function AddNewProduct() {
         <div className="bg-background border-t border-outline-variant px-8 py-4 flex items-center justify-between z-10 shrink-0">
           <span className="text-sm font-medium text-outline">Unsaved changes detected</span>
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={() => navigate('/manage-products')}
               className="px-6 py-2.5 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors"
             >
@@ -267,34 +267,33 @@ export default function AddNewProduct() {
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-outline-variant/50">
               <h2 className="text-lg font-bold text-on-surface">
-                {activeModal === 'category' ? 'Manage Categories' : 
-                 activeModal === 'brand' ? 'Manage Brands' : 
-                 activeModal === 'manufacturer' ? 'Manage Manufacturers' :
-                 'Manage Suppliers'}
+                {activeModal === 'category' ? 'Manage Categories' :
+                  activeModal === 'brand' ? 'Manage Brands' :
+                    activeModal === 'manufacturer' ? 'Manage Manufacturers' :
+                      'Manage Suppliers'}
               </h2>
               <button type="button" onClick={() => setActiveModal(null)} className="text-outline-variant hover:text-on-surface-variant transition-colors">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            
+
             {/* Body */}
             <div className="p-6 space-y-6">
               <div>
                 <label className="block text-sm font-medium text-on-surface-variant mb-2">
-                  {activeModal === 'category' ? 'Add New Category' : 
-                   activeModal === 'brand' ? 'Add New Brand' : 
-                   activeModal === 'manufacturer' ? 'Add New Manufacturer' :
-                   'Add New Supplier'}
+                  {activeModal === 'category' ? 'Add New Category' :
+                    activeModal === 'brand' ? 'Add New Brand' :
+                      activeModal === 'manufacturer' ? 'Add New Manufacturer' :
+                        'Add New Supplier'}
                 </label>
                 <div className="flex gap-3">
-                  <input 
-                    type="text" 
-                    placeholder={`e.g. ${
-                      activeModal === 'category' ? 'Snacks & Sweets' : 
-                      activeModal === 'brand' ? 'Nestle' : 
-                      activeModal === 'manufacturer' ? 'General Mills' :
-                      'Acme Corp'
-                    }`}
+                  <input
+                    type="text"
+                    placeholder={`e.g. ${activeModal === 'category' ? 'Snacks & Sweets' :
+                      activeModal === 'brand' ? 'Nestle' :
+                        activeModal === 'manufacturer' ? 'General Mills' :
+                          'Acme Corp'
+                      }`}
                     className="flex-1 px-4 py-2 bg-background border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm text-on-surface-variant placeholder:text-outline-variant"
                   />
                   <button type="button" className="px-6 py-2 bg-primary text-white font-medium rounded-lg hover:opacity-90 transition-colors">
@@ -317,17 +316,17 @@ export default function AddNewProduct() {
 
               <div>
                 <label className="block text-[11px] font-bold text-outline uppercase tracking-wider mb-3">
-                  Existing {activeModal === 'category' ? 'Categories' : 
-                            activeModal === 'brand' ? 'Brands' : 
-                            activeModal === 'manufacturer' ? 'Manufacturers' :
-                            'Suppliers'}
+                  Existing {activeModal === 'category' ? 'Categories' :
+                    activeModal === 'brand' ? 'Brands' :
+                      activeModal === 'manufacturer' ? 'Manufacturers' :
+                        'Suppliers'}
                 </label>
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-2 border border-outline-variant rounded-lg p-2 bg-background/50">
                   <div className="flex items-center gap-3 p-3 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm">
                     <span className="material-symbols-outlined text-primary text-xl">
-                      {activeModal === 'category' ? 'folder' : 
-                       activeModal === 'brand' ? 'label' : 
-                       'factory'}
+                      {activeModal === 'category' ? 'folder' :
+                        activeModal === 'brand' ? 'label' :
+                          'factory'}
                     </span>
                     <span className="text-sm font-medium text-on-surface-variant">Samboo</span>
                   </div>
@@ -337,7 +336,7 @@ export default function AddNewProduct() {
 
             {/* Footer */}
             <div className="p-5 border-t border-outline-variant/50 flex justify-start bg-background">
-              <button 
+              <button
                 type="button"
                 onClick={() => setActiveModal(null)}
                 className="px-6 py-2 text-sm font-medium text-on-surface-variant bg-surface-container-lowest border border-outline rounded-lg hover:bg-background transition-colors shadow-sm"

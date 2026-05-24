@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Sidebar from './Sidebar';
-import InventoryHeader from './InventoryHeader';
+import Sidebar from './Components/Sidebar';
+import InventoryHeader from './Components/InventoryHeader';
 
 // --------------------------------------------------------------------------------
 // TAB 1: PURCHASE ORDERS (Comprehensive Dashboard)
@@ -109,7 +109,7 @@ function PurchaseOrdersTab() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Area: Table & Charts */}
         <div className="lg:col-span-2 space-y-6">
-          
+
           {/* Main Table */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
             <div className="overflow-x-auto">
@@ -170,11 +170,11 @@ function PurchaseOrdersTab() {
               <h3 className="font-bold text-slate-800 mb-6">Monthly Spend Analysis</h3>
               <div className="flex-1 flex items-end justify-between px-2 gap-4">
                 {[
-                  {h: 30, l: "Jun", a: false},
-                  {h: 45, l: "Jul", a: false},
-                  {h: 35, l: "Aug", a: false},
-                  {h: 65, l: "Sep", a: false},
-                  {h: 90, l: "Oct", a: true},
+                  { h: 30, l: "Jun", a: false },
+                  { h: 45, l: "Jul", a: false },
+                  { h: 35, l: "Aug", a: false },
+                  { h: 65, l: "Sep", a: false },
+                  { h: 90, l: "Oct", a: true },
                 ].map((bar, i) => (
                   <div key={i} className="flex flex-col items-center gap-3 w-full h-full justify-end">
                     <div className={`w-full max-w-[40px] rounded-t ${bar.a ? 'bg-[#0b8252]' : 'bg-[#eef8f2]'}`} style={{ height: `${bar.h}%` }}></div>
@@ -189,12 +189,12 @@ function PurchaseOrdersTab() {
                 <h3 className="font-bold text-slate-800">Supplier Reliability</h3>
                 <span className="material-symbols-outlined text-[#0b8252]">verified</span>
               </div>
-              
+
               <div className="space-y-5 flex-1">
                 {[
-                  {n: "Green Harvest Co.", p: 98, c: "bg-[#0b8252]"},
-                  {n: "Fresh Dairy Inc.", p: 92, c: "bg-[#0b8252]"},
-                  {n: "Global Grains Ltd.", p: 85, c: "bg-[#d97706]"},
+                  { n: "Green Harvest Co.", p: 98, c: "bg-[#0b8252]" },
+                  { n: "Fresh Dairy Inc.", p: 92, c: "bg-[#0b8252]" },
+                  { n: "Global Grains Ltd.", p: 85, c: "bg-[#d97706]" },
                 ].map((s, i) => (
                   <div key={i}>
                     <div className="flex justify-between text-xs font-bold mb-1.5">
@@ -218,7 +218,7 @@ function PurchaseOrdersTab() {
             <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-6">
               <span className="material-symbols-outlined text-slate-400 text-[20px]">history</span> History Log
             </h3>
-            
+
             <div className="space-y-6 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-slate-100 mb-6">
               {[
                 { i: "check_circle", c: "text-[#10b981] bg-white", title: "PR-00881 Marked as Received", sub: "By Alex Rivera", time: "10 mins ago" },
@@ -343,26 +343,24 @@ export default function PurchaseRecords() {
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-[#f8f9fa]">
           <div className="max-w-[1400px] w-full mx-auto p-6 md:p-8 space-y-6">
-            
+
             {/* Tabs Navigation */}
             <div className="flex space-x-1 border-b border-slate-200">
               <button
                 onClick={() => setActiveTab('orders')}
-                className={`py-3 px-6 text-sm font-bold border-b-2 transition-colors duration-200 ${
-                  activeTab === 'orders'
-                    ? 'border-[#0b8252] text-[#0b8252]'
-                    : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-                }`}
+                className={`py-3 px-6 text-sm font-bold border-b-2 transition-colors duration-200 ${activeTab === 'orders'
+                  ? 'border-[#0b8252] text-[#0b8252]'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+                  }`}
               >
                 Purchase Orders
               </button>
               <button
                 onClick={() => setActiveTab('receives')}
-                className={`py-3 px-6 text-sm font-bold border-b-2 transition-colors duration-200 ${
-                  activeTab === 'receives'
-                    ? 'border-[#0b8252] text-[#0b8252]'
-                    : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-                }`}
+                className={`py-3 px-6 text-sm font-bold border-b-2 transition-colors duration-200 ${activeTab === 'receives'
+                  ? 'border-[#0b8252] text-[#0b8252]'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+                  }`}
               >
                 Purchase Receives
               </button>
@@ -373,7 +371,7 @@ export default function PurchaseRecords() {
               {activeTab === 'orders' && <PurchaseOrdersTab />}
               {activeTab === 'receives' && <PurchaseReceivesTab />}
             </div>
-            
+
           </div>
         </main>
       </div>

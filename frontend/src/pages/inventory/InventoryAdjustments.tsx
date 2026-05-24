@@ -1,5 +1,5 @@
-import Sidebar from './Sidebar';
-import InventoryHeader from './InventoryHeader';
+import Sidebar from './Components/Sidebar';
+import InventoryHeader from './Components/InventoryHeader';
 
 export default function InventoryAdjustments() {
   return (
@@ -10,7 +10,7 @@ export default function InventoryAdjustments() {
 
         <main className="flex-1 overflow-y-auto px-6 py-8 bg-[#f8f9fa]">
           <div className="max-w-[1200px] w-full mx-auto space-y-6">
-            
+
             {/* Header Section */}
             <div>
               <h1 className="text-3xl font-bold text-slate-800">Inventory Adjustment</h1>
@@ -18,10 +18,10 @@ export default function InventoryAdjustments() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
+
               {/* Left Column: Form Areas */}
               <div className="lg:col-span-2 space-y-6">
-                
+
                 {/* Form Details */}
                 <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -40,12 +40,12 @@ export default function InventoryAdjustments() {
                           </label>
                         </div>
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1.5">Reference Number</label>
-                        <input 
-                          type="text" 
-                          defaultValue="IA-00001" 
+                        <input
+                          type="text"
+                          defaultValue="IA-00001"
                           className="w-full bg-[#f1f5f9] text-[#0b8252] font-bold border border-slate-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#0b8252]"
                         />
                       </div>
@@ -53,9 +53,9 @@ export default function InventoryAdjustments() {
                       <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1.5">Adjustment Date</label>
                         <div className="relative">
-                          <input 
-                            type="text" 
-                            defaultValue="11/20/2023" 
+                          <input
+                            type="text"
+                            defaultValue="11/20/2023"
                             className="w-full bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#0b8252]"
                           />
                           <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[18px]">calendar_today</span>
@@ -76,11 +76,11 @@ export default function InventoryAdjustments() {
                           <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[18px]">expand_more</span>
                         </div>
                       </div>
-                      
+
                       <div className="flex-1 flex flex-col">
                         <label className="block text-xs font-bold text-slate-500 mb-1.5">Detailed Description</label>
-                        <textarea 
-                          placeholder="Enter specific details about the discrepancy..." 
+                        <textarea
+                          placeholder="Enter specific details about the discrepancy..."
                           className="w-full flex-1 min-h-[100px] bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-4 py-3 focus:outline-none focus:border-[#0b8252] resize-none"
                         ></textarea>
                       </div>
@@ -94,7 +94,7 @@ export default function InventoryAdjustments() {
                     <h3 className="font-bold text-lg text-slate-800">Items to Adjust</h3>
                     <span className="text-xs font-medium text-slate-500">3 items selected</span>
                   </div>
-                  
+
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[700px]">
                       <thead>
@@ -108,7 +108,7 @@ export default function InventoryAdjustments() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 text-sm">
-                        
+
                         {/* Item 1 */}
                         <tr>
                           <td className="p-4 flex items-center gap-3">
@@ -121,7 +121,7 @@ export default function InventoryAdjustments() {
                             </div>
                           </td>
                           <td className="p-4 text-center">
-                            <span className="font-medium text-slate-700 text-lg">42</span><br/><span className="text-[10px] text-slate-400">units</span>
+                            <span className="font-medium text-slate-700 text-lg">42</span><br /><span className="text-[10px] text-slate-400">units</span>
                           </td>
                           <td className="p-4">
                             <input type="text" defaultValue="38" className="w-16 text-center mx-auto block bg-white border border-slate-200 text-slate-800 font-bold rounded px-2 py-1.5 focus:outline-none focus:border-[#0b8252]" />
@@ -154,7 +154,7 @@ export default function InventoryAdjustments() {
                             </div>
                           </td>
                           <td className="p-4 text-center">
-                            <span className="font-medium text-slate-700 text-lg">15</span><br/><span className="text-[10px] text-slate-400">kg</span>
+                            <span className="font-medium text-slate-700 text-lg">15</span><br /><span className="text-[10px] text-slate-400">kg</span>
                           </td>
                           <td className="p-4">
                             <input type="text" defaultValue="18" className="w-16 text-center mx-auto block bg-white border border-slate-200 text-slate-800 font-bold rounded px-2 py-1.5 focus:outline-none focus:border-[#0b8252]" />
@@ -173,7 +173,7 @@ export default function InventoryAdjustments() {
                       </tbody>
                     </table>
                   </div>
-                  
+
                   <div className="p-4 bg-slate-50/50 border-t border-slate-100">
                     <button className="flex items-center gap-1.5 text-sm font-bold text-[#0b8252] hover:underline">
                       <span className="material-symbols-outlined text-[18px]">add_circle</span> Add Product
@@ -185,13 +185,13 @@ export default function InventoryAdjustments() {
 
               {/* Right Column: Summary & Panels */}
               <div className="space-y-6">
-                
+
                 {/* Summary Card */}
                 <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
                   <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-6">
                     <span className="material-symbols-outlined text-[#0b8252]">analytics</span> Adjustment Summary
                   </h3>
-                  
+
                   <div className="space-y-4">
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-slate-500">Total Items</span>
@@ -205,7 +205,7 @@ export default function InventoryAdjustments() {
                       <span className="text-slate-500">Total Reduced</span>
                       <span className="font-bold text-[#ef4444]">-4</span>
                     </div>
-                    
+
                     <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">NET CHANGE</span>
                       <span className="font-bold text-[#ef4444] text-lg">-1 Unit</span>
