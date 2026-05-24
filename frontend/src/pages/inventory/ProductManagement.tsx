@@ -1,5 +1,5 @@
-import Sidebar from './Sidebar';
-import InventoryHeader from './InventoryHeader';
+import Sidebar from './Components/Sidebar';
+import InventoryHeader from './Components/InventoryHeader';
 import { Link } from 'react-router-dom';
 
 export default function ProductManagement() {
@@ -14,9 +14,9 @@ export default function ProductManagement() {
         <InventoryHeader>
           <div className="relative w-96">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
-            <input 
-              type="text" 
-              placeholder="Search products, SKU or category..." 
+            <input
+              type="text"
+              placeholder="Search products, SKU or category..."
               className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
             />
           </div>
@@ -25,7 +25,7 @@ export default function ProductManagement() {
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6 bg-background">
           <div className="max-w-[1400px] mx-auto space-y-6">
-            
+
             {/* Title & Actions */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
@@ -42,7 +42,7 @@ export default function ProductManagement() {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              
+
               {/* Total SKU Items */}
               <div className="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between h-32">
                 <div className="flex justify-between items-start">
@@ -144,7 +144,7 @@ export default function ProductManagement() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-teal-800 rounded flex-shrink-0 border border-outline-variant flex items-center justify-center overflow-hidden">
-                             <div className="w-full h-full bg-teal-800 flex items-center justify-center text-white text-xs">IMG</div>
+                            <div className="w-full h-full bg-teal-800 flex items-center justify-center text-white text-xs">IMG</div>
                           </div>
                           <div>
                             <p className="font-semibold text-on-surface">Whole Organic Milk</p>

@@ -1,5 +1,5 @@
-import Sidebar from './Sidebar';
-import InventoryHeader from './InventoryHeader';
+import Sidebar from './Components/Sidebar';
+import InventoryHeader from './Components/InventoryHeader';
 
 export default function InventoryAnalytics() {
   return (
@@ -13,7 +13,7 @@ export default function InventoryAnalytics() {
 
         <main className="flex-1 overflow-y-auto px-6 py-6 bg-[#f8f9fa]">
           <div className="max-w-[1400px] w-full mx-auto space-y-6">
-            
+
             {/* Top Header & Controls */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -163,14 +163,14 @@ export default function InventoryAnalytics() {
                   <div className="bg-[#046c4e] rounded-lg p-4 border border-white/20">
                     <p className="text-[10px] font-bold text-[#eef8f2] uppercase tracking-wider mb-1">FAST-MOVING</p>
                     <h4 className="font-bold text-white text-sm mb-1">Oat Milk 1L - Ultra</h4>
-                    <p className="text-xs text-[#dcfce7] leading-snug">Stock out likely in 3 days.<br/>Demand surge in West Region.</p>
+                    <p className="text-xs text-[#dcfce7] leading-snug">Stock out likely in 3 days.<br />Demand surge in West Region.</p>
                   </div>
-                  
+
                   {/* Insight 2 */}
                   <div className="bg-[#046c4e] rounded-lg p-4 border border-white/20">
                     <p className="text-[10px] font-bold text-[#eef8f2] uppercase tracking-wider mb-1">SLOW-MOVING</p>
                     <h4 className="font-bold text-white text-sm mb-1">Gourmet Truffle Oil</h4>
-                    <p className="text-xs text-[#dcfce7] leading-snug">Zero movement in 14 days.<br/>Suggest 15% discount.</p>
+                    <p className="text-xs text-[#dcfce7] leading-snug">Zero movement in 14 days.<br />Suggest 15% discount.</p>
                   </div>
                 </div>
 
@@ -325,7 +325,7 @@ export default function InventoryAnalytics() {
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
               <h3 className="font-bold text-lg text-slate-800 mb-6">Category Performance (Movement In/Out)</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                
+
                 {/* Grocery */}
                 <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-5 flex flex-col justify-between h-[180px]">
                   <div className="flex items-center gap-3 mb-4">

@@ -1,6 +1,6 @@
 
-import Sidebar from "./Sidebar";
-import InventoryHeader from './InventoryHeader';
+import Sidebar from "./Components/Sidebar";
+import InventoryHeader from './Components/InventoryHeader';
 import { Link, useNavigate } from 'react-router-dom';
 
 
@@ -28,14 +28,14 @@ export default function Suppliers() {
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Left Column */}
               <div className="w-full lg:w-2/3 flex flex-col gap-6">
-                
+
                 {/* Supplier Basic Details */}
                 <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
                   <div className="flex items-center gap-2 mb-6">
                     <span className="material-symbols-outlined text-primary">person_add</span>
                     <h2 className="text-lg font-medium text-on-surface">Supplier Basic Details</h2>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-on-surface-variant mb-1.5">Supplier Name <span className="text-red-500">*</span></label>
@@ -83,7 +83,7 @@ export default function Suppliers() {
                       <label className="block text-sm font-medium text-on-surface-variant mb-1.5">Address Line</label>
                       <input type="text" placeholder="Street name, building number, suite" className="w-full px-4 py-2 bg-background border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm text-on-surface-variant" />
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-on-surface-variant mb-1.5">City</label>
@@ -104,7 +104,7 @@ export default function Suppliers() {
                     <h2 className="text-lg font-medium text-on-surface">Remarks / Notes</h2>
                   </div>
                   <div>
-                    <textarea 
+                    <textarea
                       placeholder="Enter any additional information about the supplier..."
                       className="w-full h-32 px-4 py-3 bg-background border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm text-on-surface-variant resize-none"
                     ></textarea>
@@ -116,7 +116,7 @@ export default function Suppliers() {
 
               {/* Right Column */}
               <div className="w-full lg:w-1/3 flex flex-col gap-6">
-                
+
                 {/* Business Details */}
                 <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
                   <div className="flex items-center gap-2 mb-6">
@@ -165,7 +165,7 @@ export default function Suppliers() {
                     <span className="material-symbols-outlined text-primary">payments</span>
                     <h2 className="text-lg font-medium text-on-surface">Payment Info</h2>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-on-surface-variant mb-1.5">Payment Terms</label>
@@ -218,7 +218,7 @@ export default function Suppliers() {
         <div className="absolute bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant px-8 py-4 flex items-center justify-between z-10 shadow-lg">
           <span className="text-sm italic text-outline-variant">All fields marked with <span className="text-red-500">*</span> are mandatory.</span>
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={() => navigate(-1)}
               className="px-6 py-2.5 text-sm font-bold text-on-surface-variant border border-outline rounded-lg hover:bg-background transition-colors"
             >

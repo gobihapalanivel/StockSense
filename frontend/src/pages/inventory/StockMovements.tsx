@@ -1,6 +1,6 @@
 import React from 'react';
-import Sidebar from './Sidebar';
-import InventoryHeader from './InventoryHeader';
+import Sidebar from './Components/Sidebar';
+import InventoryHeader from './Components/InventoryHeader';
 
 export default function StockMovements() {
   return (
@@ -13,7 +13,7 @@ export default function StockMovements() {
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-[#f8f9fa]">
           <div className="max-w-[1400px] w-full mx-auto p-6 md:p-8 space-y-6">
-            
+
             {/* Top Header */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div>
@@ -153,7 +153,7 @@ export default function StockMovements() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-sm">
                     {[
-                      { 
+                      {
                         date: "Oct 24, 2023", time: "08:15 AM",
                         prodName: "Fresh Organic Milk 1L", sku: "SKU-MK-8821", icon: "water_drop", iconColor: "text-blue-500", iconBg: "bg-blue-50",
                         cat: "Dairy",
@@ -163,7 +163,7 @@ export default function StockMovements() {
                         ref: "PO-8821",
                         user: "Alex Rivera", avatar: "AR", avatarColor: "bg-blue-100 text-blue-700", isSys: false
                       },
-                      { 
+                      {
                         date: "Oct 24, 2023", time: "10:42 AM",
                         prodName: "Avocado (Pack of 3)", sku: "SKU-PR-4491", icon: "eco", iconColor: "text-green-600", iconBg: "bg-green-50",
                         cat: "Produce",
@@ -173,7 +173,7 @@ export default function StockMovements() {
                         ref: "INV-44910",
                         user: "POS-Terminal-04", avatar: "point_of_sale", avatarColor: "text-slate-500", isSys: true
                       },
-                      { 
+                      {
                         date: "Oct 23, 2023", time: "04:30 PM",
                         prodName: "Cheddar Cheese 200g", sku: "SKU-CH-5581", icon: "lunch_dining", iconColor: "text-orange-500", iconBg: "bg-orange-50",
                         cat: "Dairy",
@@ -183,7 +183,7 @@ export default function StockMovements() {
                         ref: "ADJ-5581",
                         user: "Jane Doe (Whse)", avatar: "JD", avatarColor: "bg-slate-200 text-slate-700", isSys: false
                       },
-                      { 
+                      {
                         date: "Oct 23, 2023", time: "01:15 PM",
                         prodName: "Apple Gala (Bag 1kg)", sku: "SKU-PR-3321", icon: "nutrition", iconColor: "text-red-500", iconBg: "bg-red-50",
                         cat: "Produce",
@@ -193,7 +193,7 @@ export default function StockMovements() {
                         ref: "RTN-9981",
                         user: "Service Desk", avatar: "headset_mic", avatarColor: "text-slate-500", isSys: true
                       },
-                      { 
+                      {
                         date: "Oct 23, 2023", time: "11:05 AM",
                         prodName: "Spaghetti 500g", sku: "SKU-DR-7712", icon: "restaurant", iconColor: "text-amber-600", iconBg: "bg-amber-50",
                         cat: "Dry Goods",
@@ -248,7 +248,7 @@ export default function StockMovements() {
                   </tbody>
                 </table>
               </div>
-              
+
               {/* Pagination */}
               <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center text-sm text-slate-500 gap-4">
                 <div className="flex items-center gap-2">
@@ -263,13 +263,13 @@ export default function StockMovements() {
                 <div className="flex items-center gap-1">
                   <button className="w-8 h-8 flex items-center justify-center rounded text-slate-400 hover:bg-slate-100 disabled:opacity-50" disabled><span className="material-symbols-outlined text-[18px]">first_page</span></button>
                   <button className="w-8 h-8 flex items-center justify-center rounded text-slate-400 hover:bg-slate-100 disabled:opacity-50" disabled><span className="material-symbols-outlined text-[18px]">chevron_left</span></button>
-                  
+
                   <button className="w-8 h-8 flex items-center justify-center rounded bg-[#0b8252] text-white font-bold">1</button>
                   <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 font-medium text-slate-700">2</button>
                   <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 font-medium text-slate-700">3</button>
                   <span className="w-8 h-8 flex items-center justify-center text-slate-400">...</span>
                   <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 font-medium text-slate-700">499</button>
-                  
+
                   <button className="w-8 h-8 flex items-center justify-center rounded text-slate-600 hover:bg-slate-100"><span className="material-symbols-outlined text-[18px]">chevron_right</span></button>
                   <button className="w-8 h-8 flex items-center justify-center rounded text-slate-600 hover:bg-slate-100"><span className="material-symbols-outlined text-[18px]">last_page</span></button>
                 </div>
