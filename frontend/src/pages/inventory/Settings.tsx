@@ -1,33 +1,96 @@
-import Sidebar from './Sidebar';
+import React, { useState } from 'react';
+import Sidebar from "./Components/Sidebar";
+import InventoryHeader from "./Components/InventoryHeader";
+import SettingsStockRules from "./Components/SettingComponent/SettingsStockRules";
+import SettingsAlerts from "./Components/SettingComponent/SettingsAlerts";
+import SettingsExpiry from "./Components/SettingComponent/SettingsExpiry";
+import SettingsMovement from "./Components/SettingComponent/SettingsMovement";
+import SettingsOrganization from "./Components/SettingComponent/SettingsOrganization";
+import SettingsReorder from "./Components/SettingComponent/SettingsReorder";
+import SettingsPermissions from "./Components/SettingComponent/SettingsPermissions";
+import SettingsData from "./Components/SettingComponent/SettingsData";
+import SettingsAnalytics from "./Components/SettingComponent/SettingsAnalytics";
 
 export default function Settings() {
-  return (
-    <div className="flex h-screen bg-background text-on-surface font-sans overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden bg-background relative">
-        {/* Header */}
-        <header className="h-16 bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-8 shrink-0">
-          <h2 className="text-xl font-bold text-on-surface">Settings</h2>
-          
-          <div className="flex items-center gap-5">
-            <button className="text-outline hover:text-on-surface transition-colors">
-              <span className="material-symbols-outlined text-xl">notifications</span>
-            </button>
-            <div className="h-6 w-px bg-slate-200 mx-1"></div>
-            <img src="https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff" alt="User" className="w-8 h-8 rounded-full border border-outline-variant cursor-pointer" />
-          </div>
-        </header>
+  const [activeTab, setActiveTab] = useState('Stock Rules');
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto px-8 py-6 flex flex-col relative items-center justify-center">
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-secondary-container text-primary rounded-full flex items-center justify-center mx-auto">
-              <span className="material-symbols-outlined text-3xl">build</span>
+  const tabs = [
+    { id: 'Stock Rules', icon: 'rule' },
+    { id: 'Alerts', icon: 'notifications' },
+    { id: 'Expiry', icon: 'event_busy' },
+    { id: 'Movement', icon: 'sync_alt' },
+    { id: 'Organization', icon: 'account_tree' },
+    { id: 'Reorder', icon: 'update' },
+    { id: 'Permissions', icon: 'lock' },
+    { id: 'Data', icon: 'database' },
+    { id: 'Analytics', icon: 'bar_chart' },
+  ];
+
+  return (
+    <div className="flex h-screen bg-[#f8f9fa] text-slate-800 font-sans overflow-hidden">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+        <InventoryHeader />
+
+        <main className="flex-1 overflow-y-auto bg-[#f8f9fa] p-6 md:p-8">
+          <div className="max-w-[1200px] mx-auto space-y-6 h-full flex flex-col">
+            
+            <div className="flex-shrink-0">
+              <h1 className="text-3xl font-bold text-slate-800">Inventory Settings</h1>
+              <p className="text-slate-500 mt-1">Configure stock rules, alerts, and inventory behavior for your supermarket system.</p>
             </div>
-            <h1 className="text-3xl font-bold text-on-surface">Settings</h1>
-            <p className="text-on-surface-variant max-w-md mx-auto">
-              This page is currently under construction. Please check back later for updates to the Settings module.
-            </p>
+
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-1 overflow-hidden min-h-[600px]">
+              
+              {/* Left Settings Sidebar */}
+              <div className="w-64 border-r border-slate-200 p-4 flex flex-col gap-1 overflow-y-auto bg-white flex-shrink-0">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-[#0b8252] text-white shadow-sm'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">{tab.icon}</span>
+                    {tab.id}
+                  </button>
+                ))}
+              </div>
+
+              {/* Right Content Area */}
+              <div className="flex-1 flex flex-col bg-white overflow-hidden">
+                <div className="p-8 flex-1 overflow-y-auto">
+                  
+                  {activeTab === 'Stock Rules' && <SettingsStockRules />}
+                  {activeTab === 'Alerts' && <SettingsAlerts />}
+                  {activeTab === 'Expiry' && <SettingsExpiry />}
+                  {activeTab === 'Movement' && <SettingsMovement />}
+                  {activeTab === 'Organization' && <SettingsOrganization />}
+                  {activeTab === 'Reorder' && <SettingsReorder />}
+                  {activeTab === 'Permissions' && <SettingsPermissions />}
+                  {activeTab === 'Data' && <SettingsData />}
+                  {activeTab === 'Analytics' && <SettingsAnalytics />}
+
+                </div>
+
+                {/* Footer */}
+                <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+                  <p className="text-sm text-slate-500 italic">Unsaved changes will be lost.</p>
+                  <div className="flex items-center gap-3">
+                    <button className="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold text-sm rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
+                      Reset
+                    </button>
+                    <button className="px-6 py-2.5 bg-[#0b8252] text-white font-bold text-sm rounded-lg shadow-sm hover:bg-[#096b43] transition-colors">
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </main>
       </div>

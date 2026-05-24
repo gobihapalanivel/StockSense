@@ -1,4 +1,5 @@
-import Sidebar from './Sidebar';
+import Sidebar from './Components/Sidebar';
+import InventoryHeader from './Components/InventoryHeader';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -14,39 +15,15 @@ export default function Category() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden bg-background relative">
         {/* Header */}
-        <header className="h-16 bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-8 shrink-0">
-          
-          {/* Search */}
-          <div className="relative w-96">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-sm">search</span>
-            <input 
-              type="text" 
-              placeholder="Search categories..." 
-              className="w-full pl-9 pr-4 py-2 bg-background border border-outline-variant rounded-full focus:ring-2 focus:ring-primary outline-none text-sm text-on-surface-variant"
-            />
-          </div>
+        <InventoryHeader>
 
-          {/* Actions */}
-          <div className="flex items-center gap-5">
-            <button className="text-outline hover:text-on-surface transition-colors">
-              <span className="material-symbols-outlined text-xl">notifications</span>
-            </button>
-            <button className="text-outline hover:text-on-surface transition-colors">
-              <span className="material-symbols-outlined text-xl">schedule</span>
-            </button>
-            <button className="text-outline hover:text-on-surface transition-colors">
-              <span className="material-symbols-outlined text-xl">storefront</span>
-            </button>
-            <div className="h-6 w-px bg-slate-200 mx-1"></div>
-            <img src="https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff" alt="User" className="w-8 h-8 rounded-full border border-outline-variant cursor-pointer" />
-          </div>
-        </header>
+        </InventoryHeader>
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto px-8 py-6 flex flex-col relative">
-          
+
           <div className="w-full max-w-7xl mx-auto space-y-6 pb-24">
-            
+
             {/* Breadcrumbs & Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
               <div>
@@ -75,7 +52,7 @@ export default function Category() {
                   <span className="text-xs font-bold text-emerald-600 mb-1">+2 this month</span>
                 </div>
               </div>
-              
+
               {/* Card 2 */}
               <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm">
                 <p className="text-[11px] font-bold text-outline uppercase tracking-wider mb-2">Total SKUs</p>
@@ -105,7 +82,7 @@ export default function Category() {
 
             {/* Category Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
-              
+
               {/* Grocery */}
               <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col hover:shadow-md transition-shadow">
                 <div className="h-32 relative">
@@ -121,7 +98,7 @@ export default function Category() {
                       4 Sub-categories
                     </div>
                   </div>
-                  
+
                   <div className="mt-auto">
                     <div className="flex justify-between text-xs font-bold text-on-surface-variant mb-1.5">
                       <span>Active SKUs</span>
@@ -130,7 +107,7 @@ export default function Category() {
                     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-5">
                       <div className="h-full bg-emerald-600 rounded-full" style={{ width: '85%' }}></div>
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <button className="flex-1 bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-colors flex items-center justify-center gap-1">
                         View Sub-categories <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -158,7 +135,7 @@ export default function Category() {
                       4 Sub-categories
                     </div>
                   </div>
-                  
+
                   <div className="mt-auto">
                     <div className="flex justify-between text-xs font-bold text-on-surface-variant mb-1.5">
                       <span>Active SKUs</span>
@@ -167,7 +144,7 @@ export default function Category() {
                     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-5">
                       <div className="h-full bg-[#d97706] rounded-full" style={{ width: '25%' }}></div>
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <button className="flex-1 bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-colors flex items-center justify-center gap-1">
                         View Sub-categories <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -195,7 +172,7 @@ export default function Category() {
                       3 Sub-categories
                     </div>
                   </div>
-                  
+
                   <div className="mt-auto">
                     <div className="flex justify-between text-xs font-bold text-on-surface-variant mb-1.5">
                       <span>Active SKUs</span>
@@ -204,7 +181,7 @@ export default function Category() {
                     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-5">
                       <div className="h-full bg-emerald-600 rounded-full" style={{ width: '70%' }}></div>
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <button className="flex-1 bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-colors flex items-center justify-center gap-1">
                         View Sub-categories <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -222,7 +199,7 @@ export default function Category() {
                 <div className="w-14 h-14 rounded-full bg-slate-100 group-hover:bg-secondary-container flex items-center justify-center mb-4 transition-colors">
                   <span className="material-symbols-outlined text-2xl text-outline-variant group-hover:text-primary">add</span>
                 </div>
-                <h3 className="text-xl font-bold text-on-surface-variant group-hover:text-primary mb-1">New Parent<br/>Category</h3>
+                <h3 className="text-xl font-bold text-on-surface-variant group-hover:text-primary mb-1">New Parent<br />Category</h3>
                 <p className="text-sm text-outline max-w-[160px] text-center">Create custom category for cataloging</p>
               </button>
 
@@ -233,7 +210,7 @@ export default function Category() {
           <button onClick={() => setIsModalOpen(true)} className="absolute bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:opacity-90 flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-20">
             <span className="material-symbols-outlined text-2xl">add</span>
           </button>
-          
+
         </main>
       </div>
 
@@ -241,7 +218,7 @@ export default function Category() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-surface-container-lowest rounded-2xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            
+
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-outline-variant/50">
               <h2 className="text-xl font-bold text-on-surface">Manage Category</h2>
@@ -252,13 +229,13 @@ export default function Category() {
 
             {/* Body */}
             <div className="p-6 space-y-6">
-              
+
               {/* Category Name */}
               <div>
                 <label className="block text-[11px] font-bold text-outline uppercase tracking-wider mb-2">Category Name*</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Organic Milk" 
+                <input
+                  type="text"
+                  placeholder="e.g. Organic Milk"
                   className="w-full px-4 py-3 bg-background border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-base text-on-surface-variant placeholder:text-outline-variant"
                 />
               </div>
@@ -267,7 +244,7 @@ export default function Category() {
               <div>
                 <label className="block text-[11px] font-bold text-outline uppercase tracking-wider mb-2">Hierarchy Level</label>
                 <div className="grid grid-cols-2 gap-4">
-                  <button 
+                  <button
                     onClick={() => setHierarchy('parent')}
                     className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-colors ${hierarchy === 'parent' ? 'border-primary bg-secondary-container/30' : 'border-outline-variant hover:border-outline'}`}
                   >
@@ -280,7 +257,7 @@ export default function Category() {
                     </div>
                   </button>
 
-                  <button 
+                  <button
                     onClick={() => setHierarchy('sub')}
                     className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-colors ${hierarchy === 'sub' ? 'border-primary bg-secondary-container/30' : 'border-outline-variant hover:border-outline'}`}
                   >
@@ -299,7 +276,7 @@ export default function Category() {
               <div>
                 <label className="block text-[11px] font-bold text-outline uppercase tracking-wider mb-2">Select Parent Category</label>
                 <div className="relative">
-                  <select 
+                  <select
                     className="w-full px-4 py-3 bg-background border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-base text-on-surface-variant appearance-none"
                     disabled={hierarchy === 'parent'}
                   >
@@ -315,7 +292,7 @@ export default function Category() {
 
             {/* Footer */}
             <div className="p-6 bg-background border-t border-outline-variant/50 flex justify-end gap-4">
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="px-6 py-2.5 text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-colors"
               >

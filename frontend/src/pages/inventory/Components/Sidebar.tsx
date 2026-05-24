@@ -1,16 +1,18 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Sidebar() {
   const location = useLocation();
+  const { logout } = useAuth();
 
   const navLinks = [
     { name: 'Dashboard', path: '/inventory', icon: 'grid_view' },
+    { name: 'Inventory Analytics', path: '/inventory-analytics', icon: 'insights' },
     { name: 'Products', path: '/manage-products', icon: 'inventory_2' },
     { name: 'Categories', path: '/categories', icon: 'category' },
     { name: 'Inventory Adjustments', path: '/inventory-adjustments', icon: 'sync_alt' },
     { name: 'Suppliers', path: '/suppliers', icon: 'local_shipping' },
-    { name: 'Purchase Orders', path: '/purchase-orders', icon: 'receipt_long' },
-    { name: 'Purchase Receives', path: '/purchase-receives', icon: 'inventory' },
+    { name: 'Purchase Records', path: '/purchase-records', icon: 'receipt_long' },
     { name: 'Stock Movements', path: '/stock-movements', icon: 'monitoring' },
     { name: 'Alerts', path: '/alerts', icon: 'notifications' },
     { name: 'Reports', path: '/reports', icon: 'bar_chart' },
@@ -49,7 +51,10 @@ export default function Sidebar() {
       </div>
 
       <div className="p-4 border-t border-outline-variant">
-        <button className="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container rounded-lg transition-colors">
+        <button 
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container rounded-lg transition-colors"
+        >
           <span className="material-symbols-outlined text-outline-variant">logout</span>
           Logout
         </button>
