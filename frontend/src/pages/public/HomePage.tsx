@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 import homeBgImg from '../../assets/images/homebg.png'
 import smartInventoryImg from '../../assets/images/pic1.png'
@@ -524,12 +524,12 @@ export default function HomePage() {
               <p className="text-secondary-container text-sm md:text-base max-w-lg mx-auto opacity-90">
                 Join 2,000+ modern retailers who have optimized their inventory flow this year.
               </p>
-              <button
-                onClick={() => navigate('/login')}
-                className="bg-surface-container-lowest text-primary px-8 py-4 rounded-xl text-sm font-semibold hover:scale-105 transition-transform duration-200 shadow-lg active:scale-95"
+              <Link
+                to="/login"
+                className="bg-surface-container-lowest text-primary px-8 py-4 rounded-xl text-sm font-semibold hover:scale-105 transition-transform duration-200 shadow-lg active:scale-95 inline-block z-50 cursor-pointer"
               >
                 Get Started Now
-              </button>
+              </Link>
             </div>
           </div>
         </section>
