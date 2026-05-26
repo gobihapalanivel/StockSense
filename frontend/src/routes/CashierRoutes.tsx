@@ -5,6 +5,7 @@ export default function CashierRoutes() {
   return (
     <Routes>
       <Route index element={<POSPage />} />
+      <Route path="pos" element={<POSPage />} />
     </Routes>
   )
 }

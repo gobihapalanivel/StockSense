@@ -13,7 +13,12 @@ const scrollCategories = [
   { icon: '🧽', name: 'Cleaning Supplies' }
 ];
 
-export default function CategoryMarquee() {
+interface CategoryMarqueeProps {
+  onCategorySelect?: (categoryName: string) => void;
+  activeCategory?: string;
+}
+
+export default function CategoryMarquee({ onCategorySelect, activeCategory }: CategoryMarqueeProps) {
   const navigate = useNavigate();
 
   return (
@@ -37,15 +42,26 @@ export default function CategoryMarquee() {
       `}</style>
       <div className="animate-infinite-scroll flex gap-2.5 py-2">
         {[...scrollCategories, ...scrollCategories].map((cat, idx) => {
-          const categorySlug = cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          const isSelected = activeCategory === cat.name;
           return (
             <div 
               key={idx} 
-              onClick={() => navigate(`/category/${categorySlug}`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f4f5f7] hover:bg-[#e2e8f0] transition-colors text-gray-700 rounded-[8px] text-[13px] font-medium whitespace-nowrap cursor-pointer border border-gray-200 shadow-sm"
+              onClick={() => {
+                if (onCategorySelect) {
+                  onCategorySelect(cat.name);
+                } else {
+                  const categorySlug = cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                  navigate(`/category/${categorySlug}`);
+                }
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors rounded-[8px] text-[13px] font-medium whitespace-nowrap cursor-pointer border shadow-sm ${
+                isSelected 
+                  ? 'bg-[#166534] text-white border-[#166534]' 
+                  : 'bg-[#f4f5f7] hover:bg-[#e2e8f0] text-gray-700 border-gray-200'
+              }`}
             >
               <span>{cat.icon}</span>
-              <span className="text-gray-600">{cat.name}</span>
+              <span className={isSelected ? 'text-white font-semibold' : 'text-gray-600'}>{cat.name}</span>
             </div>
           );
         })}
