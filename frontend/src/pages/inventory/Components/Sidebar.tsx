@@ -34,11 +34,10 @@ export default function Sidebar() {
               <Link
                 key={link.name}
                 to={link.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${
-                  isActive
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${isActive
                     ? 'bg-secondary-container text-on-secondary-container border-l-4 border-primary'
                     : 'text-on-surface-variant hover:bg-surface-container'
-                }`}
+                  }`}
               >
                 <span className={`material-symbols-outlined ${isActive ? 'text-primary' : 'text-outline-variant'}`}>
                   {link.icon}
@@ -51,7 +50,7 @@ export default function Sidebar() {
       </div>
 
       <div className="p-4 border-t border-outline-variant">
-        <button 
+        <button
           onClick={logout}
           className="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container rounded-lg transition-colors"
         >
