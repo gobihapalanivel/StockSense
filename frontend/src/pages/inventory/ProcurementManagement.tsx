@@ -113,14 +113,14 @@ const initialPurchases = [
     purchaseDate: '2023-10-24',
     numberOfItems: 3,
     totalQuantity: 220,
-    totalCost: '$2,450.00',
+    totalCost: 'Rs. 154,500.00',
     paymentStatus: 'Paid' as 'Paid' | 'Partially Paid' | 'Pending',
     deliveryStatus: 'Received' as 'Received' | 'Pending' | 'Cancelled',
     paymentMethod: 'Bank Transfer',
     itemsList: [
-      { name: 'Standard Full Cream Milk 1L', category: 'Dairy', qty: 100, cost: '$1.20', total: '$120.00' },
-      { name: 'Cheddar Cheese Block 200g', category: 'Dairy', qty: 50, cost: '$4.50', total: '$225.00' },
-      { name: 'Premium Butter 500g', category: 'Dairy', qty: 70, cost: '$30.00', total: '$2,105.00' },
+      { name: 'Standard Full Cream Milk 1L', category: 'Dairy', qty: 100, cost: 'Rs. 450.00', total: 'Rs. 45,000.00' },
+      { name: 'Cheddar Cheese Block 200g', category: 'Dairy', qty: 50, cost: 'Rs. 950.00', total: 'Rs. 47,500.00' },
+      { name: 'Premium Butter 500g', category: 'Dairy', qty: 70, cost: 'Rs. 1,500.00', total: 'Rs. 105,000.00' },
     ]
   },
   {
@@ -131,13 +131,13 @@ const initialPurchases = [
     purchaseDate: '2023-10-25',
     numberOfItems: 2,
     totalQuantity: 500,
-    totalCost: '$4,890.00',
+    totalCost: 'Rs. 687,500.00',
     paymentStatus: 'Partially Paid' as 'Paid' | 'Partially Paid' | 'Pending',
     deliveryStatus: 'Pending' as 'Received' | 'Pending' | 'Cancelled',
     paymentMethod: 'COD',
     itemsList: [
-      { name: 'Fresh Chicken Breast 1kg', category: 'Poultry', qty: 250, cost: '$10.00', total: '$2,500.00' },
-      { name: 'Premium Chicken Drumsticks 1kg', category: 'Poultry', qty: 250, cost: '$9.56', total: '$2,390.00' },
+      { name: 'Fresh Chicken Breast 1kg', category: 'Poultry', qty: 250, cost: 'Rs. 1,400.00', total: 'Rs. 350,000.00' },
+      { name: 'Premium Chicken Drumsticks 1kg', category: 'Poultry', qty: 250, cost: 'Rs. 1,350.00', total: 'Rs. 337,500.00' },
     ]
   },
   {
@@ -148,13 +148,13 @@ const initialPurchases = [
     purchaseDate: '2023-10-26',
     numberOfItems: 2,
     totalQuantity: 120,
-    totalCost: '$1,250.00',
+    totalCost: 'Rs. 202,000.00',
     paymentStatus: 'Pending' as 'Paid' | 'Partially Paid' | 'Pending',
     deliveryStatus: 'Received' as 'Received' | 'Pending' | 'Cancelled',
     paymentMethod: 'Cheque',
     itemsList: [
-      { name: 'Basmati Rice 5kg', category: 'Grains', qty: 80, cost: '$10.00', total: '$800.00' },
-      { name: 'Ceylon Premium Tea 250g', category: 'Beverages', qty: 40, cost: '$11.25', total: '$450.00' },
+      { name: 'Basmati Rice 5kg', category: 'Grains', qty: 80, cost: 'Rs. 2,200.00', total: 'Rs. 176,000.00' },
+      { name: 'Ceylon Premium Tea 250g', category: 'Beverages', qty: 40, cost: 'Rs. 650.00', total: 'Rs. 26,000.00' },
     ]
   },
   {
@@ -165,30 +165,30 @@ const initialPurchases = [
     purchaseDate: '2023-10-27',
     numberOfItems: 1,
     totalQuantity: 45,
-    totalCost: '$450.00',
+    totalCost: 'Rs. 4,050.00',
     paymentStatus: 'Pending' as 'Paid' | 'Partially Paid' | 'Pending',
     deliveryStatus: 'Cancelled' as 'Received' | 'Pending' | 'Cancelled',
     paymentMethod: 'Credit Card',
     itemsList: [
-      { name: 'Natural Mineral Water 500ml', category: 'Beverages', qty: 45, cost: '$10.00', total: '$450.00' },
+      { name: 'Natural Mineral Water 500ml', category: 'Beverages', qty: 45, cost: 'Rs. 90.00', total: 'Rs. 4,050.00' },
     ]
   }
 ];
 
 // Preset Supermarket Products list to prepopulate categories & costs beautifully
 const supermarketCatalog = [
-  { name: 'Standard Full Cream Milk 1L', category: 'Dairy', unitCost: 1.20 },
-  { name: 'Cheddar Cheese Block 200g', category: 'Dairy', unitCost: 4.50 },
-  { name: 'Premium Butter 500g', category: 'Dairy', unitCost: 30.00 },
-  { name: 'Fresh Chicken Breast 1kg', category: 'Poultry', unitCost: 10.00 },
-  { name: 'Premium Chicken Drumsticks 1kg', category: 'Poultry', unitCost: 9.56 },
-  { name: 'Basmati Rice 5kg', category: 'Grains', unitCost: 10.00 },
-  { name: 'Ceylon Premium Tea 250g', category: 'Beverages', unitCost: 11.25 },
-  { name: 'Natural Mineral Water 500ml', category: 'Beverages', unitCost: 10.00 },
-  { name: 'Organic Red Apples 1kg', category: 'Produce', unitCost: 4.80 },
-  { name: 'Fresh White Eggs 10pk', category: 'Dairy', unitCost: 3.20 },
-  { name: 'Sparkling Soda Can 330ml', category: 'Beverages', unitCost: 1.10 },
-  { name: 'Potato Chips Family Pack 150g', category: 'Snacks', unitCost: 2.50 }
+  { name: 'Standard Full Cream Milk 1L', category: 'Dairy', unitCost: 450.00 },
+  { name: 'Cheddar Cheese Block 200g', category: 'Dairy', unitCost: 950.00 },
+  { name: 'Premium Butter 500g', category: 'Dairy', unitCost: 1500.00 },
+  { name: 'Fresh Chicken Breast 1kg', category: 'Poultry', unitCost: 1400.00 },
+  { name: 'Premium Chicken Drumsticks 1kg', category: 'Poultry', unitCost: 1350.00 },
+  { name: 'Basmati Rice 5kg', category: 'Grains', unitCost: 2200.00 },
+  { name: 'Ceylon Premium Tea 250g', category: 'Beverages', unitCost: 650.00 },
+  { name: 'Natural Mineral Water 500ml', category: 'Beverages', unitCost: 90.00 },
+  { name: 'Organic Red Apples 1kg', category: 'Produce', unitCost: 950.00 },
+  { name: 'Fresh White Eggs 10pk', category: 'Dairy', unitCost: 380.00 },
+  { name: 'Sparkling Soda Can 330ml', category: 'Beverages', unitCost: 150.00 },
+  { name: 'Potato Chips Family Pack 150g', category: 'Snacks', unitCost: 320.00 }
 ];
 
 export default function ProcurementManagement() {
@@ -289,10 +289,10 @@ export default function ProcurementManagement() {
     const total = purchasesList
       .filter(p => p.deliveryStatus !== 'Cancelled')
       .reduce((sum, p) => {
-        const val = parseFloat(p.totalCost.replace(/[$,]/g, '')) || 0;
+        const val = parseFloat(p.totalCost.replace(/[^0-9.]/g, '')) || 0;
         return sum + val;
       }, 0);
-    return `$${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `Rs. ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }, [purchasesList]);
 
   const pendingDeliveriesCount = purchasesList.filter(p => p.deliveryStatus === 'Pending').length;
@@ -302,15 +302,15 @@ export default function ProcurementManagement() {
     const totalItems = purchaseForm.items.length;
     const totalQuantity = purchaseForm.items.reduce((sum, item) => sum + (parseInt(item.quantity.toString()) || 0), 0);
     const subtotal = purchaseForm.items.reduce((sum, item) => sum + ((parseFloat(item.unitCost.toString()) || 0) * (parseInt(item.quantity.toString()) || 0)), 0);
-    const tax = subtotal * 0.08; // 8% standard supermarket tax rate
+    const tax = subtotal * 0.18; // 18% standard Sri Lankan VAT rate
     const grandTotal = subtotal + tax;
 
     return {
       totalItems,
       totalQuantity,
-      subtotal: `$${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      tax: `$${tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      grandTotal: `$${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      subtotal: `Rs. ${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      tax: `Rs. ${tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      grandTotal: `Rs. ${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     };
   }, [purchaseForm.items]);
 
@@ -362,7 +362,7 @@ export default function ProcurementManagement() {
     const supplierPurchases = purchasesList.filter(p => p.supplier === activeProfileSupplier.name);
     const validPurchases = supplierPurchases.filter(p => p.deliveryStatus !== 'Cancelled');
 
-    const totalValSum = validPurchases.reduce((sum, p) => sum + (parseFloat(p.totalCost.replace(/[$,]/g, '')) || 0), 0);
+    const totalValSum = validPurchases.reduce((sum, p) => sum + (parseFloat(p.totalCost.replace(/[^0-9.]/g, '')) || 0), 0);
     const totalItemsSum = validPurchases.reduce((sum, p) => sum + p.numberOfItems, 0);
 
     const averageOrderValue = validPurchases.length > 0 ? totalValSum / validPurchases.length : 0;
@@ -377,9 +377,9 @@ export default function ProcurementManagement() {
 
     return {
       purchasesCount: supplierPurchases.length,
-      totalPurchaseValueFormatted: `$${totalValSum.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+      totalPurchaseValueFormatted: `Rs. ${totalValSum.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
       lastPurchase: supplierPurchases.length > 0 ? supplierPurchases[0].purchaseDate : activeProfileSupplier.lastPurchaseDate,
-      averageOrderValueFormatted: `$${averageOrderValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      averageOrderValueFormatted: `Rs. ${averageOrderValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       frequency,
       purchasesList: supplierPurchases,
       totalItemsSum
@@ -655,8 +655,8 @@ export default function ProcurementManagement() {
       name: item.product,
       category: item.category,
       qty: item.quantity,
-      cost: `$${item.unitCost.toFixed(2)}`,
-      total: `$${(item.unitCost * item.quantity).toFixed(2)}`
+      cost: `Rs. ${item.unitCost.toFixed(2)}`,
+      total: `Rs. ${(item.unitCost * item.quantity).toFixed(2)}`
     }));
 
     const newPurchase = {
@@ -773,7 +773,7 @@ export default function ProcurementManagement() {
       const pCount = purchasesList.filter(p => p.supplier === s.name).length;
       const pValSum = purchasesList
         .filter(p => p.supplier === s.name && p.deliveryStatus !== 'Cancelled')
-        .reduce((sum, p) => sum + (parseFloat(p.totalCost.replace(/[$,]/g, '')) || 0), 0);
+        .reduce((sum, p) => sum + (parseFloat(p.totalCost.replace(/[^0-9.]/g, '')) || 0), 0);
 
       const supplierPurchases = purchasesList.filter(p => p.supplier === s.name);
       const lastTx = supplierPurchases.length > 0 ? supplierPurchases[0].purchaseDate : s.lastPurchaseDate;
@@ -781,7 +781,7 @@ export default function ProcurementManagement() {
       return {
         name: s.name,
         count: pCount,
-        value: `$${pValSum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        value: `Rs. ${pValSum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         valueRaw: pValSum,
         lastTransaction: lastTx
       };
@@ -793,7 +793,7 @@ export default function ProcurementManagement() {
       if (p.deliveryStatus === 'Cancelled') return;
       p.itemsList?.forEach(item => {
         const itemQty = parseInt(item.qty.toString()) || 0;
-        const itemCostTotal = parseFloat(item.total.replace(/[$,]/g, '')) || 0;
+        const itemCostTotal = parseFloat(item.total.replace(/[^0-9.]/g, '')) || 0;
         if (!productStatsMap[item.name]) {
           productStatsMap[item.name] = { qty: 0, cost: 0 };
         }
@@ -805,14 +805,14 @@ export default function ProcurementManagement() {
     const productsTable = Object.entries(productStatsMap).map(([name, stats]) => ({
       name,
       qty: stats.qty,
-      totalCost: `$${stats.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      totalCost: `Rs. ${stats.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       costRaw: stats.cost
     })).sort((a, b) => b.costRaw - a.costRaw);
 
     return {
-      monthlyValue: `$${totalVal.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+      monthlyValue: `Rs. ${totalVal.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
       totalCount: validPurchases.length,
-      averageCost: `$${avgCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      averageCost: `Rs. ${avgCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       topSupplier: topSupplierName,
       suppliersTable,
       productsTable
@@ -1581,10 +1581,10 @@ export default function ProcurementManagement() {
                             <div className="absolute inset-x-0 top-3/4 border-t border-dashed border-slate-100 pointer-events-none"></div>
 
                             {[
-                              { h: 35, l: "Jul", val: "$1,890" },
-                              { h: 50, l: "Aug", val: "$2,450" },
-                              { h: 70, l: "Sep", val: "$3,800" },
-                              { h: 95, l: "Oct", val: "$9,080" },
+                              { h: 35, l: "Jul", val: "Rs. 119,000" },
+                              { h: 50, l: "Aug", val: "Rs. 154,500" },
+                              { h: 70, l: "Sep", val: "Rs. 239,400" },
+                              { h: 95, l: "Oct", val: "Rs. 572,000" },
                             ].map((trend, i) => (
                               <div key={i} className="flex flex-col items-center gap-2 w-full h-full justify-end group z-10 relative">
                                 <span className="text-[10px] font-black text-primary opacity-0 group-hover:opacity-100 transition-opacity bg-surface-container-lowest border border-primary/20 px-1.5 py-0.5 rounded shadow-sm absolute -top-4">{trend.val}</span>
@@ -1607,9 +1607,9 @@ export default function ProcurementManagement() {
 
                           <div className="h-44 flex flex-col justify-around">
                             {[
-                              { n: "ABC Distributors", s: "$2,900", p: 70, c: "bg-primary" },
-                              { n: "Fresh Foods Ltd", s: "$4,890", p: 90, c: "bg-[#0b8252]" },
-                              { n: "Lanka Grocery Suppliers", s: "$1,250", p: 40, c: "bg-amber-600" },
+                              { n: "ABC Distributors", s: "Rs. 182,700.00", p: 70, c: "bg-primary" },
+                              { n: "Fresh Foods Ltd", s: "Rs. 308,000.00", p: 90, c: "bg-[#0b8252]" },
+                              { n: "Lanka Grocery Suppliers", s: "Rs. 78,500.00", p: 40, c: "bg-amber-600" },
                             ].map((sup, i) => (
                               <div key={i} className="space-y-1">
                                 <div className="flex justify-between text-xs font-bold text-slate-800">
@@ -1669,7 +1669,7 @@ export default function ProcurementManagement() {
                         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
                           <div className="flex items-center justify-between">
                             <h3 className="font-extrabold text-sm text-on-surface flex items-center gap-2">
-                              <span className="material-symbols-outlined text-primary text-[18px]">area_chart</span> Monthly Procurement Cost ($ USD)
+                              <span className="material-symbols-outlined text-primary text-[18px]">area_chart</span> Monthly Procurement Cost (LKR Rs.)
                             </h3>
                             <span className="text-[9px] font-black uppercase text-outline bg-slate-100 px-2 py-0.5 rounded">Area Chart</span>
                           </div>
@@ -1678,10 +1678,10 @@ export default function ProcurementManagement() {
                             <div className="absolute inset-x-0 bottom-0 top-12 bg-gradient-to-t from-primary/5 to-primary/20 clip-path pointer-events-none rounded-t-lg"></div>
 
                             {[
-                              { h: 30, l: "Jul", val: "$1,890.00" },
-                              { h: 48, l: "Aug", val: "$2,450.00" },
-                              { h: 65, l: "Sep", val: "$3,800.00" },
-                              { h: 90, l: "Oct", val: "$9,080.00" },
+                              { h: 30, l: "Jul", val: "Rs. 119,000.00" },
+                              { h: 48, l: "Aug", val: "Rs. 154,500.00" },
+                              { h: 65, l: "Sep", val: "Rs. 239,400.00" },
+                              { h: 90, l: "Oct", val: "Rs. 572,000.00" },
                             ].map((cost, i) => (
                               <div key={i} className="flex flex-col items-center gap-2 w-full h-full justify-end group z-10 relative">
                                 <span className="text-[9px] font-black text-slate-800 opacity-0 group-hover:opacity-100 transition-opacity bg-white border px-1 py-0.5 rounded shadow absolute -top-4">{cost.val}</span>
@@ -1888,9 +1888,9 @@ export default function ProcurementManagement() {
                       <tr>
                         <th className="px-4 py-3">Supermarket Catalog Product Choice</th>
                         <th className="px-4 py-3 text-center">Category</th>
-                        <th className="px-4 py-3 text-right">Unit Cost ($ USD)</th>
+                        <th className="px-4 py-3 text-right">Unit Cost (Rs.)</th>
                         <th className="px-4 py-3 text-center">Quantity (Units)</th>
-                        <th className="px-4 py-3 text-right">Line Total ($)</th>
+                        <th className="px-4 py-3 text-right">Line Total (Rs.)</th>
                         <th className="px-4 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
@@ -1915,13 +1915,13 @@ export default function ProcurementManagement() {
 
                           <td className="px-4 py-3 text-right max-w-[120px]">
                             <div className="relative">
-                              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-outline-variant text-[10px] font-bold">$</span>
+                              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-outline-variant text-[10px] font-bold">Rs.</span>
                               <input
                                 type="number"
                                 step="0.01"
                                 value={item.unitCost}
                                 onChange={e => handleItemCostChange(index, parseFloat(e.target.value) || 0)}
-                                className="border border-outline-variant rounded pl-5 pr-2 py-1 text-right text-xs font-bold outline-none focus:ring-1 focus:ring-primary w-full"
+                                className="border border-outline-variant rounded pl-8 pr-2 py-1 text-right text-xs font-bold outline-none focus:ring-1 focus:ring-primary w-full"
                               />
                             </div>
                           </td>
@@ -1936,7 +1936,7 @@ export default function ProcurementManagement() {
                           </td>
 
                           <td className="px-4 py-3 text-right font-black text-slate-800">
-                            ${(item.unitCost * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            Rs. {(item.unitCost * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
 
                           <td className="px-4 py-3 text-right">
@@ -2026,7 +2026,7 @@ export default function ProcurementManagement() {
                       <span className="font-bold text-slate-800">{recordPurchaseCalculations.subtotal}</span>
                     </div>
                     <div className="flex justify-between text-slate-600">
-                      <span>Calculated Tax (8.00% standard POS)</span>
+                      <span>Calculated Tax (18.00% standard VAT)</span>
                       <span className="font-bold text-slate-800">{recordPurchaseCalculations.tax}</span>
                     </div>
                     <div className="flex justify-between border-t border-slate-200/80 pt-2 text-sm font-black text-on-surface">
@@ -2161,8 +2161,8 @@ export default function ProcurementManagement() {
                       <span>{selectedPurchase.totalCost}</span>
                     </div>
                     <div className="flex justify-between text-outline">
-                      <span>Supermarket Taxes (8%)</span>
-                      <span>$0.00</span>
+                      <span>Supermarket Taxes (18%)</span>
+                      <span>Rs. 0.00</span>
                     </div>
                     <div className="flex justify-between border-t border-slate-100 pt-2 text-sm font-black text-on-surface">
                       <span>Grand Total</span>
