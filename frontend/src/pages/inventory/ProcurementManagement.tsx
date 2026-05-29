@@ -217,12 +217,12 @@ export default function ProcurementManagement() {
   // Modals & Selected details State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  
+
   // Purchase Modal State
   const [isRecordPurchaseOpen, setIsRecordPurchaseOpen] = useState(false);
   const [isEditPurchaseOpen, setIsEditPurchaseOpen] = useState(false);
   const [isViewPurchaseOpen, setIsViewPurchaseOpen] = useState(false);
-  
+
   const [selectedSupplier, setSelectedSupplier] = useState<typeof initialSuppliers[0] | null>(null);
   const [selectedPurchase, setSelectedPurchase] = useState<typeof initialPurchases[0] | null>(null);
 
@@ -284,7 +284,7 @@ export default function ProcurementManagement() {
   const totalSuppliersCount = suppliersList.length;
   const activeSuppliersCount = suppliersList.filter(s => s.status === 'Active').length;
   const totalPurchasesCount = purchasesList.length;
-  
+
   const totalPurchaseValue = useMemo(() => {
     const total = purchasesList
       .filter(p => p.deliveryStatus !== 'Cancelled')
@@ -322,9 +322,9 @@ export default function ProcurementManagement() {
   // Filtered Suppliers List
   const filteredSuppliers = useMemo(() => {
     return suppliersList.filter(s => {
-      const matchesSearch = 
+      const matchesSearch =
         s.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.contact.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.companyName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -336,11 +336,11 @@ export default function ProcurementManagement() {
   // Filtered Purchase Records List
   const filteredPurchases = useMemo(() => {
     return purchasesList.filter(p => {
-      const matchesSearch = 
+      const matchesSearch =
         p.id.toLowerCase().includes(purchaseSearch.toLowerCase()) ||
         p.invoiceNumber.toLowerCase().includes(purchaseSearch.toLowerCase()) ||
         p.supplier.toLowerCase().includes(purchaseSearch.toLowerCase());
-      
+
       const matchesSupplier = supplierFilter === 'All' || p.supplier === supplierFilter;
 
       let matchesDate = true;
@@ -361,12 +361,12 @@ export default function ProcurementManagement() {
 
     const supplierPurchases = purchasesList.filter(p => p.supplier === activeProfileSupplier.name);
     const validPurchases = supplierPurchases.filter(p => p.deliveryStatus !== 'Cancelled');
-    
+
     const totalValSum = validPurchases.reduce((sum, p) => sum + (parseFloat(p.totalCost.replace(/[$,]/g, '')) || 0), 0);
     const totalItemsSum = validPurchases.reduce((sum, p) => sum + p.numberOfItems, 0);
 
     const averageOrderValue = validPurchases.length > 0 ? totalValSum / validPurchases.length : 0;
-    
+
     // Purchase Frequency mapping
     let frequency = 'Monthly';
     if (activeProfileSupplier.deliveryDays.length >= 3) {
@@ -381,7 +381,8 @@ export default function ProcurementManagement() {
       lastPurchase: supplierPurchases.length > 0 ? supplierPurchases[0].purchaseDate : activeProfileSupplier.lastPurchaseDate,
       averageOrderValueFormatted: `$${averageOrderValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       frequency,
-      purchasesList: supplierPurchases
+      purchasesList: supplierPurchases,
+      totalItemsSum
     };
   }, [activeProfileSupplier, purchasesList]);
 
@@ -413,7 +414,7 @@ export default function ProcurementManagement() {
 
     if (!formData.name.trim()) { errors.name = 'Supplier name is required'; isValid = false; }
     if (!formData.contact.trim()) { errors.contact = 'Contact person is required'; isValid = false; }
-    
+
     const phoneRegex = /^[+]?[0-9\s-]{7,15}$/;
     if (!formData.phone.trim()) {
       errors.phone = 'Phone number is required';
@@ -537,14 +538,14 @@ export default function ProcurementManagement() {
     const csvRows = [headers.join(",")];
     suppliersList.forEach(s => {
       const row = [
-        s.id, 
-        `"${s.name}"`, 
-        `"${s.contact}"`, 
-        s.phone, 
-        s.email, 
-        `"${s.street}, ${s.city}"`, 
-        s.products, 
-        s.lastPurchaseDate, 
+        s.id,
+        `"${s.name}"`,
+        `"${s.contact}"`,
+        s.phone,
+        s.email,
+        `"${s.street}, ${s.city}"`,
+        s.products,
+        s.lastPurchaseDate,
         s.status
       ];
       csvRows.push(row.join(","));
@@ -648,7 +649,7 @@ export default function ProcurementManagement() {
     }
 
     const newId = `PR-1024-00${purchasesList.length + 1}`;
-    
+
     // Map list to purchase format
     const formattedItems = purchaseForm.items.map(item => ({
       name: item.product,
@@ -722,15 +723,15 @@ export default function ProcurementManagement() {
     const csvRows = [headers.join(",")];
     purchasesList.forEach(p => {
       const row = [
-        p.id, 
-        p.invoiceNumber, 
+        p.id,
+        p.invoiceNumber,
         p.referenceNumber,
-        `"${p.supplier}"`, 
-        p.purchaseDate, 
-        p.numberOfItems, 
-        p.totalQuantity, 
-        `"${p.totalCost}"`, 
-        p.paymentStatus, 
+        `"${p.supplier}"`,
+        p.purchaseDate,
+        p.numberOfItems,
+        p.totalQuantity,
+        `"${p.totalCost}"`,
+        p.paymentStatus,
         p.deliveryStatus,
         p.paymentMethod
       ];
@@ -773,7 +774,7 @@ export default function ProcurementManagement() {
       const pValSum = purchasesList
         .filter(p => p.supplier === s.name && p.deliveryStatus !== 'Cancelled')
         .reduce((sum, p) => sum + (parseFloat(p.totalCost.replace(/[$,]/g, '')) || 0), 0);
-      
+
       const supplierPurchases = purchasesList.filter(p => p.supplier === s.name);
       const lastTx = supplierPurchases.length > 0 ? supplierPurchases[0].purchaseDate : s.lastPurchaseDate;
 
@@ -841,27 +842,16 @@ export default function ProcurementManagement() {
     <div className="flex h-screen bg-background text-on-surface font-sans overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        <InventoryHeader>
-          <div className="relative w-full max-w-xl min-w-0">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
-            <input
-              type="text"
-              placeholder="Search procurement records, suppliers or POs..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-lg border border-outline-variant bg-background py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-        </InventoryHeader>
+        <InventoryHeader />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-background">
           <div className="max-w-[1400px] mx-auto space-y-6 animate-in fade-in duration-300">
-            
+
             {/* Page Header (Render back button if profile view is active) */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 {activeProfileSupplier ? (
-                  <button 
+                  <button
                     onClick={() => setActiveProfileSupplier(null)}
                     className="mb-2 text-xs font-black text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
                   >
@@ -881,7 +871,7 @@ export default function ProcurementManagement() {
             {/* RENDER ENTERPRISE SUPPLIER PROFILE VIEW PAGE */}
             {activeProfileSupplier && supplierProfileData ? (
               <div className="space-y-6 animate-in fade-in duration-300">
-                
+
                 {/* 1. Header Card Panel */}
                 <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                   <div className="flex items-center gap-4 flex-1">
@@ -891,16 +881,15 @@ export default function ProcurementManagement() {
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-xl sm:text-2xl font-black text-on-surface">{activeProfileSupplier.name}</h2>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          activeProfileSupplier.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${activeProfileSupplier.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-800'
+                          }`}>
                           {activeProfileSupplier.status}
                         </span>
                       </div>
-                      
+
                       {/* Legal Company details */}
                       <p className="text-xs font-bold text-slate-500 mt-1">{activeProfileSupplier.companyName} | BRN: {activeProfileSupplier.brn} | Tax ID: {activeProfileSupplier.taxNumber}</p>
-                      
+
                       {/* Contact information details */}
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 text-xs font-semibold text-slate-600">
                         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm text-primary">person</span> {activeProfileSupplier.contact}</span>
@@ -912,14 +901,14 @@ export default function ProcurementManagement() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <button 
+                    <button
                       onClick={() => handleOpenEditModal(activeProfileSupplier)}
                       className="px-4 py-2 border border-outline-variant hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-700 flex items-center gap-1.5"
                     >
                       <span className="material-symbols-outlined text-xs">edit</span>
                       Edit Profile
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDeleteSupplier(activeProfileSupplier.id)}
                       className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200/50 rounded-lg text-xs font-bold flex items-center gap-1.5"
                     >
@@ -931,7 +920,7 @@ export default function ProcurementManagement() {
 
                 {/* 2. Dynamic Statistics Grid widgets */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  
+
                   <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl shadow-sm flex flex-col gap-1">
                     <span className="text-[10px] font-black text-outline uppercase tracking-wider">Total Purchases</span>
                     <div className="text-3xl font-black text-slate-800">{supplierProfileData.purchasesCount} orders</div>
@@ -965,7 +954,7 @@ export default function ProcurementManagement() {
                   </h3>
 
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-                    
+
                     {/* Metric 1: Reliability Score */}
                     <div className="space-y-2 flex flex-col items-center">
                       <span className="text-[10px] font-black text-outline uppercase tracking-wider">Supplier Reliability Score</span>
@@ -1003,7 +992,7 @@ export default function ProcurementManagement() {
 
                 {/* 4. Dynamic Purchase History Table & Transactions Timeline */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  
+
                   {/* Column 1 & 2: Purchase History Table */}
                   <div className="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
                     <h3 className="font-extrabold text-sm text-slate-800 flex items-center gap-2">
@@ -1030,8 +1019,8 @@ export default function ProcurementManagement() {
                             </tr>
                           ) : (
                             supplierProfileData.purchasesList.map((p) => (
-                              <tr 
-                                key={p.id} 
+                              <tr
+                                key={p.id}
                                 className="hover:bg-slate-50 transition-colors cursor-pointer"
                                 onClick={() => { setSelectedPurchase(p); setIsViewPurchaseOpen(true); }}
                               >
@@ -1040,9 +1029,8 @@ export default function ProcurementManagement() {
                                 <td className="px-4 py-3">{p.invoiceNumber}</td>
                                 <td className="px-4 py-3 text-right font-black text-slate-800">{p.totalCost}</td>
                                 <td className="px-4 py-3 text-center">
-                                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                                    p.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : p.paymentStatus === 'Partially Paid' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
-                                  }`}>
+                                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${p.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : p.paymentStatus === 'Partially Paid' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                                    }`}>
                                     {p.paymentStatus}
                                   </span>
                                 </td>
@@ -1061,13 +1049,13 @@ export default function ProcurementManagement() {
                     </h3>
 
                     <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
-                      
+
                       {/* Timeline 1: Live dynamic transaction if exists */}
-                      {supplierProfileData.purchasesList.slice(0, 2).map((p, i) => (
+                      {supplierProfileData.purchasesList.slice(0, 2).map((p) => (
                         <div key={p.id} className="relative space-y-1">
                           {/* Point indicator */}
                           <div className="absolute -left-6 top-1.5 w-3.5 h-3.5 rounded-full bg-[#0b8252] border-4 border-white shadow-sm"></div>
-                          
+
                           <div className="text-[10px] font-black text-[#0b8252] uppercase">{p.purchaseDate}</div>
                           <div className="text-xs font-bold text-slate-800">Consignment Received ({p.id})</div>
                           <p className="text-[10px] text-slate-500 font-semibold">Invoice Ref: {p.invoiceNumber} | Total Cost: {p.totalCost}</p>
@@ -1098,15 +1086,14 @@ export default function ProcurementManagement() {
             ) : (
               // RENDER MAIN TABS SYSTEM DIRECTORY
               <div className="space-y-6">
-                
+
                 {/* Top Statistics Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   {/* Card 1: Total Suppliers */}
-                  <div 
+                  <div
                     onClick={() => handleTabChange('suppliers')}
-                    className={`bg-surface-container-lowest p-5 rounded-xl border shadow-sm flex flex-col gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
-                      activeTab === 'suppliers' ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant hover:border-primary/50'
-                    }`}
+                    className={`bg-surface-container-lowest p-5 rounded-xl border shadow-sm flex flex-col gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] ${activeTab === 'suppliers' ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant hover:border-primary/50'
+                      }`}
                   >
                     <div className="flex items-center justify-between text-outline">
                       <div className="flex items-center gap-2">
@@ -1120,11 +1107,10 @@ export default function ProcurementManagement() {
                   </div>
 
                   {/* Card 2: Total Purchases This Month */}
-                  <div 
+                  <div
                     onClick={() => handleTabChange('records')}
-                    className={`bg-surface-container-lowest p-5 rounded-xl border shadow-sm flex flex-col gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
-                      activeTab === 'records' ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant hover:border-primary/50'
-                    }`}
+                    className={`bg-surface-container-lowest p-5 rounded-xl border shadow-sm flex flex-col gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] ${activeTab === 'records' ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant hover:border-primary/50'
+                      }`}
                   >
                     <div className="flex items-center justify-between text-outline">
                       <div className="flex items-center gap-2">
@@ -1138,7 +1124,7 @@ export default function ProcurementManagement() {
                   </div>
 
                   {/* Card 3: Total Purchase Value */}
-                  <div 
+                  <div
                     onClick={() => handleTabChange('analytics')}
                     className="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm flex flex-col gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-primary/50"
                   >
@@ -1187,33 +1173,30 @@ export default function ProcurementManagement() {
                 <div className="border-b border-outline-variant flex items-center gap-2 bg-background sticky top-0 z-20 py-2">
                   <button
                     onClick={() => handleTabChange('suppliers')}
-                    className={`py-3 px-6 text-sm font-bold border-b-2 flex items-center gap-2 transition-all duration-200 ${
-                      activeTab === 'suppliers'
+                    className={`py-3 px-6 text-sm font-bold border-b-2 flex items-center gap-2 transition-all duration-200 ${activeTab === 'suppliers'
                         ? 'border-primary text-primary bg-primary/5 rounded-t-lg'
                         : 'border-transparent text-outline hover:text-on-surface hover:border-outline-variant'
-                    }`}
+                      }`}
                   >
                     <span className="material-symbols-outlined text-[18px]">group</span>
                     Suppliers
                   </button>
                   <button
                     onClick={() => handleTabChange('records')}
-                    className={`py-3 px-6 text-sm font-bold border-b-2 flex items-center gap-2 transition-all duration-200 ${
-                      activeTab === 'records'
+                    className={`py-3 px-6 text-sm font-bold border-b-2 flex items-center gap-2 transition-all duration-200 ${activeTab === 'records'
                         ? 'border-primary text-primary bg-primary/5 rounded-t-lg'
                         : 'border-transparent text-outline hover:text-on-surface hover:border-outline-variant'
-                    }`}
+                      }`}
                   >
                     <span className="material-symbols-outlined text-[18px]">receipt_long</span>
                     Purchase Records
                   </button>
                   <button
                     onClick={() => handleTabChange('analytics')}
-                    className={`py-3 px-6 text-sm font-bold border-b-2 flex items-center gap-2 transition-all duration-200 ${
-                      activeTab === 'analytics'
+                    className={`py-3 px-6 text-sm font-bold border-b-2 flex items-center gap-2 transition-all duration-200 ${activeTab === 'analytics'
                         ? 'border-primary text-primary bg-primary/5 rounded-t-lg'
                         : 'border-transparent text-outline hover:text-on-surface hover:border-outline-variant'
-                    }`}
+                      }`}
                   >
                     <span className="material-symbols-outlined text-[18px]">insights</span>
                     Purchase Analytics
@@ -1222,11 +1205,11 @@ export default function ProcurementManagement() {
 
                 {/* Tab Content Rendering */}
                 <div className="mt-6">
-                  
+
                   {/* TAB 1: SUPPLIERS SECTION */}
                   {activeTab === 'suppliers' && (
                     <div className="space-y-6 animate-in fade-in duration-300">
-                      
+
                       {/* Top Actions Panel */}
                       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm">
                         {/* Search & Filter Inputs */}
@@ -1244,7 +1227,7 @@ export default function ProcurementManagement() {
 
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-black uppercase tracking-wider text-outline whitespace-nowrap">Filter Status:</span>
-                            <select 
+                            <select
                               value={statusFilter}
                               onChange={e => setStatusFilter(e.target.value)}
                               className="border border-outline-variant rounded-lg px-3 py-2 text-xs font-bold outline-none bg-surface-container-lowest focus:ring-1 focus:ring-primary"
@@ -1258,15 +1241,15 @@ export default function ProcurementManagement() {
 
                         {/* Actions Buttons */}
                         <div className="flex items-center gap-3 flex-shrink-0">
-                          <button 
+                          <button
                             onClick={handleExportSuppliers}
                             className="px-4 py-2 border border-outline-variant rounded-lg text-xs font-bold text-on-surface hover:bg-surface-container transition-all flex items-center gap-2"
                           >
                             <span className="material-symbols-outlined text-[16px]">download</span>
                             Export Suppliers
                           </button>
-                          <button 
-                            onClick={handleOpenAddModal} 
+                          <button
+                            onClick={handleOpenAddModal}
                             className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-extrabold hover:bg-primary/95 shadow-sm transition-all flex items-center gap-2"
                           >
                             <span className="material-symbols-outlined text-[16px]">person_add</span>
@@ -1302,8 +1285,8 @@ export default function ProcurementManagement() {
                                 </tr>
                               ) : (
                                 filteredSuppliers.map((s) => (
-                                  <tr 
-                                    key={s.id} 
+                                  <tr
+                                    key={s.id}
                                     className="hover:bg-primary/5 transition-colors group cursor-pointer"
                                     onClick={() => setActiveProfileSupplier(s)}
                                   >
@@ -1319,39 +1302,38 @@ export default function ProcurementManagement() {
                                     <td className="px-6 py-4 text-center font-bold text-on-surface">{s.products} items</td>
                                     <td className="px-6 py-4 text-center text-slate-500">{s.lastPurchaseDate}</td>
                                     <td className="px-6 py-4 text-center">
-                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                                        s.status === 'Active' 
-                                          ? 'bg-emerald-100 text-emerald-800' 
+                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${s.status === 'Active'
+                                          ? 'bg-emerald-100 text-emerald-800'
                                           : 'bg-slate-100 text-slate-800'
-                                      }`}>
+                                        }`}>
                                         {s.status}
                                       </span>
                                     </td>
                                     <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                                       <div className="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100">
-                                        <button 
-                                          onClick={() => setActiveProfileSupplier(s)} 
+                                        <button
+                                          onClick={() => setActiveProfileSupplier(s)}
                                           className="p-1.5 text-primary hover:bg-primary/10 rounded transition-colors"
                                           title="View Supplier Profile"
                                         >
                                           <span className="material-symbols-outlined text-[16px]">visibility</span>
                                         </button>
-                                        <button 
-                                          onClick={() => handleOpenEditModal(s)} 
+                                        <button
+                                          onClick={() => handleOpenEditModal(s)}
                                           className="p-1.5 text-[#0b8252] hover:bg-[#eef8f2] rounded transition-colors"
                                           title="Edit Supplier"
                                         >
                                           <span className="material-symbols-outlined text-[16px]">edit</span>
                                         </button>
-                                        <button 
-                                          onClick={() => { setActiveProfileSupplier(s); handleTabChange('records'); }} 
+                                        <button
+                                          onClick={() => { setActiveProfileSupplier(s); handleTabChange('records'); }}
                                           className="p-1.5 text-amber-600 hover:bg-amber-50 rounded transition-colors"
                                           title="View Purchase History"
                                         >
                                           <span className="material-symbols-outlined text-[16px]">history</span>
                                         </button>
-                                        <button 
-                                          onClick={() => handleDeleteSupplier(s.id)} 
+                                        <button
+                                          onClick={() => handleDeleteSupplier(s.id)}
                                           className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors"
                                           title="Delete Supplier"
                                         >
@@ -1372,15 +1354,15 @@ export default function ProcurementManagement() {
                   {/* TAB 2: PURCHASE RECORDS SECTION */}
                   {activeTab === 'records' && (
                     <div className="space-y-6 animate-in fade-in duration-300">
-                      
+
                       {/* Top Actions Panel */}
                       <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
-                        
+
                         {/* First Row: Search, Date Filter, Supplier Selector */}
                         <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 flex-1">
-                            
+
                             {/* Search Purchases */}
                             <div className="relative">
                               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-[18px]">search</span>
@@ -1396,7 +1378,7 @@ export default function ProcurementManagement() {
                             {/* Supplier Filter */}
                             <div className="flex items-center gap-2">
                               <span className="text-[10px] font-black uppercase tracking-wider text-outline text-right whitespace-nowrap">Supplier:</span>
-                              <select 
+                              <select
                                 value={supplierFilter}
                                 onChange={e => setSupplierFilter(e.target.value)}
                                 className="w-full border border-outline-variant rounded-lg px-2 py-2 text-xs font-bold outline-none bg-surface-container-lowest focus:ring-1 focus:ring-primary"
@@ -1411,7 +1393,7 @@ export default function ProcurementManagement() {
                             {/* Date Range Filter: Start */}
                             <div className="flex items-center gap-2">
                               <span className="text-[10px] font-black uppercase tracking-wider text-outline text-right whitespace-nowrap">Start:</span>
-                              <input 
+                              <input
                                 type="date"
                                 value={startDateFilter}
                                 onChange={e => setStartDateFilter(e.target.value)}
@@ -1422,7 +1404,7 @@ export default function ProcurementManagement() {
                             {/* Date Range Filter: End */}
                             <div className="flex items-center gap-2">
                               <span className="text-[10px] font-black uppercase tracking-wider text-outline text-right whitespace-nowrap">End:</span>
-                              <input 
+                              <input
                                 type="date"
                                 value={endDateFilter}
                                 onChange={e => setEndDateFilter(e.target.value)}
@@ -1434,15 +1416,15 @@ export default function ProcurementManagement() {
 
                           {/* Right Action buttons */}
                           <div className="flex items-center gap-3 flex-shrink-0">
-                            <button 
+                            <button
                               onClick={handleExportPurchases}
                               className="px-4 py-2 border border-outline-variant rounded-lg text-xs font-bold text-on-surface hover:bg-surface-container transition-all flex items-center gap-2"
                             >
                               <span className="material-symbols-outlined text-[16px]">download</span>
                               Export Purchases
                             </button>
-                            <button 
-                              onClick={handleOpenRecordPurchase} 
+                            <button
+                              onClick={handleOpenRecordPurchase}
                               className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-extrabold hover:bg-primary/95 shadow-sm transition-all flex items-center gap-2"
                             >
                               <span className="material-symbols-outlined text-[16px]">post_add</span>
@@ -1480,8 +1462,8 @@ export default function ProcurementManagement() {
                                 </tr>
                               ) : (
                                 filteredPurchases.map((p) => (
-                                  <tr 
-                                    key={p.id} 
+                                  <tr
+                                    key={p.id}
                                     className="hover:bg-primary/5 transition-colors group cursor-pointer"
                                     onClick={() => { setSelectedPurchase(p); setIsViewPurchaseOpen(true); }}
                                   >
@@ -1493,45 +1475,43 @@ export default function ProcurementManagement() {
                                     <td className="px-6 py-4 text-center">{p.totalQuantity} units</td>
                                     <td className="px-6 py-4 text-right font-black text-slate-800">{p.totalCost}</td>
                                     <td className="px-6 py-4 text-center">
-                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                                        p.paymentStatus === 'Paid' 
-                                          ? 'bg-emerald-100 text-emerald-800' 
-                                          : p.paymentStatus === 'Partially Paid' 
-                                            ? 'bg-amber-100 text-amber-800' 
+                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${p.paymentStatus === 'Paid'
+                                          ? 'bg-emerald-100 text-emerald-800'
+                                          : p.paymentStatus === 'Partially Paid'
+                                            ? 'bg-amber-100 text-amber-800'
                                             : 'bg-red-100 text-red-800'
-                                      }`}>
+                                        }`}>
                                         {p.paymentStatus}
                                       </span>
                                     </td>
                                     <td className="px-6 py-4 text-center">
-                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                                        p.deliveryStatus === 'Received' 
-                                          ? 'bg-emerald-100 text-emerald-800' 
-                                          : p.deliveryStatus === 'Pending' 
-                                            ? 'bg-amber-100 text-amber-800' 
+                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${p.deliveryStatus === 'Received'
+                                          ? 'bg-emerald-100 text-emerald-800'
+                                          : p.deliveryStatus === 'Pending'
+                                            ? 'bg-amber-100 text-amber-800'
                                             : 'bg-slate-100 text-slate-800'
-                                      }`}>
+                                        }`}>
                                         {p.deliveryStatus}
                                       </span>
                                     </td>
                                     <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                                       <div className="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100">
-                                        <button 
-                                          onClick={() => { setSelectedPurchase(p); setIsViewPurchaseOpen(true); }} 
+                                        <button
+                                          onClick={() => { setSelectedPurchase(p); setIsViewPurchaseOpen(true); }}
                                           className="p-1.5 text-primary hover:bg-primary/10 rounded transition-colors"
                                           title="View Purchase"
                                         >
                                           <span className="material-symbols-outlined text-[16px]">visibility</span>
                                         </button>
-                                        <button 
-                                          onClick={() => handleOpenEditPurchase(p)} 
+                                        <button
+                                          onClick={() => handleOpenEditPurchase(p)}
                                           className="p-1.5 text-[#0b8252] hover:bg-[#eef8f2] rounded transition-colors"
                                           title="Edit Purchase"
                                         >
                                           <span className="material-symbols-outlined text-[16px]">edit</span>
                                         </button>
-                                        <button 
-                                          onClick={() => handlePrintInvoice(p)} 
+                                        <button
+                                          onClick={() => handlePrintInvoice(p)}
                                           className="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition-colors"
                                           title="Print Invoice"
                                         >
@@ -1553,7 +1533,7 @@ export default function ProcurementManagement() {
                   {/* TAB 3: MODERN PROCUREMENT ANALYTICS */}
                   {activeTab === 'analytics' && (
                     <div className="space-y-6 animate-in fade-in duration-300">
-                      
+
                       {/* Analytics Dashboard Metric Cards */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl shadow-sm flex flex-col gap-1.5">
@@ -1585,7 +1565,7 @@ export default function ProcurementManagement() {
 
                       {/* 4 Professional Supermarket Charts Grid */}
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        
+
                         {/* Chart 1: Monthly Purchase Trend */}
                         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
                           <div className="flex items-center justify-between">
@@ -1594,7 +1574,7 @@ export default function ProcurementManagement() {
                             </h3>
                             <span className="text-[9px] font-black uppercase text-outline bg-slate-100 px-2 py-0.5 rounded">Line Chart</span>
                           </div>
-                          
+
                           <div className="h-44 flex items-end justify-between gap-6 px-4 pt-4 border-b border-slate-100 relative">
                             <div className="absolute inset-x-0 top-1/4 border-t border-dashed border-slate-100 pointer-events-none"></div>
                             <div className="absolute inset-x-0 top-2/4 border-t border-dashed border-slate-100 pointer-events-none"></div>
@@ -1655,7 +1635,7 @@ export default function ProcurementManagement() {
 
                           <div className="grid grid-cols-2 gap-4 items-center">
                             <div className="flex justify-center">
-                              <div 
+                              <div
                                 className="w-32 h-32 rounded-full border border-slate-100 shadow flex items-center justify-center relative transition-transform duration-300 hover:rotate-6"
                                 style={{
                                   background: 'conic-gradient(#0b8252 0% 55%, #d97706 55% 80%, #2563eb 80% 100%)'
@@ -1717,7 +1697,7 @@ export default function ProcurementManagement() {
 
                       {/* Procurement Performance Matrices */}
                       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        
+
                         {/* Top Suppliers Table */}
                         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col p-5 space-y-4">
                           <h3 className="font-extrabold text-sm text-slate-800 flex items-center gap-2">
@@ -1791,7 +1771,7 @@ export default function ProcurementManagement() {
       {isRecordPurchaseOpen && (
         <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <form className="bg-[#f8fafc] rounded-2xl w-full max-w-5xl shadow-2xl flex flex-col overflow-hidden max-h-[95vh] border border-outline-variant animate-in zoom-in-95 duration-200">
-            
+
             <div className="flex items-center justify-between p-6 border-b border-outline-variant bg-surface-container-lowest">
               <div>
                 <h2 className="text-base font-black text-on-surface flex items-center gap-2">
@@ -1804,11 +1784,11 @@ export default function ProcurementManagement() {
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto space-y-6">
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 <div className="lg:col-span-2 bg-surface-container-lowest border border-outline-variant p-5 rounded-xl shadow-sm space-y-4">
                   <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
                     <span className="material-symbols-outlined text-primary text-[18px]">local_shipping</span> Supplier Selection & Info
@@ -1817,7 +1797,7 @@ export default function ProcurementManagement() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Select Supplier Partner *</label>
-                      <select 
+                      <select
                         name="supplierName"
                         value={purchaseForm.supplierName}
                         onChange={handlePurchaseFormChange}
@@ -1851,8 +1831,8 @@ export default function ProcurementManagement() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Invoice Number *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="invoiceNumber"
                         value={purchaseForm.invoiceNumber}
                         onChange={handlePurchaseFormChange}
@@ -1864,8 +1844,8 @@ export default function ProcurementManagement() {
 
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Reference Number (Auto Generated)</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="referenceNumber"
                         value={purchaseForm.referenceNumber}
                         readOnly
@@ -1875,8 +1855,8 @@ export default function ProcurementManagement() {
 
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Purchase Date *</label>
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         name="purchaseDate"
                         value={purchaseForm.purchaseDate}
                         onChange={handlePurchaseFormChange}
@@ -1893,7 +1873,7 @@ export default function ProcurementManagement() {
                   <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary text-[18px]">shopping_bag</span> Product Selection Consignment Table
                   </h3>
-                  <button 
+                  <button
                     type="button"
                     onClick={handleAddProductRow}
                     className="px-3 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg text-[10px] font-black hover:bg-primary/25 transition-colors flex items-center gap-1"
@@ -1918,7 +1898,7 @@ export default function ProcurementManagement() {
                       {purchaseForm.items.map((item, index) => (
                         <tr key={index} className="hover:bg-slate-50">
                           <td className="px-4 py-3 min-w-[280px]">
-                            <select 
+                            <select
                               value={item.product}
                               onChange={e => handleProductRowChange(index, e.target.value)}
                               className="border border-outline-variant rounded px-2.5 py-1.5 text-xs font-bold bg-background focus:ring-1 focus:ring-primary w-full"
@@ -1936,7 +1916,7 @@ export default function ProcurementManagement() {
                           <td className="px-4 py-3 text-right max-w-[120px]">
                             <div className="relative">
                               <span className="absolute left-2 top-1/2 -translate-y-1/2 text-outline-variant text-[10px] font-bold">$</span>
-                              <input 
+                              <input
                                 type="number"
                                 step="0.01"
                                 value={item.unitCost}
@@ -1947,7 +1927,7 @@ export default function ProcurementManagement() {
                           </td>
 
                           <td className="px-4 py-3 text-center max-w-[120px]">
-                            <input 
+                            <input
                               type="number"
                               value={item.quantity}
                               onChange={e => handleItemQuantityChange(index, parseInt(e.target.value) || 1)}
@@ -1960,7 +1940,7 @@ export default function ProcurementManagement() {
                           </td>
 
                           <td className="px-4 py-3 text-right">
-                            <button 
+                            <button
                               type="button"
                               onClick={() => handleRemoveProductRow(index)}
                               className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors"
@@ -1977,7 +1957,7 @@ export default function ProcurementManagement() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
+
                 <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl shadow-sm space-y-4">
                   <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
                     <span className="material-symbols-outlined text-primary text-[18px]">payments</span> Payment & Logistics Details
@@ -1985,7 +1965,7 @@ export default function ProcurementManagement() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Payment Method</label>
-                      <select 
+                      <select
                         name="paymentMethod"
                         value={purchaseForm.paymentMethod}
                         onChange={handlePurchaseFormChange}
@@ -2000,7 +1980,7 @@ export default function ProcurementManagement() {
 
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Payment Status</label>
-                      <select 
+                      <select
                         name="paymentStatus"
                         value={purchaseForm.paymentStatus}
                         onChange={handlePurchaseFormChange}
@@ -2014,7 +1994,7 @@ export default function ProcurementManagement() {
 
                     <div className="sm:col-span-2">
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Delivery Arrival Status</label>
-                      <select 
+                      <select
                         name="deliveryStatus"
                         value={purchaseForm.deliveryStatus}
                         onChange={handlePurchaseFormChange}
@@ -2061,16 +2041,16 @@ export default function ProcurementManagement() {
             </div>
 
             <div className="p-6 border-t border-outline-variant flex flex-col sm:flex-row justify-between gap-3 bg-surface-container-lowest">
-              <button 
-                type="button" 
-                onClick={() => setIsRecordPurchaseOpen(false)} 
+              <button
+                type="button"
+                onClick={() => setIsRecordPurchaseOpen(false)}
                 className="px-6 py-2.5 text-xs font-bold border border-outline-variant rounded-lg hover:bg-slate-50 transition-colors text-slate-700"
               >
                 Cancel
               </button>
-              
+
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   type="button"
                   onClick={(e) => handleSavePurchase(e, true)}
                   className="px-5 py-2.5 text-xs font-bold border border-primary/20 bg-primary/10 text-primary hover:bg-primary/25 rounded-lg transition-colors flex items-center gap-2"
@@ -2078,7 +2058,7 @@ export default function ProcurementManagement() {
                   <span className="material-symbols-outlined text-[16px]">print</span>
                   Save & Print Invoice
                 </button>
-                <button 
+                <button
                   type="button"
                   onClick={(e) => handleSavePurchase(e, false)}
                   className="px-6 py-2.5 text-xs font-bold bg-[#0b8252] hover:bg-[#096b43] text-white rounded-lg transition-colors shadow-sm"
@@ -2087,7 +2067,7 @@ export default function ProcurementManagement() {
                 </button>
               </div>
             </div>
-            
+
           </form>
         </div>
       )}
@@ -2096,7 +2076,7 @@ export default function ProcurementManagement() {
       {isViewPurchaseOpen && selectedPurchase && (
         <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-surface-container-lowest rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh] border border-outline-variant animate-in zoom-in-95 duration-200">
-            
+
             <div className="flex items-center justify-between p-6 border-b border-outline-variant bg-surface-container-lowest">
               <h2 className="text-base font-black text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-[20px]">receipt</span>
@@ -2108,9 +2088,9 @@ export default function ProcurementManagement() {
             </div>
 
             <div className="overflow-y-auto flex-1 p-6 space-y-6 bg-[#f8fafc]">
-              
+
               <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-6">
-                
+
                 <div className="flex flex-col sm:flex-row justify-between gap-4 border-b border-slate-100 pb-4">
                   <div>
                     <h3 className="text-lg font-black text-primary">STOCKSENSE PROCUREMENT</h3>
@@ -2127,15 +2107,13 @@ export default function ProcurementManagement() {
                 <div className="grid grid-cols-3 gap-4 border border-outline-variant rounded-lg p-3 bg-slate-50 text-xs">
                   <div>
                     <span className="text-[10px] font-black text-outline block uppercase tracking-wider mb-1">Payment Status</span>
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full font-black uppercase text-[9px] tracking-wider ${
-                      selectedPurchase.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : selectedPurchase.paymentStatus === 'Partially Paid' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
-                    }`}>{selectedPurchase.paymentStatus}</span>
+                    <span className={`inline-flex px-2.5 py-0.5 rounded-full font-black uppercase text-[9px] tracking-wider ${selectedPurchase.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : selectedPurchase.paymentStatus === 'Partially Paid' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                      }`}>{selectedPurchase.paymentStatus}</span>
                   </div>
                   <div>
                     <span className="text-[10px] font-black text-outline block uppercase tracking-wider mb-1">Delivery Status</span>
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full font-black uppercase text-[9px] tracking-wider ${
-                      selectedPurchase.deliveryStatus === 'Received' ? 'bg-emerald-100 text-emerald-800' : selectedPurchase.deliveryStatus === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'
-                    }`}>{selectedPurchase.deliveryStatus}</span>
+                    <span className={`inline-flex px-2.5 py-0.5 rounded-full font-black uppercase text-[9px] tracking-wider ${selectedPurchase.deliveryStatus === 'Received' ? 'bg-emerald-100 text-emerald-800' : selectedPurchase.deliveryStatus === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'
+                      }`}>{selectedPurchase.deliveryStatus}</span>
                   </div>
                   <div>
                     <span className="text-[10px] font-black text-outline block uppercase tracking-wider mb-1">Payment Method</span>
@@ -2198,8 +2176,8 @@ export default function ProcurementManagement() {
             </div>
 
             <div className="p-6 border-t border-outline-variant flex justify-between bg-surface-container-lowest">
-              <button 
-                onClick={() => handlePrintInvoice(selectedPurchase)} 
+              <button
+                onClick={() => handlePrintInvoice(selectedPurchase)}
                 className="px-5 py-2.5 text-xs font-bold border border-outline-variant hover:bg-slate-50 text-slate-700 rounded-lg flex items-center gap-2"
               >
                 <span className="material-symbols-outlined text-[16px]">print</span>
@@ -2230,7 +2208,7 @@ export default function ProcurementManagement() {
                 <span className="text-[10px] font-black text-outline uppercase">Purchase ID</span>
                 <p className="font-bold text-primary text-sm">{selectedPurchase.id}</p>
               </div>
-              
+
               <div className="text-xs space-y-1">
                 <span className="text-[10px] font-black text-outline uppercase">Supplier</span>
                 <p className="font-bold text-on-surface">{selectedPurchase.supplier}</p>
@@ -2238,7 +2216,7 @@ export default function ProcurementManagement() {
 
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1.5">Payment Status</label>
-                <select 
+                <select
                   name="paymentStatus"
                   value={editPurchaseStatusForm.paymentStatus}
                   onChange={e => setEditPurchaseStatusForm(prev => ({ ...prev, paymentStatus: e.target.value as any }))}
@@ -2252,7 +2230,7 @@ export default function ProcurementManagement() {
 
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1.5">Delivery Status</label>
-                <select 
+                <select
                   name="deliveryStatus"
                   value={editPurchaseStatusForm.deliveryStatus}
                   onChange={e => setEditPurchaseStatusForm(prev => ({ ...prev, deliveryStatus: e.target.value as any }))}
@@ -2286,10 +2264,10 @@ export default function ProcurementManagement() {
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
+
                 <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
                   <h3 className="font-extrabold text-xs uppercase tracking-wider text-on-surface flex items-center gap-2 border-b border-slate-100 pb-2">
                     <span className="material-symbols-outlined text-primary text-[18px]">person</span>
@@ -2298,26 +2276,26 @@ export default function ProcurementManagement() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Supplier Name *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
                         className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.name ? 'border-red-500' : 'border-outline-variant'}`}
-                        placeholder="e.g. ABC Distributors" 
+                        placeholder="e.g. ABC Distributors"
                       />
                       {formErrors.name && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.name}</p>}
                     </div>
 
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Contact Person *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="contact"
                         value={formData.contact}
                         onChange={handleInputChange}
                         className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.contact ? 'border-red-500' : 'border-outline-variant'}`}
-                        placeholder="e.g. John Doe" 
+                        placeholder="e.g. John Doe"
                       />
                       {formErrors.contact && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.contact}</p>}
                     </div>
@@ -2325,25 +2303,25 @@ export default function ProcurementManagement() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Phone Number *</label>
-                        <input 
-                          type="tel" 
+                        <input
+                          type="tel"
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
                           className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.phone ? 'border-red-500' : 'border-outline-variant'}`}
-                          placeholder="e.g. +94 77 123 4567" 
+                          placeholder="e.g. +94 77 123 4567"
                         />
                         {formErrors.phone && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.phone}</p>}
                       </div>
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Email Address *</label>
-                        <input 
-                          type="email" 
+                        <input
+                          type="email"
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
                           className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.email ? 'border-red-500' : 'border-outline-variant'}`}
-                          placeholder="e.g. info@abcdistributors.com" 
+                          placeholder="e.g. info@abcdistributors.com"
                         />
                         {formErrors.email && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.email}</p>}
                       </div>
@@ -2359,13 +2337,13 @@ export default function ProcurementManagement() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Company Name *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="companyName"
                         value={formData.companyName}
                         onChange={handleInputChange}
                         className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.companyName ? 'border-red-500' : 'border-outline-variant'}`}
-                        placeholder="e.g. ABC Holdings (Pvt) Ltd" 
+                        placeholder="e.g. ABC Holdings (Pvt) Ltd"
                       />
                       {formErrors.companyName && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.companyName}</p>}
                     </div>
@@ -2373,25 +2351,25 @@ export default function ProcurementManagement() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Registration Number *</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="brn"
                           value={formData.brn}
                           onChange={handleInputChange}
                           className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.brn ? 'border-red-500' : 'border-outline-variant'}`}
-                          placeholder="e.g. BRN-20150912" 
+                          placeholder="e.g. BRN-20150912"
                         />
                         {formErrors.brn && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.brn}</p>}
                       </div>
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Tax Number *</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="taxNumber"
                           value={formData.taxNumber}
                           onChange={handleInputChange}
                           className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.taxNumber ? 'border-red-500' : 'border-outline-variant'}`}
-                          placeholder="e.g. TN-102934-A" 
+                          placeholder="e.g. TN-102934-A"
                         />
                         {formErrors.taxNumber && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.taxNumber}</p>}
                       </div>
@@ -2407,13 +2385,13 @@ export default function ProcurementManagement() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Street Address *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="street"
                         value={formData.street}
                         onChange={handleInputChange}
                         className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.street ? 'border-red-500' : 'border-outline-variant'}`}
-                        placeholder="e.g. 123 Business Street" 
+                        placeholder="e.g. 123 Business Street"
                       />
                       {formErrors.street && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.street}</p>}
                     </div>
@@ -2421,25 +2399,25 @@ export default function ProcurementManagement() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">City *</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="city"
                           value={formData.city}
                           onChange={handleInputChange}
                           className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.city ? 'border-red-500' : 'border-outline-variant'}`}
-                          placeholder="e.g. Colombo" 
+                          placeholder="e.g. Colombo"
                         />
                         {formErrors.city && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.city}</p>}
                       </div>
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Province *</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="province"
                           value={formData.province}
                           onChange={handleInputChange}
                           className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.province ? 'border-red-500' : 'border-outline-variant'}`}
-                          placeholder="e.g. Western" 
+                          placeholder="e.g. Western"
                         />
                         {formErrors.province && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.province}</p>}
                       </div>
@@ -2455,13 +2433,13 @@ export default function ProcurementManagement() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Product Categories Supplied *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="categories"
                         value={formData.categories}
                         onChange={handleInputChange}
                         className={`w-full border rounded-lg px-3 py-2 outline-none text-xs font-semibold focus:ring-1 focus:ring-primary ${formErrors.categories ? 'border-red-500' : 'border-outline-variant'}`}
-                        placeholder="e.g. Grocery, Beverages, Snacks" 
+                        placeholder="e.g. Grocery, Beverages, Snacks"
                       />
                       {formErrors.categories && <p className="text-[10px] text-red-500 font-bold mt-1">{formErrors.categories}</p>}
                     </div>
@@ -2469,7 +2447,7 @@ export default function ProcurementManagement() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Payment Terms</label>
-                        <select 
+                        <select
                           name="paymentTerms"
                           value={formData.paymentTerms}
                           onChange={handleInputChange}
@@ -2483,7 +2461,7 @@ export default function ProcurementManagement() {
                       </div>
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Status</label>
-                        <select 
+                        <select
                           name="status"
                           value={formData.status}
                           onChange={handleInputChange}
@@ -2500,8 +2478,8 @@ export default function ProcurementManagement() {
                       <div className="grid grid-cols-4 gap-2 border border-outline-variant p-2 rounded-lg bg-background">
                         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
                           <label key={day} className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600 select-none hover:text-slate-800">
-                            <input 
-                              type="checkbox" 
+                            <input
+                              type="checkbox"
                               checked={formData.deliveryDays.includes(day)}
                               onChange={() => handleDeliveryDayChange(day)}
                               className="accent-primary w-3.5 h-3.5 rounded"
@@ -2538,10 +2516,10 @@ export default function ProcurementManagement() {
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
+
                 <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
                   <h3 className="font-extrabold text-xs uppercase tracking-wider text-on-surface flex items-center gap-2 border-b border-slate-100 pb-2">
                     <span className="material-symbols-outlined text-primary text-[18px]">person</span>
@@ -2550,8 +2528,8 @@ export default function ProcurementManagement() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Supplier Name *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
@@ -2562,8 +2540,8 @@ export default function ProcurementManagement() {
 
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Contact Person *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="contact"
                         value={formData.contact}
                         onChange={handleInputChange}
@@ -2575,8 +2553,8 @@ export default function ProcurementManagement() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Phone Number *</label>
-                        <input 
-                          type="tel" 
+                        <input
+                          type="tel"
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
@@ -2586,8 +2564,8 @@ export default function ProcurementManagement() {
                       </div>
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Email Address *</label>
-                        <input 
-                          type="email" 
+                        <input
+                          type="email"
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
@@ -2607,8 +2585,8 @@ export default function ProcurementManagement() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Company Name *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="companyName"
                         value={formData.companyName}
                         onChange={handleInputChange}
@@ -2620,8 +2598,8 @@ export default function ProcurementManagement() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Registration Number *</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="brn"
                           value={formData.brn}
                           onChange={handleInputChange}
@@ -2631,8 +2609,8 @@ export default function ProcurementManagement() {
                       </div>
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Tax Number *</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="taxNumber"
                           value={formData.taxNumber}
                           onChange={handleInputChange}
@@ -2652,8 +2630,8 @@ export default function ProcurementManagement() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Street Address *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="street"
                         value={formData.street}
                         onChange={handleInputChange}
@@ -2665,8 +2643,8 @@ export default function ProcurementManagement() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">City *</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="city"
                           value={formData.city}
                           onChange={handleInputChange}
@@ -2676,8 +2654,8 @@ export default function ProcurementManagement() {
                       </div>
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Province *</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="province"
                           value={formData.province}
                           onChange={handleInputChange}
@@ -2697,8 +2675,8 @@ export default function ProcurementManagement() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Product Categories Supplied *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="categories"
                         value={formData.categories}
                         onChange={handleInputChange}
@@ -2710,7 +2688,7 @@ export default function ProcurementManagement() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Payment Terms</label>
-                        <select 
+                        <select
                           name="paymentTerms"
                           value={formData.paymentTerms}
                           onChange={handleInputChange}
@@ -2724,7 +2702,7 @@ export default function ProcurementManagement() {
                       </div>
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-wider text-outline mb-1">Status</label>
-                        <select 
+                        <select
                           name="status"
                           value={formData.status}
                           onChange={handleInputChange}
@@ -2741,8 +2719,8 @@ export default function ProcurementManagement() {
                       <div className="grid grid-cols-4 gap-2 border border-outline-variant p-2 rounded-lg bg-background">
                         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
                           <label key={day} className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600 select-none hover:text-slate-800">
-                            <input 
-                              type="checkbox" 
+                            <input
+                              type="checkbox"
                               checked={formData.deliveryDays.includes(day)}
                               onChange={() => handleDeliveryDayChange(day)}
                               className="accent-primary w-3.5 h-3.5 rounded"
