@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from './Components/Sidebar';
 import InventoryHeader from './Components/InventoryHeader';
 
@@ -32,10 +33,10 @@ export default function StockMovements() {
                     <span className="material-symbols-outlined text-[18px]">print</span> Print
                   </button>
                 </div>
-                <button className="flex items-center gap-2 bg-[#0b8252] text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-sm hover:bg-[#096b43] transition-colors w-full sm:w-auto">
+                <Link to="/inventory-adjustments" className="flex items-center justify-center gap-2 bg-[#0b8252] text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-sm hover:bg-[#096b43] transition-colors w-full sm:w-auto">
                   <span className="material-symbols-outlined text-[18px]">add</span>
                   New Manual Adjustment
-                </button>
+                </Link>
               </div>
             </div>
 

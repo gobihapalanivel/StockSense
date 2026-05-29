@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Sidebar from "./Components/Sidebar";
 import InventoryHeader from "./Components/InventoryHeader";
@@ -44,25 +43,24 @@ export default function Settings() {
 
         <main className="flex-1 overflow-y-auto bg-[#f8f9fa] p-6 md:p-8">
           <div className="max-w-[1200px] mx-auto space-y-6 h-full flex flex-col">
-            
+
             <div className="flex-shrink-0">
               <h1 className="text-3xl font-bold text-slate-800">Inventory Settings</h1>
               <p className="text-slate-500 mt-1">Configure stock rules, alerts, and inventory behavior for your supermarket system.</p>
             </div>
 
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-1 overflow-hidden min-h-[600px]">
-              
+
               {/* Left Settings Sidebar */}
               <div className="w-64 border-r border-slate-200 p-4 flex flex-col gap-1 overflow-y-auto bg-white flex-shrink-0">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-[#0b8252] text-white shadow-sm'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id
+                      ? 'bg-[#0b8252] text-white shadow-sm'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
                   >
                     <span className="material-symbols-outlined text-[20px]">{tab.icon}</span>
                     {tab.id}
@@ -73,7 +71,7 @@ export default function Settings() {
               {/* Right Content Area */}
               <div className="flex-1 flex flex-col bg-white overflow-hidden">
                 <div className="p-8 flex-1 overflow-y-auto bg-slate-50/30">
-                  
+
                   {activeTab === 'My Profile' && <SettingsProfile />}
                   {activeTab === 'Account Settings' && <SettingsAccount />}
                   {activeTab === 'Stock Rules' && <SettingsStockRules />}
