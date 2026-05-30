@@ -18,8 +18,8 @@ const quickCreateCategories = [
     items: [
       { name: 'Add New Product', path: '/manage-products/new', icon: 'add_box' },
       { name: 'New Category', path: '/categories', icon: 'category' },
-      { name: 'Stock Adjustment', path: '/inventory-adjustments', icon: 'sync_alt' },
-      { name: 'Stock Movement', path: '/stock-movements', icon: 'swap_horiz' },
+      { name: 'Stock Adjustment', path: '/inventory-operations?tab=adjustments', icon: 'sync_alt' },
+      { name: 'Stock Movement', path: '/inventory-operations?tab=movements', icon: 'swap_horiz' },
     ],
   },
   {
@@ -527,6 +527,8 @@ export default function InventoryHeader({ children }: InventoryHeaderProps) {
       pageLabel = 'Product Catalog';
     } else if (currentPath.startsWith('/inventory-analytics')) {
       pageLabel = 'Analytics';
+    } else if (currentPath.startsWith('/inventory-operations')) {
+      pageLabel = 'Stock Operations';
     } else if (currentPath.startsWith('/inventory-adjustments')) {
       pageLabel = 'Adjustments';
     } else if (currentPath.startsWith('/procurement') || currentPath.startsWith('/suppliers')) {
