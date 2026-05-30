@@ -31,7 +31,7 @@ type ProductsRegistryProps = {
   loading: boolean;
   onEdit: (product: ProductItem) => void;
   onDuplicate: (product: ProductItem) => void;
-  onArchive: (productId: string) => void;
+  onArchive: (productId: string, productName: string) => void;
   categories: string[];
   suppliers: string[];
   initialSearch?: string;
@@ -58,6 +58,18 @@ export default function ProductsRegistry({
 
   // Selected view detail product modal
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
+
+  const handleArchive = (product: ProductItem) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${product.name}" from the catalog?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    onArchive(product.id, product.name);
+  };
 
   // Sync initial props if they update (e.g. from Categories View link redirect)
   React.useEffect(() => {
@@ -415,11 +427,11 @@ export default function ProductsRegistry({
                             <span className="material-symbols-outlined text-[18px]">content_copy</span>
                           </button>
                           <button
-                            onClick={() => onArchive(p.id)}
-                            title="Archive Product"
+                            onClick={() => handleArchive(p)}
+                            title="Delete Product"
                             className="p-1.5 text-outline-variant hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           >
-                            <span className="material-symbols-outlined text-[18px]">archive</span>
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
                           </button>
                         </div>
                       </td>

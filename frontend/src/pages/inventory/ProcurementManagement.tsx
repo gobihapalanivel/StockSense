@@ -295,7 +295,7 @@ export default function ProcurementManagement() {
     return `Rs. ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }, [purchasesList]);
 
-  const pendingDeliveriesCount = purchasesList.filter(p => p.deliveryStatus === 'Pending').length;
+  
 
   // Real-time automatic calculations for Record Purchase Form
   const recordPurchaseCalculations = useMemo(() => {
@@ -1168,18 +1168,7 @@ export default function ProcurementManagement() {
                     <p className="text-xs text-outline font-medium">Currently supplying products</p>
                   </div>
 
-                  {/* Card 5: Pending Deliveries */}
-                  <div className="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm flex flex-col gap-2 transition-all duration-300 hover:scale-[1.02]">
-                    <div className="flex items-center justify-between text-[#d97706]">
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[20px]">pending_actions</span>
-                        <span className="text-[11px] font-bold uppercase tracking-wider">Pending Arrivals</span>
-                      </div>
-                      <span className="px-2 py-0.5 text-[9px] font-black bg-[#fef3c7] text-[#d97706] rounded-full uppercase tracking-wider">Warning</span>
-                    </div>
-                    <div className="text-3xl font-black text-on-surface mt-1">{pendingDeliveriesCount}</div>
-                    <p className="text-xs text-outline font-medium">Deliveries to be received</p>
-                  </div>
+                  {/* Pending Arrivals removed — not used in suppliers-only workflow */}
                 </div>
 
                 {/* Tab Navigation System */}

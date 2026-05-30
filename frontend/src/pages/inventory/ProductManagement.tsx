@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Components/Sidebar';
 import InventoryHeader from './Components/InventoryHeader';
@@ -219,27 +219,92 @@ const initialProducts: ProductItem[] = [
   }
 ];
 
+const PRODUCT_STORAGE_KEY = 'stocksense_product_catalog_products';
+
+const formatUpdatedAt = () =>
+  new Date().toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+const buildSku = (name: string, category: string) => {
+  const prefixSource = `${category || name || 'PRD'}`.replace(/[^a-zA-Z]/g, '');
+  const prefix = (prefixSource.slice(0, 3) || 'PRD').toUpperCase();
+  const suffix = Date.now().toString().slice(-5);
+  return `${prefix}-${suffix}`;
+};
+
+const normalizeProduct = (product: Partial<ProductItem> & Record<string, any>, fallbackIndex: number): ProductItem => {
+  const fallbackName = product.name?.trim() || `Product ${fallbackIndex + 1}`;
+  const fallbackCategory = product.category?.trim() || 'Uncategorized';
+
+  return {
+    id: String(product.id || `prod_${Date.now()}_${fallbackIndex}`),
+    name: fallbackName,
+    sku: String(product.sku || buildSku(fallbackName, fallbackCategory)),
+    barcode: String(product.barcode || `479${Math.floor(1000000000 + Math.random() * 9000000000)}`),
+    category: fallbackCategory,
+    subcategory: String(product.subcategory || ''),
+    supplier: String(product.supplier || 'Unassigned Supplier'),
+    brand: String(product.brand || 'Unbranded'),
+    unitType: String(product.unitType || 'Piece'),
+    stock: Number(product.stock ?? 0),
+    reorderLevel: Number(product.reorderLevel ?? 0),
+    costPrice: Number(product.costPrice ?? 0),
+    sellingPrice: Number(product.sellingPrice ?? 0),
+    status: product.status === 'Inactive' || product.status === 'Discontinued' ? product.status : 'Active',
+    lastUpdated: String(product.lastUpdated || formatUpdatedAt()),
+    imageUrl: product.imageUrl || product.frontImageUrl || null,
+    description: String(product.description || ''),
+    mfgDate: String(product.mfgDate || ''),
+    expiryDate: String(product.expiryDate || '')
+  };
+};
+
+const loadStoredProducts = (): ProductItem[] => {
+  if (typeof window === 'undefined') {
+    return initialProducts;
+  }
+
+  const stored = window.localStorage.getItem(PRODUCT_STORAGE_KEY);
+  if (!stored) {
+    return initialProducts;
+  }
+
+  try {
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) {
+      return initialProducts;
+    }
+
+    return parsed.map((product, index) => normalizeProduct(product, index));
+  } catch {
+    return initialProducts;
+  }
+};
+
 export default function ProductManagement() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'products';
 
   // React shared catalog states
-  const [products, setProducts] = useState<ProductItem[]>(initialProducts);
+  const [products, setProducts] = useState<ProductItem[]>(() => loadStoredProducts());
   const [categories, setCategories] = useState(initialCategories);
   const [loading, setLoading] = useState(false);
 
   // preloaded brands directory
   const [brands, setBrands] = useState<BrandItem[]>([
-    { id: 'b-1', name: 'Anchor', description: 'Premium dairy products and milk powders.', productCount: 1 },
-    { id: 'b-2', name: 'Coca-Cola', description: 'Carbonated soft drinks and beverages.', productCount: 1 },
-    { id: 'b-3', name: 'Sunlight', description: 'Leading household cleaning and laundry brands.', productCount: 1 },
-    { id: 'b-4', name: 'Signal', description: 'Oral healthcare and toothpastes.', productCount: 1 },
-    { id: 'b-5', name: 'Munchee', description: 'Biscuits, wafers, and bakery snacks.', productCount: 1 },
+    { id: 'b-1', name: 'Anchor', description: 'Premium dairy products and milk powders.' },
+    { id: 'b-2', name: 'Coca-Cola', description: 'Carbonated soft drinks and beverages.' },
+    { id: 'b-3', name: 'Sunlight', description: 'Leading household cleaning and laundry brands.' },
+    { id: 'b-4', name: 'Signal', description: 'Oral healthcare and toothpastes.' },
+    { id: 'b-5', name: 'Munchee', description: 'Biscuits, wafers, and bakery snacks.' },
   ]);
 
   // preloaded suppliers directory
-  const [suppliers, setSuppliers] = useState<SupplierItem[]>([
+  const [suppliers] = useState<SupplierItem[]>([
     { id: 's-1', name: 'FreshFarm Supplies', phone: '+94 77 123 4567', email: 'sales@freshfarm.lk', address: '45 Orchard Lane, Colombo 03', status: 'Active' },
     { id: 's-2', name: 'Golden Crust Bakery', phone: '+94 11 234 5678', email: 'orders@goldencrust.lk', address: '12 Bakery Lane, Kandy', status: 'Active' },
     { id: 's-3', name: 'Ocean Harvest', phone: '+94 91 345 6789', email: 'supply@oceanharvest.lk', address: '78 Fishery Pier, Galle', status: 'Active' },
@@ -255,6 +320,10 @@ export default function ProductManagement() {
 
   // Toast notification
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
+
+  useEffect(() => {
+    window.localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(products));
+  }, [products]);
 
   const showToast = (message: string, type: 'success' | 'info' = 'success') => {
     setToast({ message, type });
@@ -323,11 +392,10 @@ export default function ProductManagement() {
   };
 
   // Brand registry handlers
-  const handleAddBrand = (brandData: Omit<BrandItem, 'id' | 'productCount'>) => {
+  const handleAddBrand = (brandData: Omit<BrandItem, 'id'>) => {
     const newBrand: BrandItem = {
       ...brandData,
       id: `brand_${Date.now()}`,
-      productCount: 0
     };
     setBrands((prev) => [...prev, newBrand]);
     showToast(`Brand "${brandData.name}" registered successfully.`);
@@ -345,42 +413,65 @@ export default function ProductManagement() {
     showToast('Brand deleted successfully.', 'info');
   };
 
-  // Supplier registry handlers
-  const handleAddSupplier = (supplierData: Omit<SupplierItem, 'id'>) => {
-    const newSup: SupplierItem = {
-      ...supplierData,
-      id: `sup_${Date.now()}`
-    };
-    setSuppliers((prev) => [...prev, newSup]);
-    showToast(`Supplier "${supplierData.name}" registered successfully.`);
-  };
-
-  const handleEditSupplier = (id: string, updatedFields: Partial<SupplierItem>) => {
-    setSuppliers((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, ...updatedFields } : s))
-    );
-    showToast(`Supplier details updated successfully.`);
-  };
-
-  const handleDeleteSupplier = (id: string) => {
-    setSuppliers((prev) => prev.filter((s) => s.id !== id));
-    showToast('Supplier deleted successfully.', 'info');
-  };
-
   // Save product (handles both Create and Edit)
   const handleSaveProduct = (formData: any) => {
     setLoading(true);
     window.setTimeout(() => {
+      const existingProduct = editingProduct || products.find((product) => product.id === formData.id);
+      const variantProducts = Array.isArray(formData.variants) ? formData.variants : [];
+      const representativeVariant = variantProducts[0];
+      const variantStock = variantProducts.reduce((sum: number, variant: { stock?: number }) => sum + Number(variant.stock || 0), 0);
+      const variantReorderLevel = variantProducts.length
+        ? Math.min(...variantProducts.map((variant: { reorderLevel?: number }) => Number(variant.reorderLevel || 0)))
+        : 0;
+      const productRecord: ProductItem = {
+        id: existingProduct?.id || String(formData.id || `prod_${Date.now()}`),
+        name: String(formData.name || existingProduct?.name || 'Untitled Product'),
+        sku: existingProduct?.sku || String(formData.sku || buildSku(formData.name || existingProduct?.name || 'Untitled Product', formData.category || existingProduct?.category || 'Uncategorized')),
+        barcode: String(
+          formData.barcode ||
+            representativeVariant?.barcode ||
+            existingProduct?.barcode ||
+            `479${Math.floor(1000000000 + Math.random() * 9000000000)}`
+        ),
+        category: String(formData.category || existingProduct?.category || 'Uncategorized'),
+        subcategory: String(formData.subcategory || existingProduct?.subcategory || ''),
+        supplier: String(formData.supplier || existingProduct?.supplier || 'Unassigned Supplier'),
+        brand: String(formData.brand || existingProduct?.brand || 'Unbranded'),
+        unitType: String(
+          formData.unitType ||
+            representativeVariant?.unit ||
+            existingProduct?.unitType ||
+            'Piece'
+        ),
+        stock: formData.productStructure === 'variant' ? variantStock : Number(formData.stock ?? existingProduct?.stock ?? 0),
+        reorderLevel: formData.productStructure === 'variant'
+          ? variantReorderLevel
+          : Number(formData.reorderLevel ?? existingProduct?.reorderLevel ?? 0),
+        costPrice: formData.productStructure === 'variant'
+          ? Number(representativeVariant?.costPrice ?? existingProduct?.costPrice ?? 0)
+          : Number(formData.costPrice ?? existingProduct?.costPrice ?? 0),
+        sellingPrice: formData.productStructure === 'variant'
+          ? Number(representativeVariant?.sellingPrice ?? existingProduct?.sellingPrice ?? 0)
+          : Number(formData.sellingPrice ?? existingProduct?.sellingPrice ?? 0),
+        status: formData.status || existingProduct?.status || 'Active',
+        lastUpdated: formatUpdatedAt(),
+        imageUrl: formData.frontImageUrl || formData.imageUrl || existingProduct?.imageUrl || null,
+        description: String(formData.description || existingProduct?.description || ''),
+        mfgDate: String(formData.mfgDate || existingProduct?.mfgDate || ''),
+        expiryDate: String(formData.expiryDate || existingProduct?.expiryDate || '')
+      };
+
       if (editingProduct) {
         // Edit flow
         setProducts((prev) =>
-          prev.map((p) => (p.id === formData.id ? { ...p, ...formData } : p))
+          prev.map((p) => (p.id === productRecord.id ? productRecord : p))
         );
-        showToast(`Product "${formData.name}" updated successfully.`);
+        showToast(`Product "${productRecord.name}" updated successfully.`);
       } else {
         // Create flow
-        setProducts((prev) => [formData, ...prev]);
-        showToast(`Product "${formData.name}" created successfully.`);
+        setProducts((prev) => [productRecord, ...prev]);
+        showToast(`Product "${productRecord.name}" created successfully.`);
       }
       setEditingProduct(null);
       setLoading(false);
@@ -407,13 +498,11 @@ export default function ProductManagement() {
     showToast(`Duplicated "${product.name}" successfully.`);
   };
 
-  const handleArchiveProduct = (id: string) => {
-    if (window.confirm('Are you sure you want to archive this product? This will mark its status as Discontinued.')) {
-      setProducts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, status: 'Discontinued' } : p))
-      );
-      showToast('Product marked as Discontinued successfully.', 'info');
-    }
+  const handleArchiveProduct = (id: string, productName: string) => {
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, status: 'Discontinued' } : p))
+    );
+    showToast(`Product "${productName}" marked as Discontinued successfully.`, 'info');
   };
 
   // View Category Products redirects: swiches to products tab and sets filter

@@ -4,12 +4,11 @@ export type BrandItem = {
   id: string;
   name: string;
   description: string;
-  productCount: number;
 };
 
 type BrandRegistryProps = {
   brands: BrandItem[];
-  onAddBrand: (brand: Omit<BrandItem, 'id' | 'productCount'>) => void;
+  onAddBrand: (brand: Omit<BrandItem, 'id'>) => void;
   onEditBrand: (id: string, updatedFields: Partial<BrandItem>) => void;
   onDeleteBrand: (id: string) => void;
 };
@@ -169,12 +168,6 @@ export default function BrandRegistry({
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-[10px] font-bold text-outline">
-                <span>Associated Products</span>
-                <span className="bg-slate-100 text-on-surface-variant px-2 py-0.5 rounded-full">
-                  {brand.productCount} skus
-                </span>
-              </div>
             </div>
           ))}
         </div>
