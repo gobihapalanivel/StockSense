@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { downloadReport, ViewState } from './reportUtils';
 
 export default function ReportsOverview({ onViewChange }: { onViewChange: (view: ViewState) => void }) {
