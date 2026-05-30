@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Product, RestockAlert } from '../../types'
+import type { Product, RestockAlert } from '../../../../types'
 
 /*
   inventoryService

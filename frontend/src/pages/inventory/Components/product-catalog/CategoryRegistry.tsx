@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import CategoryTree from './CategoryTree';
+import ProductImageUploader from './ProductImageUploader';
 
 type SubCategoryNode = {
   id: string;
@@ -17,13 +19,14 @@ type CategoryItem = {
   skus: number;
   health: string;
   children: SubCategoryNode[];
+  description?: string;
 };
 
 type CategoryRegistryProps = {
   categories: CategoryItem[];
   onViewProducts: (categoryName: string) => void;
-  onAddCategory: (newCategory: { name: string; hierarchy: 'parent' | 'sub'; parentId: string }) => void;
-  onEditCategory: (cat: CategoryItem) => void;
+  onAddCategory: (newCategory: { name: string; description: string; hierarchy: 'parent' | 'sub'; parentId: string; image?: string | null }) => void;
+  onEditCategory: (id: string, name: string, description: string, image?: string | null) => void;
   onAddSubcategory: (parentCat: CategoryItem) => void;
   onArchiveCategory: (id: string) => void;
 };
@@ -33,21 +36,36 @@ export default function CategoryRegistry({
   onViewProducts,
   onAddCategory,
   onEditCategory,
-  onAddSubcategory,
   onArchiveCategory
 }: CategoryRegistryProps) {
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryName, setCategoryName] = useState('');
+  const [categoryDescription, setCategoryDescription] = useState('');
   const [hierarchy, setHierarchy] = useState<'parent' | 'sub'>('parent');
   const [parentCatId, setParentCatId] = useState('');
+  const [editingCategory, setEditingCategory] = useState<CategoryItem | null>(null);
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
+  const [categoryImage, setCategoryImage] = useState<string | null>(null);
 
   // Active taxonomy views: parents -> drill down subcategories -> drill down product listings
   const [activeView, setActiveView] = useState<'parents' | 'children'>('parents');
   const [selectedParent, setSelectedParent] = useState<CategoryItem | null>(null);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Auto-open modal if navigated via deep link from NewProductForm
+  useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      setIsModalOpen(true);
+      setHierarchy('parent');
+      searchParams.delete('action');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   // Sync parent category state for dropdown options
-  React.useEffect(() => {
+  useEffect(() => {
     if (categories.length > 0 && !parentCatId) {
       setParentCatId(categories[0].id);
     }
@@ -64,10 +82,24 @@ export default function CategoryRegistry({
   }, [categories]);
 
   const handleOpenAddModal = (mode: 'parent' | 'sub', defaultParentId?: string) => {
+    setEditingCategory(null);
+    setCategoryName('');
+    setCategoryDescription('');
+    setCategoryImage(null);
+    setDuplicateError(null);
     setHierarchy(mode);
     if (defaultParentId) {
       setParentCatId(defaultParentId);
     }
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (cat: CategoryItem) => {
+    setEditingCategory(cat);
+    setCategoryName(cat.name);
+    setCategoryDescription(cat.description || '');
+    setCategoryImage(cat.image || null);
+    setDuplicateError(null);
     setIsModalOpen(true);
   };
 
@@ -77,12 +109,46 @@ export default function CategoryRegistry({
       alert('Please enter a valid category name.');
       return;
     }
-    onAddCategory({
-      name: trimmed,
-      hierarchy,
-      parentId: hierarchy === 'sub' ? parentCatId : '',
-    });
+
+    // Duplicate Check
+    let isDuplicate = false;
+    if (editingCategory) {
+      // Check if renamed to an existing parent category name
+      isDuplicate = categories.some(
+        (c) => c.id !== editingCategory.id && c.name.toLowerCase() === trimmed.toLowerCase()
+      );
+    } else {
+      if (hierarchy === 'parent') {
+        isDuplicate = categories.some((c) => c.name.toLowerCase() === trimmed.toLowerCase());
+      } else {
+        const parent = categories.find((c) => c.id === parentCatId);
+        if (parent) {
+          isDuplicate = parent.children.some((sub) => sub.name.toLowerCase() === trimmed.toLowerCase());
+        }
+      }
+    }
+
+    if (isDuplicate) {
+      setDuplicateError(`The category "${trimmed}" already exists.`);
+      return;
+    }
+
+    if (editingCategory) {
+      onEditCategory(editingCategory.id, trimmed, categoryDescription.trim(), categoryImage);
+    } else {
+      onAddCategory({
+        name: trimmed,
+        description: categoryDescription.trim(),
+        hierarchy,
+        parentId: hierarchy === 'sub' ? parentCatId : '',
+        image: categoryImage,
+      });
+    }
     setCategoryName('');
+    setCategoryDescription('');
+    setCategoryImage(null);
+    setDuplicateError(null);
+    setEditingCategory(null);
     setIsModalOpen(false);
   };
 
@@ -141,7 +207,7 @@ export default function CategoryRegistry({
         <div className="lg:col-span-1">
           <CategoryTree
             categories={categories}
-            onSelectSubcategory={(parent, sub) => {
+            onSelectSubcategory={(parent) => {
               // Deep-linking: clicking category/subcategory toggles viewing products of that category!
               onViewProducts(parent);
             }}
@@ -198,19 +264,31 @@ export default function CategoryRegistry({
                   <div className="p-4 flex-1 flex flex-col justify-between space-y-4">
                     <div>
                       <div className="flex justify-between items-start gap-2">
-                        <h4 className="text-sm font-bold text-on-surface flex items-center gap-1.5">
+                        <h4 className="text-sm font-bold text-on-surface flex items-center gap-1.5 truncate">
                           <span>{category.icon}</span>
-                          <span>{category.name}</span>
+                          <span className="truncate">{category.name}</span>
                         </h4>
-                        <button
-                          onClick={() => onArchiveCategory(category.id)}
-                          title="Archive Category"
-                          className="p-1 rounded text-outline-variant hover:text-red-600 hover:bg-red-50 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-sm">archive</span>
-                        </button>
+                        <div className="flex gap-1 shrink-0">
+                          <button
+                            onClick={() => handleOpenEditModal(category)}
+                            title="Edit Category"
+                            className="p-1 rounded text-outline-variant hover:text-primary hover:bg-primary/5 transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-sm">edit</span>
+                          </button>
+                          <button
+                            onClick={() => onArchiveCategory(category.id)}
+                            title="Archive Category"
+                            className="p-1 rounded text-outline-variant hover:text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-sm">archive</span>
+                          </button>
+                        </div>
                       </div>
                       <p className="text-[10px] text-outline mt-1">{category.children.length} subcategories registered</p>
+                      <p className="text-[11px] text-on-surface-variant line-clamp-2 mt-1.5 leading-relaxed">
+                        {category.description || 'No description provided for this catalog category.'}
+                      </p>
                     </div>
 
                     <div className="space-y-3">
@@ -332,10 +410,17 @@ export default function CategoryRegistry({
             <div className="flex items-center justify-between p-6 border-b border-outline-variant/60">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary">category</span>
-                <h2 className="text-lg font-bold text-on-surface">Manage Category Nodes</h2>
+                <h2 className="text-lg font-bold text-on-surface">
+                  {editingCategory ? 'Edit Category Node' : 'Manage Category Nodes'}
+                </h2>
               </div>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setCategoryName('');
+                  setCategoryDescription('');
+                  setEditingCategory(null);
+                }}
                 className="text-outline hover:text-on-surface transition-colors"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
@@ -353,81 +438,123 @@ export default function CategoryRegistry({
                 <input
                   type="text"
                   value={categoryName}
-                  onChange={(e) => setCategoryName(e.target.value)}
+                  onChange={(e) => {
+                    setCategoryName(e.target.value);
+                    if (duplicateError) setDuplicateError(null);
+                  }}
                   placeholder="e.g. Soft Drinks, Fresh Pastas, Laundry"
-                  className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary placeholder:text-outline-variant"
+                  className={`w-full px-4 py-2.5 bg-background border rounded-lg text-sm text-on-surface outline-none focus:ring-2 transition-colors ${
+                    duplicateError 
+                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                      : 'border-outline-variant focus:ring-primary'
+                  }`}
+                />
+                {duplicateError && (
+                  <p className="text-[10px] font-bold text-red-500 mt-1.5 flex items-center gap-1 animate-in fade-in slide-in-from-top-1">
+                    <span className="material-symbols-outlined text-[14px]">error</span>
+                    {duplicateError}
+                  </p>
+                )}
+              </div>
+
+              {/* Category Description input */}
+              <div>
+                <label className="block text-[11px] font-bold text-outline uppercase tracking-wider mb-2">
+                  Category Description
+                </label>
+                <textarea
+                  value={categoryDescription}
+                  onChange={(e) => setCategoryDescription(e.target.value)}
+                  placeholder="Describe shelves, aisle locations, temperature setups..."
+                  rows={3}
+                  className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary placeholder:text-outline-variant resize-none"
                 />
               </div>
 
-              {/* Hierarchy toggles */}
-              <div>
-                <label className="block text-[11px] font-bold text-outline uppercase tracking-wider mb-2">
-                  Hierarchy Placement
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Option 1: Parent Department */}
-                  <button
-                    type="button"
-                    onClick={() => setHierarchy('parent')}
-                    className={`flex items-start gap-2.5 p-3 rounded-xl border-2 text-left transition-colors ${
-                      hierarchy === 'parent' ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-outline'
-                    }`}
-                  >
-                    <div className={`w-4 h-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${
-                      hierarchy === 'parent' ? 'border-primary' : 'border-outline'
-                    }`}>
-                      {hierarchy === 'parent' && <div className="w-2 h-2 bg-primary rounded-full"></div>}
-                    </div>
-                    <div>
-                      <h5 className="text-xs font-bold text-on-surface">Parent Node</h5>
-                      <p className="text-[10px] text-outline mt-0.5">Top-level department</p>
-                    </div>
-                  </button>
-
-                  {/* Option 2: Subcategory placement */}
-                  <button
-                    type="button"
-                    onClick={() => setHierarchy('sub')}
-                    className={`flex items-start gap-2.5 p-3 rounded-xl border-2 text-left transition-colors ${
-                      hierarchy === 'sub' ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-outline'
-                    }`}
-                  >
-                    <div className={`w-4 h-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${
-                      hierarchy === 'sub' ? 'border-primary' : 'border-outline'
-                    }`}>
-                      {hierarchy === 'sub' && <div className="w-2 h-2 bg-primary rounded-full"></div>}
-                    </div>
-                    <div>
-                      <h5 className="text-xs font-bold text-on-surface">Subcategory</h5>
-                      <p className="text-[10px] text-outline mt-0.5">Fits under a parent</p>
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Parent category selector (only if subcategory hierarchy active) */}
-              {hierarchy === 'sub' && (
+              {/* Category Image Uploader */}
+              {hierarchy === 'parent' && (
                 <div>
                   <label className="block text-[11px] font-bold text-outline uppercase tracking-wider mb-2">
-                    Select Parent Department
+                    Department Image
                   </label>
-                  <div className="relative">
-                    <select
-                      value={parentCatId}
-                      onChange={(e) => setParentCatId(e.target.value)}
-                      className="w-full appearance-none pl-4 pr-10 py-2.5 bg-background border border-outline-variant rounded-lg text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                    >
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline-variant text-[20px] pointer-events-none">
-                      expand_more
-                    </span>
-                  </div>
+                  <ProductImageUploader imageUrl={categoryImage} setImageUrl={setCategoryImage} />
                 </div>
+              )}
+
+              {/* Hierarchy placement selection - only on create */}
+              {!editingCategory && (
+                <>
+                  {/* Hierarchy toggles */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-outline uppercase tracking-wider mb-2">
+                      Hierarchy Placement
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Option 1: Parent Department */}
+                      <button
+                        type="button"
+                        onClick={() => setHierarchy('parent')}
+                        className={`flex items-start gap-2.5 p-3 rounded-xl border-2 text-left transition-colors ${
+                          hierarchy === 'parent' ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-outline'
+                        }`}
+                      >
+                        <div className={`w-4 h-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${
+                          hierarchy === 'parent' ? 'border-primary' : 'border-outline'
+                        }`}>
+                          {hierarchy === 'parent' && <div className="w-2 h-2 bg-primary rounded-full"></div>}
+                        </div>
+                        <div>
+                          <h5 className="text-xs font-bold text-on-surface">Parent Node</h5>
+                          <p className="text-[10px] text-outline mt-0.5">Top-level department</p>
+                        </div>
+                      </button>
+
+                      {/* Option 2: Subcategory placement */}
+                      <button
+                        type="button"
+                        onClick={() => setHierarchy('sub')}
+                        className={`flex items-start gap-2.5 p-3 rounded-xl border-2 text-left transition-colors ${
+                          hierarchy === 'sub' ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-outline'
+                        }`}
+                      >
+                        <div className={`w-4 h-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${
+                          hierarchy === 'sub' ? 'border-primary' : 'border-outline'
+                        }`}>
+                          {hierarchy === 'sub' && <div className="w-2 h-2 bg-primary rounded-full"></div>}
+                        </div>
+                        <div>
+                          <h5 className="text-xs font-bold text-on-surface">Subcategory</h5>
+                          <p className="text-[10px] text-outline mt-0.5">Fits under a parent</p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Parent category selector (only if subcategory hierarchy active) */}
+                  {hierarchy === 'sub' && (
+                    <div>
+                      <label className="block text-[11px] font-bold text-outline uppercase tracking-wider mb-2">
+                        Select Parent Department
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={parentCatId}
+                          onChange={(e) => setParentCatId(e.target.value)}
+                          className="w-full appearance-none pl-4 pr-10 py-2.5 bg-background border border-outline-variant rounded-lg text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                        >
+                          {categories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline-variant text-[20px] pointer-events-none">
+                          expand_more
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
             </div>
@@ -436,7 +563,12 @@ export default function CategoryRegistry({
             <div className="bg-slate-50 px-6 py-4 flex justify-end gap-2 border-t border-outline-variant/60">
               <button
                 type="button"
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setCategoryName('');
+                  setCategoryDescription('');
+                  setEditingCategory(null);
+                }}
                 className="px-4 py-2 bg-white border border-outline rounded-lg text-xs font-bold text-on-surface-variant hover:bg-slate-50 transition-colors shadow-sm"
               >
                 Cancel

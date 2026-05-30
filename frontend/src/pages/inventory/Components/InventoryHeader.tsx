@@ -569,7 +569,7 @@ export default function InventoryHeader({ children }: InventoryHeaderProps) {
   };
 
   return (
-    <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/60 flex items-center justify-between px-6 shrink-0 w-full z-10 sticky top-0">
+    <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/60 flex items-center justify-between px-6 shrink-0 w-full z-30 sticky top-0">
       {/* Left side content (Breadcrumbs, Search, etc.) */}
       <div className="flex-1 flex items-center gap-4">
         {getBreadcrumbs()}

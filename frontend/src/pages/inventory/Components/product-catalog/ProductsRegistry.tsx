@@ -12,6 +12,7 @@ export type ProductItem = {
   category: string;
   subcategory: string;
   supplier: string;
+  brand: string;
   unitType: string;
   stock: number;
   reorderLevel: number;
@@ -20,6 +21,9 @@ export type ProductItem = {
   status: ProductStatus;
   lastUpdated: string;
   imageUrl?: string | null;
+  description?: string;
+  mfgDate?: string;
+  expiryDate?: string;
 };
 
 type ProductsRegistryProps = {
@@ -72,12 +76,13 @@ export default function ProductsRegistry({
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
     return products.filter((p) => {
-      // 1. Text Search matches Name, SKU, or Barcode
+      // 1. Text Search matches Name, SKU, Barcode, or Brand
       const matchesSearch =
         !query ||
         p.name.toLowerCase().includes(query) ||
         p.sku.toLowerCase().includes(query) ||
-        p.barcode.toLowerCase().includes(query);
+        p.barcode.toLowerCase().includes(query) ||
+        (p.brand && p.brand.toLowerCase().includes(query));
 
       // 2. Select Dropdown Filters
       const matchesCategory =
@@ -306,7 +311,9 @@ export default function ProductsRegistry({
                           )}
                           <div className="min-w-0">
                             <span className="block font-bold text-on-surface text-sm truncate">{p.name}</span>
-                            <span className="block text-[10px] text-outline mt-0.5">{p.subcategory || 'General'}</span>
+                            <span className="block text-[10px] text-outline mt-0.5">
+                              {p.brand ? `${p.brand} • ` : ''}{p.subcategory || 'General'}
+                            </span>
                           </div>
                         </div>
                       </td>
@@ -482,11 +489,15 @@ export default function ProductsRegistry({
               </div>
 
               {/* Specs Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <div>
                   <p className="text-[10px] font-bold text-outline uppercase tracking-wider">Category</p>
                   <p className="text-xs font-bold text-on-surface mt-1">{selectedProduct.category}</p>
                   <p className="text-[9px] text-outline mt-0.5">{selectedProduct.subcategory}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-outline uppercase tracking-wider">Brand</p>
+                  <p className="text-xs font-bold text-on-surface mt-1">{selectedProduct.brand || 'No Brand'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-outline uppercase tracking-wider">Supplier</p>
@@ -543,6 +554,55 @@ export default function ProductsRegistry({
                   </div>
                 </div>
 
+              </div>
+
+              {/* Product Description */}
+              {selectedProduct.description && (
+                <div className="border border-outline-variant/60 rounded-xl p-4 bg-background">
+                  <h4 className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Product Description</h4>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">{selectedProduct.description}</p>
+                </div>
+              )}
+
+              {/* Expiry and Barcode Info */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Expiry Widget */}
+                <div className="border border-outline-variant rounded-xl p-4 flex flex-col justify-between">
+                  <span className="text-[10px] font-bold text-outline uppercase tracking-wider block mb-3">Expiry Details</span>
+                  <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-on-surface-variant">
+                    <div>
+                      <span className="text-[9px] font-bold text-outline uppercase block mb-1">Mfg. Date</span>
+                      <span>{selectedProduct.mfgDate || 'N/A'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] font-bold text-outline uppercase block mb-1">Expiry Date</span>
+                      <span className={selectedProduct.expiryDate && new Date(selectedProduct.expiryDate) < new Date() ? "text-red-600 font-bold" : ""}>
+                        {selectedProduct.expiryDate || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Barcode Generator Preview */}
+                <div className="border border-outline-variant rounded-xl p-4 flex flex-col items-center justify-center bg-white">
+                  <span className="text-[10px] font-bold text-outline uppercase tracking-wider block mb-2 self-start">Barcode Preview</span>
+                  <div className="flex flex-col items-center justify-center space-y-1 w-full">
+                    {/* Beautiful dynamic CSS barcode */}
+                    <div className="flex items-center justify-center h-12 gap-[1.5px] px-4 py-1.5 border border-slate-100 bg-white rounded w-full overflow-hidden">
+                      {selectedProduct.barcode ? (
+                        selectedProduct.barcode.split('').map((char: string, index: number) => {
+                          const num = parseInt(char, 10) || 0;
+                          const widthClass = num % 3 === 0 ? 'w-[3px]' : num % 2 === 0 ? 'w-[2px]' : 'w-[1px]';
+                          const colorClass = index % 4 === 0 && num > 3 ? 'bg-transparent' : 'bg-black';
+                          return <div key={index} className={`h-full ${widthClass} ${colorClass}`} />;
+                        })
+                      ) : (
+                        <div className="text-[10px] text-outline">No Barcode</div>
+                      )}
+                    </div>
+                    <span className="text-[10px] font-mono tracking-widest text-on-surface mt-1">{selectedProduct.barcode || 'N/A'}</span>
+                  </div>
+                </div>
               </div>
 
               {/* Footer Timestamp */}
