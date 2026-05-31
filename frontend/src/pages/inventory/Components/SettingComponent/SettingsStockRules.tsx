@@ -1,18 +1,26 @@
 import React from 'react';
 import { Toggle } from './Toggle';
 
-import { StockRulesConfig } from './StockRulesConfig';
+interface StockRulesConfig {
+  defaultReorderLevel: string;
+  minimumStockThreshold: string;
+  maximumStockLimit: string;
+  stockUpdateMode: string;
+  allowNegativeStock: boolean;
+  autoDeductStock: boolean;
+}
 
 interface Props {
   rules: StockRulesConfig;
-  onChange: (updated: Partial<StockRulesConfig>) => void;
+  onChange: (updated: StockRulesConfig) => void;
 }
 
 export default function SettingsStockRules({ rules, onChange }: Props) {
   const updateField = (field: keyof StockRulesConfig, value: any) => {
     onChange({
+      ...rules,
       [field]: value
-    } as Partial<StockRulesConfig>);
+    });
   };
 
   return (
