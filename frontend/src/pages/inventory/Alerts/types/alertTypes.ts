@@ -1,4 +1,4 @@
-export type AlertCategory = 'Low Stock' | 'Out of Stock' | 'Expiring Soon' | 'Overstock' | 'Reorder Recommendation';
+export type AlertCategory = 'Low Stock' | 'Out of Stock' | 'Expiring Soon' | 'Dead Stock' | 'Overstock' | 'Reorder Recommendation';
 export type AlertSeverity = 'Critical' | 'Warning' | 'Info';
 export type Tab = 'All Alerts' | AlertCategory;
 
@@ -21,6 +21,9 @@ export interface AlertItem {
   primaryAction: string;
   secondaryAction: string;
   primaryBtnClass: string;
+  expiryDate?: string;
+  daysUntilExpiry?: number;
+  stockPercentage?: number;
 }
 
 export interface Toast {

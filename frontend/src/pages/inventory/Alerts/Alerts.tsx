@@ -14,7 +14,9 @@ export default function Alerts() {
     criticalAlerts,
     lowStockAlerts,
     expiryAlerts,
+    deadStockAlerts,
     reorderSuggestions,
+    smartInsights,
     filtered,
     activeTab,
     setActiveTab,
@@ -43,8 +45,9 @@ export default function Alerts() {
           {toasts.map(t => (
             <div
               key={t.id}
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-bold text-white pointer-events-auto ${t.type === 'success' ? 'bg-[#0b8252]' : 'bg-slate-700'
-                }`}
+              className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-bold text-white pointer-events-auto ${
+                t.type === 'success' ? 'bg-[#0b8252]' : 'bg-slate-700'
+              }`}
             >
               <span className="material-symbols-outlined text-[18px]">
                 {t.type === 'success' ? 'check_circle' : 'info'}
@@ -64,9 +67,9 @@ export default function Alerts() {
             {/* Top Header */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-slate-800">Alerts &amp; Notifications</h2>
+                <h1 className="text-2xl font-bold text-slate-800">Alerts &amp; Notifications</h1>
                 <p className="text-slate-500 text-sm mt-1">
-                  Manage inventory levels, expiry dates, and unusual sales patterns.
+                  Monitor inventory health — low stock, expiry dates, dead stock, and reorder needs.
                   {unread > 0 && (
                     <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded-full">
                       {unread} unread
@@ -75,14 +78,14 @@ export default function Alerts() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-
                 {/* Filters button */}
                 <button
                   onClick={() => setShowFilters(true)}
-                  className={`flex items-center gap-2 px-4 py-2.5 border font-bold text-sm rounded-lg shadow-sm transition-colors ${filtersActive
-                    ? 'bg-[#eef8f2] border-[#0b8252] text-[#0b8252]'
-                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
+                  className={`flex items-center gap-2 px-4 py-2.5 border font-bold text-sm rounded-lg shadow-sm transition-colors ${
+                    filtersActive
+                      ? 'bg-[#eef8f2] border-[#0b8252] text-[#0b8252]'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
                 >
                   <span className="material-symbols-outlined text-[18px]">filter_list</span>
                   Filters
@@ -101,18 +104,20 @@ export default function Alerts() {
               </div>
             </div>
 
-            {/* Alert Summary (KPIs & Insights) */}
+            {/* Alert Summary KPIs & Smart Insights */}
             <AlertSummary
               totalAlerts={visible.length}
               criticalAlerts={criticalAlerts}
               lowStockAlerts={lowStockAlerts}
               expiryAlerts={expiryAlerts}
+              deadStockAlerts={deadStockAlerts}
               reorderSuggestions={reorderSuggestions}
+              smartInsights={smartInsights}
               setActiveTab={setActiveTab}
               setSevFilter={setSevFilter}
             />
 
-            {/* Tabs & Filter Bar Side Panel */}
+            {/* Tabs & Filter Bar */}
             <AlertFilterBar
               activeTab={activeTab}
               setActiveTab={setActiveTab}
@@ -125,7 +130,7 @@ export default function Alerts() {
               setReadFilter={setReadFilter}
             />
 
-            {/* Alerts Content */}
+            {/* Alert Cards */}
             <div className="space-y-4">
               {filtered.length === 0 ? (
                 <EmptyAlertsState

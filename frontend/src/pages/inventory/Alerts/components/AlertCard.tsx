@@ -10,86 +10,143 @@ interface AlertCardProps {
 }
 
 const getSeverityBadgeClass = (severity: AlertSeverity) => {
-  if (severity === 'Critical') return 'bg-red-100 text-red-700';
-  if (severity === 'Warning') return 'bg-amber-100 text-amber-700';
-  return 'bg-blue-100 text-blue-700';
+  if (severity === 'Critical') return 'bg-red-100 text-red-700 border border-red-200';
+  if (severity === 'Warning') return 'bg-amber-100 text-amber-700 border border-amber-200';
+  return 'bg-blue-100 text-blue-700 border border-blue-200';
 };
 
-const getActionButtonClass = (emphasis: boolean) =>
-  emphasis
-    ? 'bg-[#0b8252] text-white border-[#0b8252] hover:bg-[#096b43]'
-    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50';
+const getCategoryBadgeClass = (category: string) => {
+  if (category === 'Out of Stock') return 'bg-red-50 text-red-700 border border-red-100';
+  if (category === 'Low Stock') return 'bg-amber-50 text-amber-700 border border-amber-100';
+  if (category === 'Expiring Soon') return 'bg-orange-50 text-orange-700 border border-orange-100';
+  if (category === 'Dead Stock') return 'bg-purple-50 text-purple-700 border border-purple-100';
+  if (category === 'Overstock') return 'bg-blue-50 text-blue-700 border border-blue-100';
+  return 'bg-slate-100 text-slate-600';
+};
+
+const getStockBarColor = (pct: number) => {
+  if (pct === 0) return 'bg-red-500';
+  if (pct <= 15) return 'bg-red-500';
+  if (pct <= 30) return 'bg-amber-500';
+  if (pct >= 80) return 'bg-purple-500';
+  return 'bg-[#0b8252]';
+};
+
+const getExpiryBadge = (days: number | undefined) => {
+  if (days === undefined) return null;
+  if (days < 0) return { label: 'EXPIRED', cls: 'bg-red-100 text-red-700 border-red-200 animate-pulse' };
+  if (days === 0) return { label: 'EXPIRES TODAY', cls: 'bg-red-100 text-red-700 border-red-200 animate-pulse' };
+  if (days <= 3) return { label: `${days}d LEFT`, cls: 'bg-red-100 text-red-700 border-red-200' };
+  if (days <= 7) return { label: `${days} DAYS LEFT`, cls: 'bg-orange-100 text-orange-700 border-orange-200' };
+  if (days <= 30) return { label: `${days} DAYS`, cls: 'bg-amber-100 text-amber-700 border-amber-200' };
+  return { label: `${Math.ceil(days / 7)} WEEKS`, cls: 'bg-yellow-100 text-yellow-700 border-yellow-200' };
+};
 
 export default function AlertCard({ alert, handlePrimary, dismiss, markRead }: AlertCardProps) {
+  const expiryBadge = getExpiryBadge(alert.daysUntilExpiry);
+  const stockPct = alert.stockPercentage ?? null;
+
   return (
     <div
-      className={`bg-white rounded-xl border border-slate-200 shadow-sm flex overflow-hidden transition-opacity ${alert.read ? 'opacity-75' : ''
-        }`}
+      className={`bg-white rounded-xl border shadow-sm flex overflow-hidden transition-all hover:shadow-md ${
+        alert.read ? 'opacity-70 border-slate-200' : 'border-slate-200'
+      }`}
     >
+      {/* Left accent bar */}
       <div className={`w-1.5 flex-shrink-0 ${alert.accentColor}`} />
+
       <div className="p-5 flex flex-col sm:flex-row gap-5 flex-1">
 
         {/* Icon */}
-        <div className={`w-16 h-16 rounded-lg ${alert.iconBg} flex items-center justify-center flex-shrink-0`}>
-          <span className={`material-symbols-outlined ${alert.iconColor} text-[32px]`}>{alert.icon}</span>
+        <div className={`w-14 h-14 rounded-xl ${alert.iconBg} flex items-center justify-center flex-shrink-0 border border-slate-100`}>
+          <span className={`material-symbols-outlined ${alert.iconColor} text-[28px]`}>{alert.icon}</span>
         </div>
 
         {/* Body */}
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-1.5 flex-wrap">
-            <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${getSeverityBadgeClass(alert.severity)}`}>
+        <div className="flex-1 min-w-0">
+          {/* Badges row */}
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase tracking-wider ${getSeverityBadgeClass(alert.severity)}`}>
               {alert.severity}
             </span>
-            <span className="px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider bg-slate-100 text-slate-600">
+            <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase tracking-wider ${getCategoryBadgeClass(alert.category)}`}>
               {alert.issueType}
             </span>
-            <span className="text-xs text-slate-400 font-medium">{alert.time}</span>
+            {expiryBadge && (
+              <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase tracking-wider border ${expiryBadge.cls}`}>
+                ⏰ {expiryBadge.label}
+              </span>
+            )}
+            <span className="text-[10px] text-slate-400 font-medium ml-auto">{alert.time}</span>
             {!alert.read && (
               <span className="w-2 h-2 bg-[#0b8252] rounded-full" title="Unread" />
             )}
           </div>
-          <h3 className="text-base font-bold text-slate-800 mb-1">{alert.title}</h3>
-          <p className="text-sm text-slate-600 leading-relaxed">{alert.description}</p>
 
-          <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-slate-600">
+          <h3 className="text-sm font-bold text-slate-800 mb-1 leading-snug">{alert.title}</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">{alert.description}</p>
+
+          {/* Metrics row */}
+          <div className="mt-3 grid grid-cols-2 gap-3">
             <div className="rounded-lg bg-slate-50 border border-slate-200 p-3">
-              <span className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Current Stock</span>
-              <span className="font-bold text-slate-800">{alert.currentStock}</span>
+              <span className="block text-[9px] font-bold uppercase text-slate-400 mb-1 tracking-wider">Current Stock</span>
+              <span className="font-extrabold text-slate-800 text-sm">{alert.currentStock} units</span>
+              {/* Stock percentage bar */}
+              {stockPct !== null && (
+                <div className="mt-2">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-[8px] text-slate-400 font-bold">Stock Level</span>
+                    <span className="text-[8px] font-bold text-slate-600">{stockPct}%</span>
+                  </div>
+                  <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${getStockBarColor(stockPct)}`}
+                      style={{ width: `${Math.min(100, stockPct)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             <div className="rounded-lg bg-slate-50 border border-slate-200 p-3">
-              <span className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Suggested Action</span>
-              <span className="font-bold text-slate-800">{alert.suggestedAction}</span>
+              <span className="block text-[9px] font-bold uppercase text-slate-400 mb-1 tracking-wider">Suggested Action</span>
+              <span className="font-extrabold text-slate-800 text-sm">{alert.suggestedAction}</span>
+              {alert.expiryDate && (
+                <span className="block text-[9px] text-slate-400 mt-1.5 font-medium">Expiry: {alert.expiryDate}</span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Required Actions */}
-        <div className="grid grid-cols-2 gap-2 mt-4 sm:mt-0 min-w-[220px] sm:min-w-[240px] self-start sm:self-center">
-          <Link
-            to="/manage-products?tab=products"
-            className={`flex items-center justify-center px-3 py-2 rounded-lg text-xs font-bold border transition-colors ${getActionButtonClass(false)}`}
-          >
-            View Product
-          </Link>
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2 mt-4 sm:mt-0 min-w-[180px] self-start sm:self-center">
           <button
             onClick={() => handlePrimary(alert)}
-            className={`px-3 py-2 rounded-lg text-xs font-bold border transition-colors ${getActionButtonClass(true)}`}
+            className={`w-full px-3 py-2 rounded-lg text-xs font-bold border transition-colors text-white ${alert.primaryBtnClass}`}
           >
             {alert.primaryAction}
           </button>
-          <button
-            onClick={() => dismiss(alert.id)}
-            className={`px-3 py-2 rounded-lg text-xs font-bold border transition-colors ${getActionButtonClass(false)}`}
+          <Link
+            to="/manage-products?tab=products"
+            className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
           >
-            Dismiss Alert
-          </button>
-          <button
-            onClick={() => markRead(alert.id)}
-            className={`px-3 py-2 rounded-lg text-xs font-bold border transition-colors ${getActionButtonClass(false)}`}
-          >
-            Mark as Read
-          </button>
+            View Product
+          </Link>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => markRead(alert.id)}
+              className="px-2 py-1.5 rounded-lg text-[10px] font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              Mark Read
+            </button>
+            <button
+              onClick={() => dismiss(alert.id)}
+              className="px-2 py-1.5 rounded-lg text-[10px] font-bold border border-slate-200 bg-white text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+            >
+              Dismiss
+            </button>
+          </div>
         </div>
+
       </div>
     </div>
   );
