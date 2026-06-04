@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
+import defaultAvatar from '@/assets/images/default-avatar.png';
 
 interface InventoryHeaderProps {
   children?: React.ReactNode;
@@ -366,10 +367,47 @@ function ProfileDropdown({ activeDropdown, setActiveDropdown }: { activeDropdown
   const toggle = () => setActiveDropdown(isOpen ? null : 'profile');
   const close = () => setActiveDropdown(null);
 
-  const userName = user?.name || 'User';
+  const [profileName, setProfileName] = useState(user?.name || 'User');
+  const [profileEmail, setProfileEmail] = useState(user?.email || '');
+  const [profileAvatar, setProfileAvatar] = useState(defaultAvatar);
+
   const userRole = user?.role ? formatRole(user.role) : 'Team Member';
-  const userEmail = user?.email || '';
-  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=0b8252&color=fff&bold=true&size=128`;
+
+  useEffect(() => {
+    const updateDisplayInfo = () => {
+      const stored = localStorage.getItem('stocksense_profile_settings');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          const name = parsed.fullName || user?.name || 'User';
+          const email = parsed.email || user?.email || '';
+          const avatar = parsed.customAvatar || defaultAvatar;
+          setProfileName(name);
+          setProfileEmail(email);
+          setProfileAvatar(avatar);
+        } catch (e) {
+          // Fallback
+        }
+      } else {
+        const name = user?.name || 'User';
+        const email = user?.email || '';
+        const avatar = defaultAvatar;
+        setProfileName(name);
+        setProfileEmail(email);
+        setProfileAvatar(avatar);
+      }
+    };
+
+    updateDisplayInfo();
+
+    window.addEventListener('storage', updateDisplayInfo);
+    window.addEventListener('stocksense_profile_updated', updateDisplayInfo);
+
+    return () => {
+      window.removeEventListener('storage', updateDisplayInfo);
+      window.removeEventListener('stocksense_profile_updated', updateDisplayInfo);
+    };
+  }, [user]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -402,11 +440,11 @@ function ProfileDropdown({ activeDropdown, setActiveDropdown }: { activeDropdown
         aria-label="Profile menu"
       >
         <div className="text-right hidden md:block">
-          <p className="text-[13px] font-bold leading-tight text-slate-800 group-hover:text-[#0b8252] transition-colors">{userName}</p>
+          <p className="text-[13px] font-bold leading-tight text-slate-800 group-hover:text-[#0b8252] transition-colors">{profileName}</p>
           <p className="text-[10.5px] font-medium text-slate-500">{userRole}</p>
         </div>
         <div className="relative">
-          <img src={avatarUrl} alt={userName} className="w-9 h-9 rounded-full border-2 border-[#34d399] object-cover shadow-sm" />
+          <img src={profileAvatar} alt={profileName} className="w-9 h-9 rounded-full border-2 border-[#34d399] object-cover shadow-sm bg-white" />
           <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full" />
         </div>
         <span className={`material-symbols-outlined text-[15px] text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>expand_more</span>
@@ -420,11 +458,11 @@ function ProfileDropdown({ activeDropdown, setActiveDropdown }: { activeDropdown
           <div className="px-4 pt-5 pb-4 bg-gradient-to-br from-[#f0fdf4] via-[#ecfdf5] to-white border-b border-slate-100">
             <div className="flex flex-col items-center text-center">
               <div className="relative mb-3">
-                <img src={avatarUrl} alt={userName} className="w-14 h-14 rounded-full border-[3px] border-[#34d399] shadow-lg" />
+                <img src={profileAvatar} alt={profileName} className="w-14 h-14 rounded-full border-[3px] border-[#34d399] shadow-lg object-cover bg-white" />
                 <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-400 border-[2.5px] border-white rounded-full" />
               </div>
-              <p className="text-[15px] font-bold text-slate-800">{userName}</p>
-              <p className="text-[11.5px] text-slate-500 mt-0.5">{userEmail}</p>
+              <p className="text-[15px] font-bold text-slate-800">{profileName}</p>
+              <p className="text-[11.5px] text-slate-500 mt-0.5">{profileEmail}</p>
               <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.06em] bg-emerald-50 text-emerald-600 border border-emerald-100">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 {userRole}
