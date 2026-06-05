@@ -120,10 +120,6 @@ export default function SupplierReports({ onViewChange }: { onViewChange: (view:
             <span className="material-symbols-outlined text-[18px]">table_chart</span>
             Export Excel
           </button>
-          <button className="flex items-center gap-2 bg-[#0b8252] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[#096b43] transition-colors">
-            <span className="material-symbols-outlined text-[18px]">print</span>
-            Print Report
-          </button>
         </div>
       </div>
 

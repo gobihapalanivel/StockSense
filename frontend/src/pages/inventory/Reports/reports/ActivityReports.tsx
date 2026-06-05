@@ -103,13 +103,13 @@ export default function ActivityReports({ onViewChange }: { onViewChange: (view:
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => downloadReport(reportName, 'csv', reportData)} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
-            <span className="material-symbols-outlined text-[18px]">table_chart</span>
-            Export CSV
-          </button>
           <button onClick={() => downloadReport(reportName, 'pdf', reportData)} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
             <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
             Export PDF
+          </button>
+          <button onClick={() => downloadReport(reportName, 'excel', reportData)} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
+            <span className="material-symbols-outlined text-[18px]">table_chart</span>
+            Export Excel
           </button>
         </div>
       </div>

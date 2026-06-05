@@ -106,10 +106,6 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => downloadReport(reportName, 'pdf', reportData)} className="flex items-center gap-2 bg-gradient-to-r from-[#0b8252] to-[#096b43] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
-            <span className="material-symbols-outlined text-[18px]">post_add</span>
-            Generate Report
-          </button>
           <button onClick={() => downloadReport(reportName, 'pdf', reportData)} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:shadow-md hover:bg-slate-50 hover:-translate-y-0.5 transition-all">
             <span className="material-symbols-outlined text-[18px] text-red-500">picture_as_pdf</span>
             Export PDF
@@ -332,7 +328,7 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
                     <p className="text-xs text-slate-500 mt-0.5">{report.date}</p>
                   </div>
                 </div>
-                <button className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 group-hover:bg-[#eef8f2] group-hover:text-[#0b8252] transition-colors">
+                <button onClick={() => downloadReport(report.name.replace(/\s+/g, '_'), report.type === 'XLSX' ? 'excel' : report.type.toLowerCase() as any)} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 group-hover:bg-[#eef8f2] group-hover:text-[#0b8252] transition-colors">
                   <span className="material-symbols-outlined text-[18px]">download</span>
                 </button>
               </div>
