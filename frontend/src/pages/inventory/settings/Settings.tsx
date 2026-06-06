@@ -10,9 +10,9 @@ import { StockRulesConfig } from "./SettingComponent/types";
 
 
 const DEFAULT_RULES: StockRulesConfig = {
-  defaultReorderLevel: '50',
-  minimumStockThreshold: '20',
-  maximumStockLimit: 'No limit',
+  defaultReorderLevel: '25',
+  minimumStockThreshold: '10',
+  maximumStockLimit: '100',
   stockUpdateMode: 'Real-time',
   allowNegativeStock: false,
   autoDeductStock: true,
@@ -122,9 +122,8 @@ export default function Settings() {
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
-                  <p className="text-sm text-slate-500 italic">Unsaved changes will be lost.</p>
-                  <div className="flex items-center gap-3">
+                {(activeTab === 'Stock Rules' || activeTab === 'Alerts') && (
+                  <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-3 flex-shrink-0">
                     <button
                       onClick={resetSettings}
                       className="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold text-sm rounded-lg shadow-sm hover:bg-slate-50 transition-colors"
@@ -138,7 +137,7 @@ export default function Settings() {
                       Save Changes
                     </button>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 

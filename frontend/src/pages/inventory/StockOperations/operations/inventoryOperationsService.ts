@@ -10,6 +10,7 @@ export interface ProductItem {
   unitType: string;
   stock: number;
   reorderLevel: number;
+  targetCapacity?: number;
   costPrice: number;
   sellingPrice: number;
   status: string;
@@ -91,6 +92,7 @@ const initialProducts: ProductItem[] = [
     unitType: 'Pack',
     stock: 240,
     reorderLevel: 30,
+    targetCapacity: 400,
     costPrice: 450.00,
     sellingPrice: 520.00,
     status: 'Active',
@@ -102,7 +104,7 @@ const initialProducts: ProductItem[] = [
   },
   {
     id: '2',
-    name: 'Coca-Cola 1L',
+    name: 'Ceylon Beverage Distributors Coca-Cola 1L',
     sku: 'BEV-001',
     barcode: '0038847291101',
     category: 'Beverages',
@@ -112,6 +114,7 @@ const initialProducts: ProductItem[] = [
     unitType: 'Bottle',
     stock: 8,
     reorderLevel: 15,
+    targetCapacity: 60,
     costPrice: 120.00,
     sellingPrice: 150.00,
     status: 'Active',
@@ -133,6 +136,7 @@ const initialProducts: ProductItem[] = [
     unitType: 'Piece',
     stock: 142,
     reorderLevel: 25,
+    targetCapacity: 100,
     costPrice: 85.00,
     sellingPrice: 105.00,
     status: 'Active',
@@ -154,6 +158,7 @@ const initialProducts: ProductItem[] = [
     unitType: 'Piece',
     stock: 0,
     reorderLevel: 20,
+    targetCapacity: 80,
     costPrice: 140.00,
     sellingPrice: 175.00,
     status: 'Active',
@@ -170,11 +175,12 @@ const initialProducts: ProductItem[] = [
     barcode: '4790012948600',
     category: 'Grocery',
     subcategory: 'Biscuits & Snacks',
-    supplier: 'Golden Crust Bakery',
+    supplier: 'Ceylon Beverage Distributors',
     brand: 'Munchee',
     unitType: 'Pack',
     stock: 90,
     reorderLevel: 15,
+    targetCapacity: 60,
     costPrice: 180.00,
     sellingPrice: 210.00,
     status: 'Active',
@@ -483,5 +489,82 @@ export const inventoryOperationsService = {
     save(LEDGER_KEY, ledger);
 
     return newAdj;
+  },
+
+  // ── Sales Velocity Analysis ────────────────────────────────────────────────
+  // Returns per-SKU velocity data for dead/slow stock detection
+  getSalesVelocity: async (analysisDays = 30): Promise<Record<string, {
+    sku: string;
+    productName: string;
+    lastSaleDate: string | null;      // ISO string of last Sale entry
+    daysSinceLastSale: number;        // days since last Sale (Infinity if never sold)
+    totalUnitsSold: number;           // units sold in analysisDays window
+    totalSaleEvents: number;          // number of separate sale transactions
+    avgUnitsPerDay: number;           // average daily sales velocity
+    velocityLabel: 'Never Sold' | 'Dead Stock' | 'Slow Moving' | 'Normal' | 'Fast Moving';
+  }>> => {
+    const ledger = load<LedgerEntry>(LEDGER_KEY, initialLedger);
+    const products = load<ProductItem>(PRODUCT_KEY, initialProducts);
+
+    const now = Date.now();
+    const windowMs = analysisDays * 24 * 60 * 60 * 1000;
+    const windowStart = now - windowMs;
+
+    const result: Record<string, any> = {};
+
+    // Initialize with all products
+    products.forEach(p => {
+      result[p.sku] = {
+        sku: p.sku,
+        productName: p.name,
+        lastSaleDate: null,
+        daysSinceLastSale: Infinity,
+        totalUnitsSold: 0,
+        totalSaleEvents: 0,
+        avgUnitsPerDay: 0,
+        velocityLabel: 'Never Sold',
+      };
+    });
+
+    // Process only Sale entries
+    const saleEntries = ledger.filter(e => e.movementType === 'Sale');
+
+    saleEntries.forEach(entry => {
+      const entryTime = new Date(entry.timestamp).getTime();
+      const rec = result[entry.sku];
+      if (!rec) return;
+
+      // Track last sale date (most recent)
+      if (!rec.lastSaleDate || entryTime > new Date(rec.lastSaleDate).getTime()) {
+        rec.lastSaleDate = entry.timestamp;
+        rec.daysSinceLastSale = Math.floor((now - entryTime) / (1000 * 60 * 60 * 24));
+      }
+
+      // Accumulate units sold within the analysis window
+      if (entryTime >= windowStart) {
+        rec.totalUnitsSold += Math.abs(entry.quantityChange);
+        rec.totalSaleEvents += 1;
+      }
+    });
+
+    // Calculate velocity labels and avg units/day
+    Object.values(result).forEach((rec: any) => {
+      rec.avgUnitsPerDay = rec.totalUnitsSold / analysisDays;
+
+      if (rec.daysSinceLastSale === Infinity) {
+        rec.velocityLabel = 'Never Sold';
+      } else if (rec.daysSinceLastSale > 30) {
+        rec.velocityLabel = 'Dead Stock';
+      } else if (rec.daysSinceLastSale > 14 && rec.avgUnitsPerDay < 1) {
+        rec.velocityLabel = 'Slow Moving';
+      } else if (rec.avgUnitsPerDay >= 10) {
+        rec.velocityLabel = 'Fast Moving';
+      } else {
+        rec.velocityLabel = 'Normal';
+      }
+    });
+
+    return result;
   }
 };
+
