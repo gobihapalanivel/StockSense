@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import CategoryTree from './SubComponents/CategoryTree';
 import ProductImageUploader from './SubComponents/ProductImageUploader';
 
@@ -53,13 +53,19 @@ export default function CategoryRegistry({
   const [selectedParent, setSelectedParent] = useState<CategoryItem | null>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const [returnTo, setReturnTo] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Auto-open modal if navigated via deep link from NewProductForm
   useEffect(() => {
     if (searchParams.get('action') === 'add') {
+      const rt = searchParams.get('returnTo');
+      if (rt) setReturnTo(rt);
+
       setIsModalOpen(true);
       setHierarchy('parent');
       searchParams.delete('action');
+      searchParams.delete('returnTo');
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -150,6 +156,10 @@ export default function CategoryRegistry({
     setDuplicateError(null);
     setEditingCategory(null);
     setIsModalOpen(false);
+
+    if (!editingCategory && returnTo) {
+      navigate(`/manage-products?tab=${returnTo}`);
+    }
   };
 
   return (

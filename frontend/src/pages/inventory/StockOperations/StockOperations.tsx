@@ -19,7 +19,7 @@ export default function InventoryOperations() {
   ];
 
   return (
-    <div className="flex min-h-screen overflow-x-hidden bg-background font-sans text-on-surface">
+    <div className="flex h-screen overflow-hidden bg-background font-sans text-on-surface">
       {/* Shared Sidebar */}
       <Sidebar />
 
