@@ -286,7 +286,7 @@ export default function ProcurementManagement() {
 
 
   useEffect(() => {
-    window.localStorage.setItem(SUPPLIER_STORAGE_KEY, JSON.stringify(suppliersList));
+    window.localStorage.setItem(SUPPLIERS_STORAGE_KEY, JSON.stringify(suppliersList));
   }, [suppliersList]);
 
   useEffect(() => {
