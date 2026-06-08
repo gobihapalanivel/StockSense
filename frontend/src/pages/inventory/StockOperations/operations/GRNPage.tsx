@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useSearchParams } from 'react-router-dom';
 import { inventoryOperationsService, ProductItem, GRNRecord, GRNItem } from './inventoryOperationsService';
 
 const SearchableProductSelect = ({ products, value, onChange }: { products: ProductItem[], value: string, onChange: (val: string) => void }) => {
@@ -116,6 +117,16 @@ export default function GRNPage() {
   const [grnHistory, setGrnHistory] = useState<GRNRecord[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      setShowCreateForm(true);
+      searchParams.delete('action');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Form states
   const [selectedSupplier, setSelectedSupplier] = useState('FreshFarm Supplies');

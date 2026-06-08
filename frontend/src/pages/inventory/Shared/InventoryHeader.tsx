@@ -17,10 +17,8 @@ const quickCreateCategories = [
     color: '#0b8252',
     bg: 'from-emerald-50 to-emerald-100/40',
     items: [
-      { name: 'Add New Product', path: '/manage-products/new', icon: 'add_box' },
-      { name: 'New Category', path: '/categories', icon: 'category' },
-      { name: 'Stock Adjustment', path: '/inventory-operations?tab=adjustments', icon: 'sync_alt' },
-      { name: 'Stock Movement', path: '/inventory-operations?tab=movements', icon: 'swap_horiz' },
+      { name: 'Add New Product', path: '/manage-products?tab=new-product', icon: 'add_box' },
+      { name: 'Add Category', path: '/manage-products?tab=categories&action=add', icon: 'category' },
     ],
   },
   {
@@ -29,20 +27,18 @@ const quickCreateCategories = [
     color: '#6366f1',
     bg: 'from-indigo-50 to-indigo-100/40',
     items: [
-      { name: 'New Supplier', path: '/suppliers?tab=suppliers&action=new-supplier', icon: 'person_add' },
-      { name: 'Purchase Order', path: '/suppliers?tab=records&action=record-purchase', icon: 'receipt_long' },
-      { name: 'Purchase Record', path: '/suppliers?tab=records', icon: 'assignment' },
+      { name: 'Add Supplier', path: '/procurement?action=new-supplier', icon: 'person_add' },
+      { name: 'New GRN', path: '/inventory-operations?tab=grn&action=add', icon: 'receipt_long' },
     ],
   },
   {
-    label: 'ANALYTICS',
-    icon: 'trending_up',
+    label: 'OPERATIONS',
+    icon: 'swap_horiz',
     color: '#f59e0b',
     bg: 'from-amber-50 to-amber-100/40',
     items: [
-      { name: 'Generate Report', path: '/reports', icon: 'summarize' },
-      { name: 'View Analytics', path: '/inventory-analytics', icon: 'bar_chart' },
-      { name: 'Alert Rules', path: '/alerts', icon: 'notification_add' },
+      { name: 'Add Brand', path: '/manage-products?tab=brands&action=add', icon: 'branding_watermark' },
+      { name: 'Stock Adjustment', path: '/inventory-operations?tab=adjustments', icon: 'sync_alt' },
     ],
   },
   {
@@ -51,8 +47,7 @@ const quickCreateCategories = [
     color: '#64748b',
     bg: 'from-slate-50 to-slate-100/40',
     items: [
-      { name: 'Settings', path: '/settings', icon: 'tune' },
-      { name: 'Dashboard', path: '/inventory', icon: 'grid_view' },
+      { name: 'Alert Setting', path: '/alerts', icon: 'notification_add' },
     ],
   },
 ];
