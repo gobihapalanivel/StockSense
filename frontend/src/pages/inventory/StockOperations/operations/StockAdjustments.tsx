@@ -1,5 +1,115 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { inventoryOperationsService, ProductItem, AdjustmentRecord } from './inventoryOperationsService';
+
+const SearchableProductSelect = ({ products, value, onChange }: { products: ProductItem[], value: string, onChange: (val: string) => void }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        wrapperRef.current && !wrapperRef.current.contains(e.target as Node) &&
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    const updatePosition = () => {
+      if (isOpen && wrapperRef.current) {
+        setRect(wrapperRef.current.getBoundingClientRect());
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isOpen]);
+
+  const handleOpenToggle = () => {
+    if (!isOpen && wrapperRef.current) {
+      setRect(wrapperRef.current.getBoundingClientRect());
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const selectedProduct = products.find(p => p.name === value);
+  const displayValue = selectedProduct ? `${selectedProduct.name} - ${selectedProduct.barcode || selectedProduct.sku}` : 'Select Product...';
+
+  const filtered = products.filter(p => 
+    p.name.toLowerCase().includes(search.toLowerCase()) || 
+    (p.barcode && p.barcode.includes(search)) ||
+    p.sku.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="relative w-full" ref={wrapperRef}>
+      <div 
+        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 cursor-pointer flex justify-between items-center hover:bg-slate-100 transition-colors"
+        onClick={handleOpenToggle}
+      >
+        <span className="truncate pr-2">{displayValue}</span>
+        <span className="material-symbols-outlined text-[14px] text-slate-500 shrink-0">expand_more</span>
+      </div>
+      {isOpen && rect && createPortal(
+        <div 
+          ref={dropdownRef}
+          className="fixed z-[9999] mt-1 bg-white border border-slate-200 rounded-lg shadow-2xl flex flex-col overflow-hidden"
+          style={{
+            top: rect.bottom,
+            left: rect.left,
+            width: Math.max(rect.width, 280),
+            maxHeight: '250px'
+          }}
+        >
+          <div className="p-2 border-b border-slate-100 bg-slate-50">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-2 top-1.5 text-[16px] text-slate-400">search</span>
+              <input 
+                type="text" 
+                autoFocus
+                placeholder="Search by name, barcode or SKU..." 
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full pl-8 pr-2 py-1.5 bg-white border border-slate-200 rounded-md text-xs font-medium focus:outline-none focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] transition-all"
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto p-1 flex-1">
+            {filtered.length === 0 ? (
+              <div className="p-3 text-xs text-slate-400 text-center font-medium">No products found</div>
+            ) : (
+              filtered.map(p => (
+                <div 
+                  key={p.id}
+                  className="px-3 py-2 hover:bg-emerald-50 cursor-pointer rounded-md text-xs border-b border-slate-50 last:border-0 transition-colors"
+                  onClick={() => {
+                    onChange(p.name);
+                    setIsOpen(false);
+                    setSearch('');
+                  }}
+                >
+                  <div className="font-bold text-slate-800">{p.name}</div>
+                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">{p.barcode || p.sku}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
 
 export default function StockAdjustments() {
   const [products, setProducts] = useState<ProductItem[]>([]);
@@ -160,18 +270,15 @@ export default function StockAdjustments() {
               {/* Select Product */}
               <div className="lg:col-span-1">
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1.5">Select Product Node</label>
-                {products.length > 0 && (
-                  <select
-                    value={selectedProductIndex}
-                    onChange={(e) => setSelectedProductIndex(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0b8252]"
-                  >
-                    {products.map((p, idx) => (
-                      <option key={p.id} value={idx}>
-                        {p.name} (Stock: {p.stock})
-                      </option>
-                    ))}
-                  </select>
+                {products.length > 0 && activeProduct && (
+                  <SearchableProductSelect
+                    products={products}
+                    value={activeProduct.name}
+                    onChange={(val) => {
+                      const idx = products.findIndex(p => p.name === val);
+                      if (idx !== -1) setSelectedProductIndex(idx);
+                    }}
+                  />
                 )}
               </div>
 

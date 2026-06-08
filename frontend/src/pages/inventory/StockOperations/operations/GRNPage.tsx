@@ -1,5 +1,115 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { inventoryOperationsService, ProductItem, GRNRecord, GRNItem } from './inventoryOperationsService';
+
+const SearchableProductSelect = ({ products, value, onChange }: { products: ProductItem[], value: string, onChange: (val: string) => void }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        wrapperRef.current && !wrapperRef.current.contains(e.target as Node) &&
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    const updatePosition = () => {
+      if (isOpen && wrapperRef.current) {
+        setRect(wrapperRef.current.getBoundingClientRect());
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isOpen]);
+
+  const handleOpenToggle = () => {
+    if (!isOpen && wrapperRef.current) {
+      setRect(wrapperRef.current.getBoundingClientRect());
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const selectedProduct = products.find(p => p.name === value);
+  const displayValue = selectedProduct ? `${selectedProduct.name} - ${selectedProduct.barcode || selectedProduct.sku}` : 'Select Product...';
+
+  const filtered = products.filter(p => 
+    p.name.toLowerCase().includes(search.toLowerCase()) || 
+    (p.barcode && p.barcode.includes(search)) ||
+    p.sku.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="relative w-full" ref={wrapperRef}>
+      <div 
+        className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-xs font-bold text-slate-800 cursor-pointer flex justify-between items-center hover:bg-slate-100 transition-colors"
+        onClick={handleOpenToggle}
+      >
+        <span className="truncate pr-2">{displayValue}</span>
+        <span className="material-symbols-outlined text-[14px] text-slate-500 shrink-0">expand_more</span>
+      </div>
+      {isOpen && rect && createPortal(
+        <div 
+          ref={dropdownRef}
+          className="fixed z-[9999] mt-1 bg-white border border-slate-200 rounded-lg shadow-2xl flex flex-col overflow-hidden"
+          style={{
+            top: rect.bottom,
+            left: rect.left,
+            width: Math.max(rect.width, 280),
+            maxHeight: '250px'
+          }}
+        >
+          <div className="p-2 border-b border-slate-100 bg-slate-50">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-2 top-1.5 text-[16px] text-slate-400">search</span>
+              <input 
+                type="text" 
+                autoFocus
+                placeholder="Search by name, barcode or SKU..." 
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full pl-8 pr-2 py-1.5 bg-white border border-slate-200 rounded-md text-xs font-medium focus:outline-none focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] transition-all"
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto p-1 flex-1">
+            {filtered.length === 0 ? (
+              <div className="p-3 text-xs text-slate-400 text-center font-medium">No products found</div>
+            ) : (
+              filtered.map(p => (
+                <div 
+                  key={p.id}
+                  className="px-3 py-2 hover:bg-emerald-50 cursor-pointer rounded-md text-xs border-b border-slate-50 last:border-0 transition-colors"
+                  onClick={() => {
+                    onChange(p.name);
+                    setIsOpen(false);
+                    setSearch('');
+                  }}
+                >
+                  <div className="font-bold text-slate-800">{p.name}</div>
+                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">{p.barcode || p.sku}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
 
 export default function GRNPage() {
   const [products, setProducts] = useState<ProductItem[]>([]);
@@ -43,8 +153,8 @@ export default function GRNPage() {
         {
           productName: prods[0].name,
           sku: prods[0].sku,
-          orderedQty: 10,
-          receivedQty: 10,
+          orderedQty: prods[0].stock,
+          receivedQty: 0,
           unitCost: prods[0].costPrice,
           mfgDate: new Date().toISOString().split('T')[0],
           expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -67,8 +177,8 @@ export default function GRNPage() {
       {
         productName: defaultProduct.name,
         sku: defaultProduct.sku,
-        orderedQty: 10,
-        receivedQty: 10,
+        orderedQty: defaultProduct.stock,
+        receivedQty: 0,
         unitCost: defaultProduct.costPrice,
         mfgDate: new Date().toISOString().split('T')[0],
         expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -96,6 +206,7 @@ export default function GRNPage() {
         ...updated[index],
         productName: match.name,
         sku: match.sku,
+        orderedQty: match.stock,
         unitCost: match.costPrice
       };
       return updated;
@@ -145,7 +256,7 @@ export default function GRNPage() {
     e.preventDefault();
     
     // Validate rows
-    const invalidRow = formItems.find(item => !item.productName || item.receivedQty < 0 || item.orderedQty <= 0);
+    const invalidRow = formItems.find(item => !item.productName || item.receivedQty < 0 || item.orderedQty < 0);
     if (invalidRow) {
       triggerToast('Please ensure all items have valid quantities and products selected.');
       return;
@@ -173,8 +284,8 @@ export default function GRNPage() {
           {
             productName: products[0].name,
             sku: products[0].sku,
-            orderedQty: 10,
-            receivedQty: 10,
+            orderedQty: products[0].stock,
+            receivedQty: 0,
             unitCost: products[0].costPrice,
             mfgDate: new Date().toISOString().split('T')[0],
             expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -286,9 +397,9 @@ export default function GRNPage() {
                   <tr className="bg-slate-100 text-slate-700 font-extrabold uppercase border-b border-slate-200 text-[10px]">
                     <th className="px-4 py-2.5">Product Name</th>
                     <th className="px-4 py-2.5 w-32">SKU</th>
-                    <th className="px-4 py-2.5 w-24 text-center">Ordered Qty</th>
-                    <th className="px-4 py-2.5 w-24 text-center">Received Qty</th>
-                    <th className="px-4 py-2.5 w-28 text-center font-black">Ordered vs Rec.</th>
+                    <th className="px-4 py-2.5 w-24 text-center">Current Stock Qty</th>
+                    <th className="px-4 py-2.5 w-24 text-center">Added Qty</th>
+                    <th className="px-4 py-2.5 w-28 text-center font-black">Final Quantity</th>
                     <th className="px-4 py-2.5 w-28">Unit Cost</th>
                     <th className="px-4 py-2.5 w-32">MFG Date</th>
                     <th className="px-4 py-2.5 w-32">EXP Date</th>
@@ -297,18 +408,16 @@ export default function GRNPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
                   {formItems.map((item, idx) => {
-                    const diff = Number(item.receivedQty || 0) - Number(item.orderedQty || 0);
+                    const finalQty = Number(item.orderedQty || 0) + Number(item.receivedQty || 0);
                     return (
                       <tr key={idx} className="hover:bg-slate-50/50">
                         {/* Product selection */}
                         <td className="px-4 py-2">
-                          <select
+                          <SearchableProductSelect 
+                            products={products}
                             value={item.productName}
-                            onChange={(e) => handleProductChange(idx, e.target.value)}
-                            className="w-full px-2 py-1 bg-slate-50 border border-slate-100 rounded text-xs font-bold text-slate-800 focus:outline-none"
-                          >
-                            {products.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
-                          </select>
+                            onChange={(val) => handleProductChange(idx, val)}
+                          />
                         </td>
 
                         {/* SKU */}
@@ -316,55 +425,44 @@ export default function GRNPage() {
                           {item.sku || 'N/A'}
                         </td>
 
-                        {/* Ordered Qty */}
+                        {/* Current Stock Qty */}
                         <td className="px-4 py-2">
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.orderedQty}
-                            onChange={(e) => handleRowValueChange(idx, 'orderedQty', parseInt(e.target.value) || 0)}
-                            className="w-full px-2 py-1 border border-slate-200 rounded text-xs font-bold text-center"
-                          />
+                           <div className="w-full px-2 py-1.5 bg-slate-100/80 border border-slate-200 rounded text-xs font-black text-slate-500 text-center select-none">
+                             {item.orderedQty}
+                           </div>
                         </td>
 
-                        {/* Received Qty */}
+                        {/* Added Qty */}
                         <td className="px-4 py-2">
                           <input
                             type="number"
                             min="0"
                             value={item.receivedQty}
                             onChange={(e) => handleRowValueChange(idx, 'receivedQty', parseInt(e.target.value) || 0)}
-                            className="w-full px-2 py-1 border border-slate-200 rounded text-xs font-bold text-center"
+                            className="w-full px-2 py-1.5 border border-slate-300 focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] outline-none rounded text-xs font-bold text-center transition-all bg-emerald-50/30 text-emerald-900"
                           />
                         </td>
 
-                        {/* Status Check highlight */}
+                        {/* Final Quantity */}
                         <td className="px-4 py-2 text-center">
-                          {diff === 0 ? (
-                            <span className="inline-block px-2.5 py-0.5 bg-emerald-50 text-emerald-700 font-extrabold text-[10px] rounded-full border border-emerald-100">
-                              Matched
+                            <span className="inline-flex items-center justify-center min-w-[3.5rem] px-2.5 py-1.5 bg-[#0b8252]/10 text-[#0b8252] font-black text-xs rounded-lg border border-[#0b8252]/20 shadow-sm">
+                              {finalQty}
                             </span>
-                          ) : diff < 0 ? (
-                            <span className="inline-block px-2.5 py-0.5 bg-rose-50 text-rose-700 font-extrabold text-[10px] rounded-full border border-rose-100">
-                              Shortage ({diff})
-                            </span>
-                          ) : (
-                            <span className="inline-block px-2.5 py-0.5 bg-blue-50 text-blue-700 font-extrabold text-[10px] rounded-full border border-blue-100">
-                              Over (+{diff})
-                            </span>
-                          )}
                         </td>
 
                         {/* Unit Cost */}
                         <td className="px-4 py-2">
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.unitCost}
-                            onChange={(e) => handleRowValueChange(idx, 'unitCost', parseFloat(e.target.value) || 0)}
-                            className="w-full px-2 py-1 border border-slate-200 rounded text-xs font-bold text-center"
-                          />
+                          <div className="relative">
+                            <span className="absolute left-2 top-1.5 text-[10px] font-black text-slate-400">Rs.</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.unitCost}
+                              onChange={(e) => handleRowValueChange(idx, 'unitCost', parseFloat(e.target.value) || 0)}
+                              className="w-full pl-6 pr-2 py-1.5 border border-slate-300 focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] outline-none rounded text-xs font-bold text-left transition-all"
+                            />
+                          </div>
                         </td>
 
                         {/* MFG Date */}
@@ -373,7 +471,7 @@ export default function GRNPage() {
                             type="date"
                             value={item.mfgDate}
                             onChange={(e) => handleRowValueChange(idx, 'mfgDate', e.target.value)}
-                            className="w-full px-1.5 py-0.5 border border-slate-200 rounded text-[11px] font-bold text-center"
+                            className="w-full px-2 py-1.5 border border-slate-300 focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] outline-none rounded text-[11px] font-bold text-slate-700 transition-all [&::-webkit-calendar-picker-indicator]:opacity-50 hover:[&::-webkit-calendar-picker-indicator]:opacity-100 cursor-pointer"
                           />
                         </td>
 
@@ -383,7 +481,7 @@ export default function GRNPage() {
                             type="date"
                             value={item.expiryDate}
                             onChange={(e) => handleRowValueChange(idx, 'expiryDate', e.target.value)}
-                            className="w-full px-1.5 py-0.5 border border-slate-200 rounded text-[11px] font-bold text-center"
+                            className="w-full px-2 py-1.5 border border-slate-300 focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] outline-none rounded text-[11px] font-bold text-slate-700 transition-all [&::-webkit-calendar-picker-indicator]:opacity-50 hover:[&::-webkit-calendar-picker-indicator]:opacity-100 cursor-pointer"
                           />
                         </td>
 
@@ -420,12 +518,12 @@ export default function GRNPage() {
               <span className="text-lg font-black text-emerald-600">Rs. {liveStats.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             </div>
             <div>
-              <span className="block text-[10px] font-black text-slate-500 uppercase tracking-wider">Fulfillment Accuracy</span>
+              <span className="block text-[10px] font-black text-slate-500 uppercase tracking-wider">Stock Expansion</span>
               <div className="flex items-center gap-2">
-                <span className={`text-lg font-black ${liveStats.accuracy === 100 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                  {liveStats.accuracy}%
+                <span className={`text-lg font-black text-blue-600`}>
+                  {liveStats.totalOrdered > 0 ? Math.round((liveStats.totalReceived / liveStats.totalOrdered) * 100) : 100}%
                 </span>
-                <span className="text-[10px] text-slate-400 font-bold">accuracy</span>
+                <span className="text-[10px] text-slate-400 font-bold">increase</span>
               </div>
             </div>
           </div>
