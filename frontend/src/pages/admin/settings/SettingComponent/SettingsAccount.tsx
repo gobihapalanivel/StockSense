@@ -6,13 +6,16 @@ export default function SettingsAccount() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
+      setError('New passwords do not match');
       toast.error('New passwords do not match');
       return;
     }
+    setError(null);
     toast.success('Password updated successfully!');
     setCurrentPassword('');
     setNewPassword('');
@@ -30,27 +33,9 @@ export default function SettingsAccount() {
       </div>
 
       {/* Security Form */}
-      <form onSubmit={handlePasswordChange} className="space-y-4 p-5 rounded-xl border border-slate-200 bg-white">
-        <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-[18px] text-[#0b8252]">lock</span>
-          Change Password
-        </h3>
-
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Current Password</label>
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#0b8252]/20 focus:border-[#0b8252] transition-all"
-            placeholder="••••••••"
-            required
-          />
-        </div>
-
+      <div className="p-5 rounded-xl border border-slate-200 bg-white">
         <form onSubmit={handlePasswordChange} className="space-y-6">
-          <h3 className="text-[15px] font-bold text-slate-800 flex items-center gap-2">
+          <h3 className="text-[15px] font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2 mb-4">
             <span className="material-symbols-outlined text-[20px] text-[#0b8252]">lock</span>
             Change Password
           </h3>
