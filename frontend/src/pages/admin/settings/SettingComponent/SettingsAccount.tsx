@@ -20,33 +20,13 @@ export default function SettingsAccount() {
   };
 
   return (
-    <div className="max-w-2xl animate-in fade-in duration-300 space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800">Account Settings</h2>
-          <p className="text-sm text-slate-500 mt-1">Configure your login preferences, password, and system settings.</p>
-        </div>
-      </div>
-
-      {/* Security Form */}
-      <form onSubmit={handlePasswordChange} className="space-y-4 p-5 rounded-xl border border-slate-200 bg-white">
-        <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-[18px] text-[#0b8252]">lock</span>
-          Change Password
-        </h3>
-
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Current Password</label>
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#0b8252]/20 focus:border-[#0b8252] transition-all"
-            placeholder="••••••••"
-            required
-          />
+    <div className="max-w-4xl animate-in fade-in duration-300">
+      <div className="bg-white border border-slate-100 rounded-xl p-8 shadow-sm">
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-50">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Account Settings</h2>
+            <p className="text-[14px] text-slate-500 mt-1">Configure your login preferences and system security.</p>
+          </div>
         </div>
 
         <form onSubmit={handlePasswordChange} className="space-y-6">
@@ -54,13 +34,6 @@ export default function SettingsAccount() {
             <span className="material-symbols-outlined text-[20px] text-[#0b8252]">lock</span>
             Change Password
           </h3>
-
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-[14px] text-red-600 font-semibold flex items-center gap-2">
-              <span className="material-symbols-outlined text-[20px]">error</span>
-              {error}
-            </div>
-          )}
 
           <div className="grid grid-cols-2 gap-x-8 gap-y-6">
             <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
