@@ -24,7 +24,7 @@ export default function Sidebar() {
 
 
   return (
-    <aside className="w-64 bg-background border-r border-outline-variant flex flex-col shrink-0">
+    <aside className="w-64 h-screen sticky top-0 bg-background border-r border-outline-variant flex flex-col shrink-0">
       
       {/* Brand Header */}
       <div className="p-6">

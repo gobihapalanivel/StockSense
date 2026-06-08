@@ -88,7 +88,6 @@ export default function NewProductForm({
   const navigate = useNavigate();
   const categoryPickerRef = useRef<HTMLDivElement | null>(null);
   const [productName, setProductName] = useState(initialProduct?.name || '');
-  const [productType] = useState<'Goods'>('Goods');
   const [category, setCategory] = useState(initialProduct?.category || categories[0]?.name || '');
   const [subcategory, setSubcategory] = useState(initialProduct?.subcategory || '');
   const [brand, setBrand] = useState(initialProduct?.brand || brands[0]?.name || '');
@@ -338,7 +337,6 @@ export default function NewProductForm({
       id: initialProduct?.id || `prod_${Date.now()}`,
       productStructure: structure,
       name: productName.trim(),
-      type: productType,
       category,
       subcategory,
       brand,
@@ -383,8 +381,8 @@ export default function NewProductForm({
   };
 
   return (
-    <form onSubmit={(e) => handleSubmit(e)} className="space-y-6">
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <form onSubmit={(e) => handleSubmit(e)} onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }} className="space-y-6">
+      <div className="grid grid-cols-1 gap-6">
         <div className="xl:col-span-2 space-y-6">
           <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5 border-b border-slate-100 pb-2">
@@ -403,22 +401,12 @@ export default function NewProductForm({
                   required
                 />
               </div>
-              <div>
-                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Product Type</label>
-                <input
-                  type="text"
-                  value={productType}
-                  disabled
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-outline-variant rounded-lg text-sm text-on-surface-variant"
-                />
-              </div>
-
               <div className="relative" ref={categoryPickerRef}>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-[10px] font-bold text-outline uppercase tracking-wider">Category *</label>
                   <button
                     type="button"
-                    onClick={() => navigate('/manage-products?tab=categories&action=add')}
+                    onClick={() => navigate('/manage-products?tab=categories&action=add&returnTo=new-product')}
                     className="text-[10px] text-primary font-bold hover:underline flex items-center gap-0.5"
                   >
                     <span className="material-symbols-outlined text-xs">add_link</span>
@@ -498,7 +486,7 @@ export default function NewProductForm({
                   <label className="block text-[10px] font-bold text-outline uppercase tracking-wider">Brand *</label>
                   <button
                     type="button"
-                    onClick={() => navigate('/manage-products?tab=brands')}
+                    onClick={() => navigate('/manage-products?tab=brands&action=add&returnTo=new-product')}
                     className="text-[10px] text-primary font-bold hover:underline flex items-center gap-0.5"
                   >
                     <span className="material-symbols-outlined text-xs">add_link</span>
@@ -524,7 +512,7 @@ export default function NewProductForm({
                   <label className="block text-[10px] font-bold text-outline uppercase tracking-wider">Supplier *</label>
                   <button
                     type="button"
-                    onClick={() => navigate('/procurement?tab=suppliers')}
+                    onClick={() => navigate(`/procurement?action=new-supplier&returnTo=${encodeURIComponent('/manage-products?tab=new-product')}`)}
                     className="text-[10px] text-primary font-bold hover:underline flex items-center gap-0.5"
                   >
                     <span className="material-symbols-outlined text-xs">add_link</span>
@@ -585,45 +573,7 @@ export default function NewProductForm({
               </p>
             </div>
 
-            {structure === 'single' && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-[11px] font-bold text-outline uppercase tracking-wider">
-                    Additional Images (Optional, max 5)
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleAddAdditionalImage}
-                    disabled={additionalImages.length >= 5}
-                    className="text-[11px] font-bold text-primary disabled:text-outline-variant"
-                  >
-                    + Add Image Slot
-                  </button>
-                </div>
-                {additionalImages.length === 0 && (
-                  <p className="text-xs text-outline">No additional images added.</p>
-                )}
-                {additionalImages.map((img, index) => (
-                  <div key={`additional-${index}`} className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      value={img}
-                      onChange={(e) => handleUpdateAdditionalImage(index, e.target.value)}
-                      placeholder="Paste image URL"
-                      className="flex-1 px-3 py-2 bg-background border border-outline-variant rounded-lg text-xs outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveAdditionalImage(index)}
-                      className="px-3 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 rounded-lg"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
 
           <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5 border-b border-slate-100 pb-2">
@@ -672,8 +622,8 @@ export default function NewProductForm({
                     <input
                       type="number"
                       min="0"
-                      step="0.01"
-                      value={singleCostPrice}
+                      step="1"
+                      value={singleCostPrice || ''}
                       onChange={(e) => setSingleCostPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                       className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
                     />
@@ -683,8 +633,8 @@ export default function NewProductForm({
                     <input
                       type="number"
                       min="0"
-                      step="0.01"
-                      value={singleSellingPrice}
+                      step="1"
+                      value={singleSellingPrice || ''}
                       onChange={(e) => setSingleSellingPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                       className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
                     />
@@ -694,8 +644,8 @@ export default function NewProductForm({
                     <input
                       type="number"
                       min="0"
-                      step="0.01"
-                      value={singleDiscountPrice}
+                      step="1"
+                      value={singleDiscountPrice || ''}
                       onChange={(e) => setSingleDiscountPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                       className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
                     />
@@ -814,39 +764,6 @@ export default function NewProductForm({
             </>
           ) : (
             <>
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
-                <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5 border-b border-slate-100 pb-2">
-                  <span className="material-symbols-outlined text-primary text-[20px]">tune</span>
-                  Variant Settings
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <label className="flex items-center gap-2 text-xs font-bold text-on-surface cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={variantImageMode === 'different'}
-                      onChange={(e) => setVariantImageMode(e.target.checked ? 'different' : 'shared')}
-                    />
-                    Variants have different images
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-bold text-on-surface cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={variantImageMode === 'shared'}
-                      onChange={(e) => setVariantImageMode(e.target.checked ? 'shared' : 'different')}
-                    />
-                    Variants share same image
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-bold text-on-surface cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={autoVariantBarcode}
-                      onChange={(e) => setAutoVariantBarcode(e.target.checked)}
-                    />
-                    Auto-generate barcode for variants
-                  </label>
-                </div>
-              </div>
-
               <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                   <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5">
@@ -1002,23 +919,6 @@ export default function NewProductForm({
             </div>
           </div>
 
-
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-2">
-            <h4 className="text-[10px] font-bold text-outline uppercase tracking-wider">Live Summary</h4>
-            <div className="border border-slate-100 rounded-lg p-3 space-y-2 bg-slate-50 text-xs">
-              <div className="flex justify-between items-start gap-2">
-                <span className="font-bold text-on-surface block truncate">{productName || 'Unnamed Product'}</span>
-                <span className="bg-primary/5 text-primary text-[9px] font-bold px-2 py-0.5 rounded whitespace-nowrap">{structure}</span>
-              </div>
-              <p className="text-[10px] text-outline">Category: {category || '-'}</p>
-              <p className="text-[10px] text-outline">Supplier: {supplier || '-'}</p>
-              {structure === 'single' ? (
-                <p className="text-[10px] text-outline">Stock: {singleStock} {singleUnit}</p>
-              ) : (
-                <p className="text-[10px] text-outline">Variants: {variants.length}</p>
-              )}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -1193,22 +1093,21 @@ export default function NewProductForm({
                   <input
                     type="number"
                     min="0"
-                    step="0.01"
-                    value={variantDraft.costPrice}
+                    step="1"
+                    value={variantDraft.costPrice || ''}
                     onChange={(e) =>
                       setVariantDraft((prev) => ({ ...prev, costPrice: Math.max(0, parseFloat(e.target.value) || 0) }))
                     }
                     className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
-
                 <div>
                   <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Selling Price *</label>
                   <input
                     type="number"
                     min="0"
-                    step="0.01"
-                    value={variantDraft.sellingPrice}
+                    step="1"
+                    value={variantDraft.sellingPrice || ''}
                     onChange={(e) =>
                       setVariantDraft((prev) => ({ ...prev, sellingPrice: Math.max(0, parseFloat(e.target.value) || 0) }))
                     }
