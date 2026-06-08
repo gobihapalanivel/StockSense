@@ -42,13 +42,16 @@ export default function ProcurementManagement() {
   // Modals & Selected details State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
 
   // Forms Field States for Supplier Add/Edit
   const [formData, setFormData] = useState({
     name: '',
     contact: '',
     phone: '',
+    contactPhone: '',
     email: '',
     companyName: '',
     brn: '',
@@ -66,6 +69,7 @@ export default function ProcurementManagement() {
     name: '',
     contact: '',
     phone: '',
+    contactPhone: '',
     email: '',
     companyName: '',
     brn: '',
@@ -120,21 +124,13 @@ export default function ProcurementManagement() {
     }
   };
 
-  const handleDeliveryDayChange = (day: string) => {
-    setFormData(prev => {
-      const isSelected = prev.deliveryDays.includes(day);
-      const updatedDays = isSelected
-        ? prev.deliveryDays.filter(d => d !== day)
-        : [...prev.deliveryDays, day];
-      return { ...prev, deliveryDays: updatedDays };
-    });
-  };
+
 
   // Validation Form for Suppliers
   const validateForm = (ignoreId?: string | null) => {
     let isValid = true;
     const errors = {
-      name: '', contact: '', phone: '', email: '', companyName: '', brn: '', taxNumber: '', street: '', city: '', province: '', categories: '',
+      name: '', contact: '', phone: '', contactPhone: '', email: '', companyName: '', brn: '', taxNumber: '', street: '', city: '', province: '', categories: '',
     };
 
     if (!formData.name.trim()) {
@@ -155,29 +151,31 @@ export default function ProcurementManagement() {
 
     const phoneRegex = /^[+]?[0-9\s-]{7,15}$/;
     if (!formData.phone.trim()) {
-      errors.phone = 'Phone number is required';
+      errors.phone = 'Supplier contact number is required';
       isValid = false;
     } else if (!phoneRegex.test(formData.phone)) {
-      errors.phone = 'Enter a valid phone number';
+      errors.phone = 'Enter a valid contact number';
+      isValid = false;
+    }
+
+    if (!formData.contactPhone.trim()) {
+      errors.contactPhone = 'Contact person number is required';
+      isValid = false;
+    } else if (!phoneRegex.test(formData.contactPhone)) {
+      errors.contactPhone = 'Enter a valid contact person number';
       isValid = false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      errors.email = 'Email address is required';
-      isValid = false;
-    } else if (!emailRegex.test(formData.email)) {
+    if (formData.email.trim() && !emailRegex.test(formData.email)) {
       errors.email = 'Enter a valid email address';
       isValid = false;
     }
 
     if (!formData.companyName.trim()) { errors.companyName = 'Company name is required'; isValid = false; }
-    if (!formData.brn.trim()) { errors.brn = 'Registration number is required'; isValid = false; }
-    if (!formData.taxNumber.trim()) { errors.taxNumber = 'Tax number is required'; isValid = false; }
     if (!formData.street.trim()) { errors.street = 'Street address is required'; isValid = false; }
     if (!formData.city.trim()) { errors.city = 'City is required'; isValid = false; }
     if (!formData.province.trim()) { errors.province = 'Province is required'; isValid = false; }
-    if (!formData.categories.trim()) { errors.categories = 'Specify categories'; isValid = false; }
 
     setFormErrors(errors);
     return isValid;
@@ -186,10 +184,10 @@ export default function ProcurementManagement() {
   // CRUD for Suppliers
   const handleOpenAddModal = () => {
     setFormData({
-      name: '', contact: '', phone: '', email: '', companyName: '', brn: '', taxNumber: '', street: '', city: '', province: '', categories: '', deliveryDays: [], paymentTerms: 'Net 30', status: 'Active',
+      name: '', contact: '', phone: '', contactPhone: '', email: '', companyName: '', brn: 'N/A', taxNumber: 'N/A', street: '', city: '', province: '', categories: 'General', deliveryDays: [], paymentTerms: 'COD', status: 'Active',
     });
     setFormErrors({
-      name: '', contact: '', phone: '', email: '', companyName: '', brn: '', taxNumber: '', street: '', city: '', province: '', categories: '',
+      name: '', contact: '', phone: '', contactPhone: '', email: '', companyName: '', brn: '', taxNumber: '', street: '', city: '', province: '', categories: '',
     });
     setIsAddModalOpen(true);
   };
@@ -224,6 +222,7 @@ export default function ProcurementManagement() {
       name: supplier.name,
       contact: supplier.contact,
       phone: supplier.phone,
+      contactPhone: supplier.contactPhone || '',
       email: supplier.email,
       companyName: supplier.companyName,
       brn: supplier.brn,
@@ -237,7 +236,7 @@ export default function ProcurementManagement() {
       status: supplier.status,
     });
     setFormErrors({
-      name: '', contact: '', phone: '', email: '', companyName: '', brn: '', taxNumber: '', street: '', city: '', province: '', categories: '',
+      name: '', contact: '', phone: '', contactPhone: '', email: '', companyName: '', brn: '', taxNumber: '', street: '', city: '', province: '', categories: '',
     });
     setIsEditModalOpen(true);
   };
@@ -265,38 +264,30 @@ export default function ProcurementManagement() {
   };
 
   const handleDeleteSupplier = (id: string) => {
-    if (window.confirm(`Are you sure you want to delete supplier ${id}?`)) {
+    const supplier = suppliersList.find(s => s.id === id);
+    if (supplier) {
+      setSupplierToDelete(supplier);
+      setIsDeleteConfirmOpen(true);
+    }
+  };
+
+  const handleConfirmDeleteSupplier = () => {
+    if (supplierToDelete) {
+      const id = supplierToDelete.id;
       setSuppliersList(prev => prev.filter(s => s.id !== id));
       if (activeProfileSupplier && activeProfileSupplier.id === id) {
         setActiveProfileSupplier(null);
       }
+      setIsDeleteConfirmOpen(false);
+      setSupplierToDelete(null);
     }
   };
 
-  const handleExportSuppliers = () => {
-    const headers = ["Supplier ID", "Supplier Name", "Contact Person", "Phone", "Email", "Address", "Products Supplied", "Last Purchase Date", "Status"];
-    const csvRows = [headers.join(",")];
-    suppliersList.forEach(s => {
-      const row = [
-        s.id,
-        `"${s.name}"`,
-        `"${s.contact}"`,
-        s.phone,
-        s.email,
-        `"${s.street}, ${s.city}"`,
-        s.products,
-        s.lastPurchaseDate,
-        s.status
-      ];
-      csvRows.push(row.join(","));
-    });
-    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.setAttribute("href", url);
-    a.setAttribute("download", `stocksense_suppliers_${new Date().toISOString().split('T')[0]}.csv`);
-    a.click();
-  };
+
+
+  useEffect(() => {
+    window.localStorage.setItem(SUPPLIER_STORAGE_KEY, JSON.stringify(suppliersList));
+  }, [suppliersList]);
 
   useEffect(() => {
     const action = searchParams.get('action');
@@ -365,7 +356,6 @@ export default function ProcurementManagement() {
                 onSupplierClick={setActiveProfileSupplier}
                 onEditClick={handleOpenEditModal}
                 onDeleteClick={handleDeleteSupplier}
-                onExportClick={handleExportSuppliers}
                 onAddClick={handleOpenAddModal}
               />
             )}
@@ -382,7 +372,6 @@ export default function ProcurementManagement() {
         formErrors={formErrors}
         onClose={() => setIsAddModalOpen(false)}
         onChange={handleInputChange}
-        onDeliveryDayChange={handleDeliveryDayChange}
         onSubmit={handleAddSupplierSubmit}
       />
 
@@ -394,9 +383,42 @@ export default function ProcurementManagement() {
         formErrors={formErrors}
         onClose={() => setIsEditModalOpen(false)}
         onChange={handleInputChange}
-        onDeliveryDayChange={handleDeliveryDayChange}
         onSubmit={handleEditSupplierSubmit}
       />
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteConfirmOpen && supplierToDelete && (
+        <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-[#f8fafc] border border-outline-variant rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 text-red-600">
+              <span className="material-symbols-outlined text-3xl">warning</span>
+              <h3 className="text-lg font-black text-on-surface">Delete Supplier</h3>
+            </div>
+            <p className="text-xs font-semibold text-slate-500">
+              Are you sure you want to delete supplier <strong className="text-on-surface">{supplierToDelete.name} ({supplierToDelete.id})</strong>? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDeleteConfirmOpen(false);
+                  setSupplierToDelete(null);
+                }}
+                className="px-4 py-2 border border-outline-variant rounded-lg text-xs font-bold text-on-surface hover:bg-surface-container transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteSupplier}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors shadow-sm"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
