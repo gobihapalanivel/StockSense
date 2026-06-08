@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../Shared/Sidebar';
 import InventoryHeader from '../Shared/InventoryHeader';
-import ModuleCard from './DashboardComponents/ModuleCard';
 import SnapshotCard from './DashboardComponents/SnapshotCard';
 import QuickActionItem from './DashboardComponents/QuickActionItem';
 import RecentActivityItem from './DashboardComponents/RecentActivityItem';
@@ -12,72 +11,6 @@ import {
   LedgerEntry,
   GRNRecord,
 } from '../StockOperations/operations/inventoryOperationsService';
-
-const moduleCards = [
-  {
-    title: 'Product Management',
-    description: 'Manage catalog, categories, brands, variants, and supplier mappings.',
-    icon: 'inventory_2',
-    to: '/manage-products?tab=products',
-    accent: 'from-emerald-50 to-emerald-100/60',
-    iconColor: 'text-emerald-700',
-  },
-  {
-    title: 'Procurement',
-    description: 'Work with GRNs, suppliers, and purchase records without leaving the module.',
-    icon: 'local_shipping',
-    to: '/procurement',
-    accent: 'from-indigo-50 to-indigo-100/60',
-    iconColor: 'text-indigo-700',
-  },
-  {
-    title: 'Stock Operations',
-    description: 'Handle stock movements and adjustments from a single operational view.',
-    icon: 'swap_horiz',
-    to: '/inventory-operations?tab=movements',
-    accent: 'from-sky-50 to-sky-100/60',
-    iconColor: 'text-sky-700',
-  },
-  {
-    title: 'Inventory Analytics',
-    description: 'Review the highest-value inventory insights and stock behavior trends.',
-    icon: 'trending_up',
-    to: '/inventory-analytics',
-    accent: 'from-amber-50 to-amber-100/60',
-    iconColor: 'text-amber-700',
-  },
-  {
-    title: 'Alerts & Monitoring',
-    description: 'Track low stock, out-of-stock items, and exception-driven monitoring.',
-    icon: 'notifications_active',
-    to: '/alerts',
-    accent: 'from-rose-50 to-rose-100/60',
-    iconColor: 'text-rose-700',
-  },
-  {
-    title: 'Reports Center',
-    description: 'Open operational reports for purchase, inventory, supplier, and activity views.',
-    icon: 'summarize',
-    to: '/reports',
-    accent: 'from-violet-50 to-violet-100/60',
-    iconColor: 'text-violet-700',
-  },
-  {
-    title: 'Settings',
-    description: 'Adjust rules, account preferences, and inventory configuration in one place.',
-    icon: 'settings',
-    to: '/settings',
-    accent: 'from-slate-50 to-slate-100/80',
-    iconColor: 'text-slate-700',
-  },
-];
-
-const quickActions = [
-  { label: 'Add Product', icon: 'add_box', to: '/manage-products?tab=new-product' },
-  { label: 'Create GRN', icon: 'assignment_add', to: '/procurement?tab=records&action=record-purchase' },
-  { label: 'Stock Adjustment', icon: 'sync_alt', to: '/inventory-operations?tab=adjustments' },
-  { label: 'View Alerts', icon: 'notification_important', to: '/alerts' },
-];
 
 function formatCurrency(value: number) {
   return `Rs. ${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -90,7 +23,6 @@ export default function InventoryPage() {
   const [grns, setGrns] = useState<GRNRecord[]>([]);
   const [recentLedger, setRecentLedger] = useState<LedgerEntry[]>([]);
   const [lastSyncedAt, setLastSyncedAt] = useState<string>('Syncing...');
-  const [marqueePaused, setMarqueePaused] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -161,10 +93,10 @@ export default function InventoryPage() {
       tone: 'text-sky-700 bg-sky-50',
     },
     {
-      label: 'Pending GRNs',
-      value: pendingGrns.toString(),
-      helper: 'Receipts needing review',
-      icon: 'receipt_long',
+      label: 'Low Stock Items',
+      value: lowStockCount.toString(),
+      helper: 'Items nearing depletion',
+      icon: 'warning',
       tone: 'text-amber-700 bg-amber-50',
     },
     {
@@ -206,119 +138,6 @@ export default function InventoryPage() {
                       </div>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[460px]">
-                    <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Live Products</p>
-                      <p className="mt-2 text-2xl font-black text-slate-900">{totalProducts}</p>
-                      <p className="mt-1 text-xs text-slate-500">Catalog ready</p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Low Stock</p>
-                      <p className="mt-2 text-2xl font-black text-amber-600">{lowStockCount}</p>
-                      <p className="mt-1 text-xs text-slate-500">Needs attention</p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Out of Stock</p>
-                      <p className="mt-2 text-2xl font-black text-rose-600">{outOfStockCount}</p>
-                      <p className="mt-1 text-xs text-slate-500">Critical items</p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Ledger</p>
-                      <p className="mt-2 text-2xl font-black text-slate-900">{recentLedger.length}</p>
-                      <p className="mt-1 text-xs text-slate-500">Recent entries</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="space-y-4">
-              <div className="flex items-end justify-between gap-4">
-                <div>
-                  <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900">Module Navigation</h2>
-                  <p className="mt-1 text-sm text-slate-500">Jump straight to the area you need.</p>
-                </div>
-              </div>
-
-              <div className="relative w-full overflow-hidden fade-edges rounded-[1.75rem] border border-slate-200 bg-white px-4 py-4 sm:px-5 shadow-sm">
-                <style>{`
-                  @keyframes module-scroll {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
-                  }
-                  .module-marquee {
-                    animation: module-scroll 34s linear infinite;
-                    width: max-content;
-                  }
-                  .module-marquee:hover {
-                    animation-play-state: paused;
-                  }
-                  /* Mobile / small screens: stack cards and disable animation for accessibility */
-                  @media (max-width: 768px) {
-                    .module-marquee {
-                      animation: none;
-                      width: 100%;
-                      display: grid;
-                      grid-template-columns: 1fr;
-                      gap: 1rem;
-                    }
-                    .module-marquee > a {
-                      width: 100% !important;
-                    }
-                    .fade-edges {
-                      mask-image: none;
-                      -webkit-mask-image: none;
-                    }
-                  }
-                  .fade-edges {
-                    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-                    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-                  }
-                `}</style>
-
-                <div
-                  className="module-marquee flex gap-4 py-2"
-                  tabIndex={0}
-                  role="region"
-                  aria-label="Module navigation carousel"
-                  onMouseEnter={() => setMarqueePaused(true)}
-                  onMouseLeave={() => setMarqueePaused(false)}
-                  onFocusCapture={() => setMarqueePaused(true)}
-                  onBlurCapture={() => setMarqueePaused(false)}
-                  onKeyDown={(e: any) => {
-                    if (e.key === ' ' || e.code === 'Space') {
-                      e.preventDefault();
-                      setMarqueePaused((p) => !p);
-                    }
-                    if (e.key === 'Enter') {
-                      setMarqueePaused(true);
-                    }
-                  }}
-                  style={{ animationPlayState: marqueePaused ? 'paused' : 'running' }}
-                >
-                  {[...moduleCards, ...moduleCards].map((card, index) => {
-                    let stat = 'System ready';
-                    if (card.title === 'Product Management') stat = `${totalProducts} products`;
-                    else if (card.title === 'Procurement') stat = `${pendingGrns} GRNs to review`;
-                    else if (card.title === 'Stock Operations') stat = `${recentLedger.length} ledger entries`;
-                    else if (card.title === 'Inventory Analytics') stat = `${formatCurrency(totalStockValue)} stock value`;
-                    else if (card.title === 'Alerts & Monitoring') stat = `${criticalAlerts} active alerts`;
-                    else if (card.title === 'Reports Center') stat = `${grns.length} procurement records`;
-
-                    return (
-                      <ModuleCard
-                        key={`${card.title}-${index}`}
-                        title={card.title}
-                        description={card.description}
-                        icon={card.icon}
-                        to={card.to}
-                        accent={card.accent}
-                        iconColor={card.iconColor}
-                        stat={stat}
-                      />
-                    );
-                  })}
                 </div>
               </div>
             </section>
@@ -336,7 +155,7 @@ export default function InventoryPage() {
               </div>
             </section>
 
-            <section className="grid grid-cols-1 xl:grid-cols-[1.65fr_0.95fr] gap-4 lg:gap-6">
+            <section className="grid grid-cols-1 gap-4 lg:gap-6">
               <div className="rounded-[1.75rem] border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                   <div>
@@ -361,27 +180,6 @@ export default function InventoryPage() {
                       <p className="mt-1 text-sm text-slate-500">New GRNs, adjustments, and stock movements will appear here.</p>
                     </div>
                   )}
-                </div>
-              </div>
-
-              <div className="rounded-[1.75rem] border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
-                <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900">Quick Actions</h2>
-                <p className="mt-1 text-sm text-slate-500">Fast entry points for the most common inventory tasks.</p>
-
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-3">
-                  {quickActions.map((action) => (
-                    <QuickActionItem key={action.label} action={action} />
-                  ))}
-                </div>
-
-                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex items-center justify-between gap-3 text-sm">
-                    <span className="text-slate-500">Inventory signals</span>
-                    <span className="font-semibold text-slate-900">{criticalAlerts} critical / {lowStockCount} low stock</span>
-                  </div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
-                    <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500" style={{ width: `${Math.min(100, Math.max(10, criticalAlerts * 8 + lowStockCount * 4))}%` }} />
-                  </div>
                 </div>
               </div>
             </section>
