@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 export type BrandItem = {
   id: string;
@@ -24,6 +25,22 @@ export default function BrandRegistry({
   const [editingBrand, setEditingBrand] = useState<BrandItem | null>(null);
   const [brandName, setBrandName] = useState('');
   const [description, setDescription] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [returnTo, setReturnTo] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  // Auto-open modal if navigated via deep link from NewProductForm
+  useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      const rt = searchParams.get('returnTo');
+      if (rt) setReturnTo(rt);
+      
+      setIsModalOpen(true);
+      searchParams.delete('action');
+      searchParams.delete('returnTo');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Filtered Brands
   const filteredBrands = useMemo(() => {
@@ -67,6 +84,10 @@ export default function BrandRegistry({
     setDescription('');
     setEditingBrand(null);
     setIsModalOpen(false);
+
+    if (!editingBrand && returnTo) {
+      navigate(`/manage-products?tab=${returnTo}`);
+    }
   };
 
   const handleDelete = (id: string, name: string) => {

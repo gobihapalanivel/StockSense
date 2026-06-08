@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Sidebar from "../Shared/Sidebar";
 import InventoryHeader from '../Shared/InventoryHeader';
 
@@ -8,11 +8,29 @@ import SupplierList from './components/SupplierList';
 import SupplierProfile from './components/SupplierProfile';
 import SupplierFormModal from './components/SupplierFormModal';
 
+const SUPPLIERS_STORAGE_KEY = 'stocksense_suppliers_registry';
+
 export default function ProcurementManagement() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [returnTo, setReturnTo] = useState<string | null>(null);
 
   // Active Datasets State
-  const [suppliersList, setSuppliersList] = useState<Supplier[]>(initialSuppliers);
+  const [suppliersList, setSuppliersList] = useState<Supplier[]>(() => {
+    const stored = window.localStorage.getItem(SUPPLIERS_STORAGE_KEY);
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return initialSuppliers;
+      }
+    }
+    return initialSuppliers;
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem(SUPPLIERS_STORAGE_KEY, JSON.stringify(suppliersList));
+  }, [suppliersList]);
 
   // Supplier Profile Page State
   const [activeProfileSupplier, setActiveProfileSupplier] = useState<Supplier | null>(null);
@@ -194,6 +212,10 @@ export default function ProcurementManagement() {
     };
     setSuppliersList(prev => [...prev, newSupplier]);
     setIsAddModalOpen(false);
+
+    if (returnTo) {
+      navigate(returnTo);
+    }
   };
 
   const handleOpenEditModal = (supplier: Supplier) => {
@@ -278,11 +300,17 @@ export default function ProcurementManagement() {
 
   useEffect(() => {
     const action = searchParams.get('action');
+    const returnToParam = searchParams.get('returnTo');
+    
     if (action === 'new-supplier') {
+      if (returnToParam) {
+        setReturnTo(returnToParam);
+      }
       handleOpenAddModal();
       setSearchParams(prev => {
         const next = new URLSearchParams(prev);
         next.delete('action');
+        next.delete('returnTo');
         return next;
       }, { replace: true });
     }

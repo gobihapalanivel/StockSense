@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ProductItem } from './ProductsRegistry';
 
 export type SupplierItem = {
@@ -29,6 +30,16 @@ export default function SupplierRegistry({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<SupplierItem | null>(null);
   const [supplierProductsModal, setSupplierProductsModal] = useState<SupplierItem | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Auto-open modal if navigated via deep link from NewProductForm
+  useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      setIsModalOpen(true);
+      searchParams.delete('action');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Form states
   const [name, setName] = useState('');

@@ -304,13 +304,23 @@ export default function ProductManagement() {
     { id: 'b-5', name: 'Munchee', description: 'Biscuits, wafers, and bakery snacks.' },
   ]);
 
-  // preloaded suppliers directory
-  const [suppliers] = useState<SupplierItem[]>([
-    { id: 's-1', name: 'FreshFarm Supplies', phone: '+94 77 123 4567', email: 'sales@freshfarm.lk', address: '45 Orchard Lane, Colombo 03', status: 'Active' },
-    { id: 's-2', name: 'Golden Crust Bakery', phone: '+94 11 234 5678', email: 'orders@goldencrust.lk', address: '12 Bakery Lane, Kandy', status: 'Active' },
-    { id: 's-3', name: 'Ocean Harvest', phone: '+94 91 345 6789', email: 'supply@oceanharvest.lk', address: '78 Fishery Pier, Galle', status: 'Active' },
-    { id: 's-4', name: 'Ceylon Beverage Distributors', phone: '+94 71 456 7890', email: 'info@ceylonbev.lk', address: '102 Industrial Zone, Orugodawatta', status: 'Active' }
-  ]);
+  // preloaded suppliers directory from localStorage
+  const [suppliers] = useState<SupplierItem[]>(() => {
+    try {
+      const stored = window.localStorage.getItem('stocksense_suppliers_registry');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error('Failed to parse stored suppliers', e);
+    }
+    return [
+      { id: 's-1', name: 'FreshFarm Supplies', phone: '+94 77 123 4567', email: 'sales@freshfarm.lk', address: '45 Orchard Lane, Colombo 03', status: 'Active' },
+      { id: 's-2', name: 'Golden Crust Bakery', phone: '+94 11 234 5678', email: 'orders@goldencrust.lk', address: '12 Bakery Lane, Kandy', status: 'Active' },
+      { id: 's-3', name: 'Ocean Harvest', phone: '+94 91 345 6789', email: 'supply@oceanharvest.lk', address: '78 Fishery Pier, Galle', status: 'Active' },
+      { id: 's-4', name: 'Ceylon Beverage Distributors', phone: '+94 71 456 7890', email: 'info@ceylonbev.lk', address: '102 Industrial Zone, Orugodawatta', status: 'Active' }
+    ];
+  });
 
   // Filter redirection state
   const [initialSearch] = useState('');
@@ -535,9 +545,7 @@ export default function ProductManagement() {
     showToast('Product Catalog exported as CSV successfully.', 'info');
   };
 
-  const handleImportPlaceholder = () => {
-    showToast('Import products wizard launched (mock).', 'info');
-  };
+
 
   return (
     <div className="flex h-screen overflow-hidden bg-background font-sans text-on-surface">
@@ -576,13 +584,7 @@ export default function ProductManagement() {
 
               {/* Action Buttons */}
               <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={handleImportPlaceholder}
-                  className="flex items-center gap-1.5 px-3 py-2 border border-outline rounded-lg text-xs font-bold text-on-surface-variant hover:bg-slate-50 transition-colors shadow-sm bg-white"
-                >
-                  <span className="material-symbols-outlined text-sm">publish</span>
-                  Import CSV
-                </button>
+
                 <button
                   onClick={handleExportCSV}
                   className="flex items-center gap-1.5 px-3 py-2 border border-outline rounded-lg text-xs font-bold text-on-surface-variant hover:bg-slate-50 transition-colors shadow-sm bg-white"
