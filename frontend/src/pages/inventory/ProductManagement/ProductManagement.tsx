@@ -10,8 +10,28 @@ import NewProductForm from './ProductManagementComponents/NewProductForm';
 import BrandRegistry, { BrandItem } from './ProductManagementComponents/BrandRegistry';
 import { SupplierItem } from './ProductManagementComponents/SupplierRegistry';
 
+export type SubCategoryNode = {
+  id: string;
+  name: string;
+  status: string;
+  productsCount?: number;
+};
+
+export type CategoryItem = {
+  id: string;
+  name: string;
+  icon: string;
+  image: string;
+  status: string;
+  statusClass: string;
+  skus: number;
+  health: string;
+  children: SubCategoryNode[];
+  description?: string;
+};
+
 // Initial preloaded mock supermarket categories matching specifications
-const initialCategories = [
+const initialCategories: CategoryItem[] = [
   {
     id: 'grocery',
     name: 'Grocery',
@@ -23,9 +43,9 @@ const initialCategories = [
     health: '92%',
     description: 'Staples, pulses, grains, flour, spices, and dried foods.',
     children: [
-      { id: 'rice-flour', name: 'Rice & Flour' },
-      { id: 'spices', name: 'Spices & Condiments' },
-      { id: 'biscuits', name: 'Biscuits & Snacks' },
+      { id: 'rice-flour', name: 'Rice & Flour', status: 'Active' },
+      { id: 'spices', name: 'Spices & Condiments', status: 'Active' },
+      { id: 'biscuits', name: 'Biscuits & Snacks', status: 'Active' },
     ]
   },
   {
@@ -39,9 +59,9 @@ const initialCategories = [
     health: '90%',
     description: 'Fresh milk, block cheese, salted butter, and fresh cream.',
     children: [
-      { id: 'milk', name: 'Milk Products' },
-      { id: 'cheese', name: 'Cheese Products' },
-      { id: 'yogurt', name: 'Yogurt & Cream' },
+      { id: 'milk', name: 'Milk Products', status: 'Active' },
+      { id: 'cheese', name: 'Cheese Products', status: 'Active' },
+      { id: 'yogurt', name: 'Yogurt & Cream', status: 'Active' },
     ]
   },
   {
@@ -55,9 +75,9 @@ const initialCategories = [
     health: '94%',
     description: 'Freshly baked loaves of bread, chocolate chip cookies, and tea buns.',
     children: [
-      { id: 'bread', name: 'Loaf Bread' },
-      { id: 'cookies', name: 'Cookies & Pastries' },
-      { id: 'buns', name: 'Buns & Cakes' },
+      { id: 'bread', name: 'Loaf Bread', status: 'Active' },
+      { id: 'cookies', name: 'Cookies & Pastries', status: 'Active' },
+      { id: 'buns', name: 'Buns & Cakes', status: 'Active' },
     ]
   },
   {
@@ -71,9 +91,9 @@ const initialCategories = [
     health: '88%',
     description: 'Frozen ice cream tubs, meat cuts, frozen seafood, and mixed veggies.',
     children: [
-      { id: 'ice-cream', name: 'Ice Cream' },
-      { id: 'meat-seafood', name: 'Frozen Meat & Seafood' },
-      { id: 'veg', name: 'Frozen Vegetables' },
+      { id: 'ice-cream', name: 'Ice Cream', status: 'Active' },
+      { id: 'meat-seafood', name: 'Frozen Meat & Seafood', status: 'Active' },
+      { id: 'veg', name: 'Frozen Vegetables', status: 'Active' },
     ]
   },
   {
@@ -87,9 +107,9 @@ const initialCategories = [
     health: '95%',
     description: 'Carbonated soda pop, energy drinks, bottled mineral water, and fruit juices.',
     children: [
-      { id: 'soft-drinks', name: 'Soft Drinks' },
-      { id: 'fruit-juices', name: 'Juice' },
-      { id: 'water', name: 'Water' },
+      { id: 'soft-drinks', name: 'Soft Drinks', status: 'Active' },
+      { id: 'fruit-juices', name: 'Juice', status: 'Active' },
+      { id: 'water', name: 'Water', status: 'Active' },
     ]
   },
   {
@@ -103,9 +123,9 @@ const initialCategories = [
     health: '91%',
     description: 'Laundry detergents, dish soaps, garbage bins, and cleaning brushes.',
     children: [
-      { id: 'detergent', name: 'Detergents & Soaps' },
-      { id: 'utensils', name: 'Cleaning Utensils' },
-      { id: 'paper-goods', name: 'Tissues & Wipes' },
+      { id: 'detergent', name: 'Detergents & Soaps', status: 'Active' },
+      { id: 'utensils', name: 'Cleaning Utensils', status: 'Active' },
+      { id: 'paper-goods', name: 'Tissues & Wipes', status: 'Active' },
     ]
   }
 ];
@@ -254,7 +274,7 @@ const normalizeProduct = (product: Partial<ProductItem> & Record<string, any>, f
     targetCapacity: Number(product.targetCapacity ?? (product.reorderLevel ? (product.reorderLevel * 4) : 100)),
     costPrice: Number(product.costPrice ?? 0),
     sellingPrice: Number(product.sellingPrice ?? 0),
-    status: product.status === 'Inactive' || product.status === 'Discontinued' ? product.status : 'Active',
+    status: product.status === 'Inactive' ? product.status : 'Active',
     lastUpdated: String(product.lastUpdated || formatUpdatedAt()),
     imageUrl: product.imageUrl || product.frontImageUrl || null,
     description: String(product.description || ''),
@@ -296,11 +316,11 @@ export default function ProductManagement() {
 
   // preloaded brands directory
   const [brands, setBrands] = useState<BrandItem[]>([
-    { id: 'b-1', name: 'Anchor', description: 'Premium dairy products and milk powders.' },
-    { id: 'b-2', name: 'Coca-Cola', description: 'Carbonated soft drinks and beverages.' },
-    { id: 'b-3', name: 'Sunlight', description: 'Leading household cleaning and laundry brands.' },
-    { id: 'b-4', name: 'Signal', description: 'Oral healthcare and toothpastes.' },
-    { id: 'b-5', name: 'Munchee', description: 'Biscuits, wafers, and bakery snacks.' },
+    { id: 'b-1', name: 'Anchor', description: 'Premium dairy products and milk powders.', status: 'Active' },
+    { id: 'b-2', name: 'Coca-Cola', description: 'Carbonated soft drinks and beverages.', status: 'Active' },
+    { id: 'b-3', name: 'Sunlight', description: 'Leading household cleaning and laundry brands.', status: 'Active' },
+    { id: 'b-4', name: 'Signal', description: 'Oral healthcare and toothpastes.', status: 'Active' },
+    { id: 'b-5', name: 'Munchee', description: 'Biscuits, wafers, and bakery snacks.', status: 'Active' },
   ]);
 
   // preloaded suppliers directory from localStorage
@@ -327,6 +347,7 @@ export default function ProductManagement() {
 
   // Edit target state
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
+  const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
 
   // Toast notification
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
@@ -334,6 +355,15 @@ export default function ProductManagement() {
   useEffect(() => {
     window.localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(products));
   }, [products]);
+
+  // Handle URL redirects for Quick Create "Add Product"
+  useEffect(() => {
+    if (activeTab === 'new-product') {
+      setEditingProduct(null);
+      setIsNewProductModalOpen(true);
+      setSearchParams({ tab: 'products' }, { replace: true });
+    }
+  }, [activeTab, setSearchParams]);
 
   const showToast = (message: string, type: 'success' | 'info' = 'success') => {
     setToast({ message, type });
@@ -375,7 +405,7 @@ export default function ProductManagement() {
           if (parent.id === newCat.parentId) {
             return {
               ...parent,
-              children: [...parent.children, { id: `sub_${Date.now()}`, name: newCat.name }]
+              children: [...parent.children, { id: `sub_${Date.now()}`, name: newCat.name, status: 'Active' }]
             };
           }
           return parent;
@@ -385,12 +415,54 @@ export default function ProductManagement() {
     }
   };
 
-  // Archive Category
-  const handleArchiveCategory = (id: string) => {
-    if (window.confirm('Are you sure you want to archive this category?')) {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
-      showToast('Category archived successfully.', 'info');
+  // Toggle Category Status (Archive/Restore)
+  const handleToggleCategoryStatus = (id: string, targetStatus: 'Active' | 'Inactive') => {
+    if (!window.confirm(`Are you sure you want to mark this category as ${targetStatus}?`)) return;
+
+    let targetCategoryName = '';
+    setCategories((prev) => prev.map((c) => {
+      if (c.id === id) {
+        targetCategoryName = c.name;
+        return {
+          ...c,
+          status: targetStatus,
+          children: c.children.map(sub => ({ ...sub, status: targetStatus }))
+        };
+      }
+      return c;
+    }));
+
+    if (targetCategoryName) {
+      setProducts((prev) => prev.map((p) => p.category === targetCategoryName ? { ...p, status: targetStatus } : p));
     }
+    showToast(`Category marked as ${targetStatus} successfully.`, 'info');
+  };
+
+  // Toggle Subcategory Status (Archive/Restore)
+  const handleToggleSubcategoryStatus = (parentId: string, subId: string, targetStatus: 'Active' | 'Inactive') => {
+    if (!window.confirm(`Are you sure you want to mark this subcategory as ${targetStatus}?`)) return;
+
+    let targetSubName = '';
+    setCategories((prev) => prev.map((c) => {
+      if (c.id === parentId) {
+        return {
+          ...c,
+          children: c.children.map(sub => {
+            if (sub.id === subId) {
+              targetSubName = sub.name;
+              return { ...sub, status: targetStatus };
+            }
+            return sub;
+          })
+        };
+      }
+      return c;
+    }));
+
+    if (targetSubName) {
+      setProducts((prev) => prev.map((p) => p.subcategory === targetSubName ? { ...p, status: targetStatus } : p));
+    }
+    showToast(`Subcategory marked as ${targetStatus} successfully.`, 'info');
   };
 
   // Edit Category node
@@ -401,26 +473,43 @@ export default function ProductManagement() {
     showToast('Category updated successfully.');
   };
 
+  // Edit Subcategory node
+  const handleEditSubcategoryNode = (parentId: string, subId: string, updatedName: string) => {
+    setCategories((prev) =>
+      prev.map((c) => {
+        if (c.id === parentId) {
+          return {
+            ...c,
+            children: c.children.map((sub) => sub.id === subId ? { ...sub, name: updatedName } : sub)
+          };
+        }
+        return c;
+      })
+    );
+    showToast('Subcategory updated successfully.');
+  };
+
   // Brand registry handlers
-  const handleAddBrand = (brandData: Omit<BrandItem, 'id'>) => {
-    const newBrand: BrandItem = {
-      ...brandData,
-      id: `brand_${Date.now()}`,
-    };
-    setBrands((prev) => [...prev, newBrand]);
-    showToast(`Brand "${brandData.name}" registered successfully.`);
+  const handleAddBrand = (newBrand: Omit<BrandItem, 'id' | 'status'>) => {
+    const added = { ...newBrand, id: `b_${Date.now()}`, status: 'Active' as const };
+    setBrands((prev) => [...prev, added]);
+    showToast(`Brand "${newBrand.name}" added successfully.`);
   };
 
   const handleEditBrand = (id: string, updatedFields: Partial<BrandItem>) => {
     setBrands((prev) =>
       prev.map((b) => (b.id === id ? { ...b, ...updatedFields } : b))
     );
-    showToast(`Brand details updated successfully.`);
+    showToast('Brand updated successfully.');
   };
 
-  const handleDeleteBrand = (id: string) => {
-    setBrands((prev) => prev.filter((b) => b.id !== id));
-    showToast('Brand deleted successfully.', 'info');
+  const handleToggleBrandStatus = (id: string, targetStatus: 'Active' | 'Inactive') => {
+    const brand = brands.find(b => b.id === id);
+    if (!brand) return;
+    if (!window.confirm(`Are you sure you want to mark the brand "${brand.name}" as ${targetStatus}?`)) return;
+
+    setBrands((prev) => prev.map((b) => (b.id === id ? { ...b, status: targetStatus } : b)));
+    showToast(`Brand marked as ${targetStatus}.`, 'info');
   };
 
   // Save product (handles both Create and Edit)
@@ -488,14 +577,14 @@ export default function ProductManagement() {
       }
       setEditingProduct(null);
       setLoading(false);
-      handleTabChange('products');
+      setIsNewProductModalOpen(false);
     }, 400);
   };
 
   // Row Action Handlers
   const handleEditProduct = (product: ProductItem) => {
     setEditingProduct(product);
-    handleTabChange('new-product');
+    setIsNewProductModalOpen(true);
   };
 
   const handleDuplicateProduct = (product: ProductItem) => {
@@ -511,11 +600,12 @@ export default function ProductManagement() {
     showToast(`Duplicated "${product.name}" successfully.`);
   };
 
-  const handleArchiveProduct = (id: string, productName: string) => {
+  // Function to handle moving a product to archive (or mark Inactive)
+  const handleArchiveProduct = (id: string, name: string) => {
     setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: 'Discontinued' } : p))
+      prev.map((p) => (p.id === id ? { ...p, status: 'Inactive' } : p))
     );
-    showToast(`Product "${productName}" marked as Discontinued successfully.`, 'info');
+    showToast(`Product "${name}" has been marked as Inactive`, 'info');
   };
 
   // View Category Products redirects: swiches to products tab and sets filter
@@ -524,25 +614,7 @@ export default function ProductManagement() {
     handleTabChange('products');
   };
 
-  // Export Products Registry as CSV
-  const handleExportCSV = () => {
-    const headers = 'Product Name,SKU,Barcode,Category,Subcategory,Supplier,Unit Type,Stock,Reorder Level,Cost Price,Selling Price,Status,Last Updated\n';
-    const rows = products
-      .map(
-        (p) =>
-          `"${p.name}","${p.sku}","${p.barcode}","${p.category}","${p.subcategory}","${p.supplier}","${p.unitType}",${p.stock},${p.reorderLevel},${p.costPrice},${p.sellingPrice},"${p.status}","${p.lastUpdated}"`
-      )
-      .join('\n');
 
-    const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', `StockSense_Products_Catalog_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showToast('Product Catalog exported as CSV successfully.', 'info');
-  };
 
 
 
@@ -581,28 +653,18 @@ export default function ProductManagement() {
                 </p>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 shrink-0">
-
-                <button
-                  onClick={handleExportCSV}
-                  className="flex items-center gap-1.5 px-3 py-2 border border-outline rounded-lg text-xs font-bold text-on-surface-variant hover:bg-slate-50 transition-colors shadow-sm bg-white"
-                >
-                  <span className="material-symbols-outlined text-sm">download</span>
-                  Export Catalog
-                </button>
-                <button
-                  onClick={() => handleTabChange('new-product')}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-[#0b8252] text-white rounded-lg text-xs font-bold hover:bg-[#096b43] transition-colors shadow-sm"
-                >
-                  <span className="material-symbols-outlined text-sm">add</span>
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => { setEditingProduct(null); setIsNewProductModalOpen(true); }}
+                className="flex items-center gap-1.5 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-sm hover:opacity-90 transition-opacity"
+              >
+                <span className="material-symbols-outlined text-[18px]">add</span>
+                Add New Product
+              </button>
             </div>
 
             {/* Segment Controls Navigation Tab Bar */}
-            <div className="border-b border-outline-variant pb-px">
+            <div className="border-b border-outline-variant pb-3">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="inline-flex p-1 bg-surface-container-low border border-outline-variant/60 rounded-lg text-xs font-medium w-full sm:w-auto overflow-x-auto gap-1">
                   <button
@@ -639,7 +701,6 @@ export default function ProductManagement() {
                 products={products}
                 loading={loading}
                 onEdit={handleEditProduct}
-                onDuplicate={handleDuplicateProduct}
                 onArchive={handleArchiveProduct}
                 categories={categoryNamesList}
                 suppliers={supplierNamesList}
@@ -651,11 +712,21 @@ export default function ProductManagement() {
             {activeTab === 'categories' && (
               <CategoryRegistry
                 categories={categories}
+                products={products}
                 onViewProducts={handleViewCategoryProducts}
                 onAddCategory={handleAddCategoryNode}
                 onEditCategory={handleEditCategoryNode}
+                onEditSubcategory={handleEditSubcategoryNode}
                 onAddSubcategory={() => { }}
-                onArchiveCategory={handleArchiveCategory}
+                onArchiveCategory={(id) => handleToggleCategoryStatus(id, 'Inactive')}
+                onRestoreCategory={(id) => handleToggleCategoryStatus(id, 'Active')}
+                onArchiveSubcategory={(parentId, subId) => handleToggleSubcategoryStatus(parentId, subId, 'Inactive')}
+                onRestoreSubcategory={(parentId, subId) => handleToggleSubcategoryStatus(parentId, subId, 'Active')}
+                onEditProduct={(p) => {
+                  setEditingProduct(p);
+                  setIsNewProductModalOpen(true);
+                }}
+                onArchiveProduct={handleArchiveProduct}
               />
             )}
 
@@ -664,22 +735,53 @@ export default function ProductManagement() {
                 brands={brands}
                 onAddBrand={handleAddBrand}
                 onEditBrand={handleEditBrand}
-                onDeleteBrand={handleDeleteBrand}
+                onArchiveBrand={(id) => handleToggleBrandStatus(id, 'Inactive')}
+                onRestoreBrand={(id) => handleToggleBrandStatus(id, 'Active')}
               />
             )}
 
-            {activeTab === 'new-product' && (
-              <NewProductForm
-                categories={categories}
-                suppliers={suppliers}
-                brands={brands}
-                onSave={handleSaveProduct}
-                onCancel={(discarded) => {
-                  if (discarded) showToast('Product form discarded.', 'info');
-                  handleTabChange('products');
-                }}
-                initialProduct={editingProduct}
-              />
+            {isNewProductModalOpen && (
+              <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-sm">
+                <div className="bg-background rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant bg-surface-container-lowest rounded-t-2xl shrink-0">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-[24px]">
+                        {editingProduct ? 'edit' : 'add_box'}
+                      </span>
+                      <h2 className="text-lg font-black text-on-surface">
+                        {editingProduct ? 'Edit Product' : 'Add New Product'}
+                      </h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsNewProductModalOpen(false);
+                        setEditingProduct(null);
+                      }}
+                      className="p-1.5 text-outline hover:text-on-surface hover:bg-slate-100 rounded-lg transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">close</span>
+                    </button>
+                  </div>
+                  
+                  {/* Modal Body */}
+                  <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                    <NewProductForm
+                      categories={categories}
+                      suppliers={suppliers}
+                      brands={brands}
+                      onSave={handleSaveProduct}
+                      onCancel={(discarded) => {
+                        if (discarded) showToast('Product form discarded.', 'info');
+                        setIsNewProductModalOpen(false);
+                        setEditingProduct(null);
+                      }}
+                      initialProduct={editingProduct}
+                    />
+                  </div>
+                </div>
+              </div>
             )}
 
           </div>

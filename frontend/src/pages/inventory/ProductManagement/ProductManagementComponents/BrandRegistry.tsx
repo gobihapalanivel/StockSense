@@ -5,20 +5,23 @@ export type BrandItem = {
   id: string;
   name: string;
   description: string;
+  status: 'Active' | 'Inactive';
 };
 
 type BrandRegistryProps = {
   brands: BrandItem[];
-  onAddBrand: (brand: Omit<BrandItem, 'id'>) => void;
+  onAddBrand: (brand: Omit<BrandItem, 'id' | 'status'>) => void;
   onEditBrand: (id: string, updatedFields: Partial<BrandItem>) => void;
-  onDeleteBrand: (id: string) => void;
+  onArchiveBrand: (id: string) => void;
+  onRestoreBrand: (id: string) => void;
 };
 
 export default function BrandRegistry({
   brands,
   onAddBrand,
   onEditBrand,
-  onDeleteBrand,
+  onArchiveBrand,
+  onRestoreBrand,
 }: BrandRegistryProps) {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -90,11 +93,6 @@ export default function BrandRegistry({
     }
   };
 
-  const handleDelete = (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to delete the brand "${name}"?`)) {
-      onDeleteBrand(id);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -163,7 +161,12 @@ export default function BrandRegistry({
                     <div className="w-8 h-8 rounded-lg bg-primary/5 text-primary flex items-center justify-center font-bold text-xs uppercase shadow-sm">
                       {brand.name.substring(0, 2)}
                     </div>
-                    <span className="font-extrabold text-on-surface text-sm">{brand.name}</span>
+                    <div className="flex flex-col">
+                      <span className="font-extrabold text-on-surface text-sm">{brand.name}</span>
+                      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider w-fit mt-0.5 ${brand.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
+                        {brand.status}
+                      </span>
+                    </div>
                   </div>
                   
                   <div className="flex gap-0.5">
@@ -174,13 +177,23 @@ export default function BrandRegistry({
                     >
                       <span className="material-symbols-outlined text-sm">edit</span>
                     </button>
-                    <button
-                      onClick={() => handleDelete(brand.id, brand.name)}
-                      title="Delete Brand"
-                      className="p-1 rounded text-outline-variant hover:text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-sm">delete</span>
-                    </button>
+                    {brand.status === 'Active' ? (
+                      <button
+                        onClick={() => onArchiveBrand(brand.id)}
+                        title="Archive Brand"
+                        className="p-1 rounded text-outline-variant hover:text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-sm">archive</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => onRestoreBrand(brand.id)}
+                        title="Restore Brand"
+                        className="p-1 rounded text-outline-variant hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-sm">unarchive</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 

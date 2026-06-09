@@ -44,6 +44,9 @@ type VariantItem = {
   reorderLevel: number;
   targetCapacity?: number;
   imageUrl: string | null;
+  mfgDate?: string;
+  expiryDate?: string;
+  batchNumber?: string;
 };
 
 const UNIT_OPTIONS = [
@@ -74,7 +77,10 @@ const createVariantDraft = (barcode: string): Omit<VariantItem, 'id'> => ({
   stock: 0,
   reorderLevel: 0,
   targetCapacity: 100,
-  imageUrl: null
+  imageUrl: null,
+  mfgDate: '',
+  expiryDate: '',
+  batchNumber: ''
 });
 
 export default function NewProductForm({
@@ -131,7 +137,13 @@ export default function NewProductForm({
 
   const [variantImageMode, setVariantImageMode] = useState<VariantImageMode>('different');
   const [autoVariantBarcode, setAutoVariantBarcode] = useState(true);
-  const [variants, setVariants] = useState<VariantItem[]>(initialProduct?.variants || []);
+  const DUMMY_VARIANTS: VariantItem[] = initialProduct?.variants?.length ? [] : [
+    { id: 'demo_1', variantName: 'Chocolate', attributeType: 'Flavor', attributeValue: 'Chocolate', unit: 'Packet', barcode: '4791185535175', costPrice: 120, sellingPrice: 150, stock: 48, reorderLevel: 25, targetCapacity: 100, imageUrl: null, mfgDate: '2025-01-15', expiryDate: '2026-01-15', batchNumber: 'BATCH-CHO-001' },
+    { id: 'demo_2', variantName: 'Vanilla', attributeType: 'Flavor', attributeValue: 'Vanilla', unit: 'Packet', barcode: '4791185535182', costPrice: 115, sellingPrice: 145, stock: 32, reorderLevel: 25, targetCapacity: 100, imageUrl: null, mfgDate: '2025-02-10', expiryDate: '2026-02-10', batchNumber: 'BATCH-VAN-002' },
+    { id: 'demo_3', variantName: 'Strawberry', attributeType: 'Flavor', attributeValue: 'Strawberry', unit: 'Packet', barcode: '4791185535199', costPrice: 125, sellingPrice: 155, stock: 15, reorderLevel: 25, targetCapacity: 100, imageUrl: null, mfgDate: '2025-03-05', expiryDate: '2026-03-05', batchNumber: 'BATCH-STR-003' },
+  ];
+
+  const [variants, setVariants] = useState<VariantItem[]>(initialProduct?.variants || DUMMY_VARIANTS);
 
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
   const [editingVariantId, setEditingVariantId] = useState<string | null>(null);
@@ -290,16 +302,13 @@ export default function NewProductForm({
       alert('Product Name is required.');
       return false;
     }
-    if (!description.trim()) {
-      alert('Product Description is required.');
-      return false;
-    }
-    if (!frontImageUrl) {
-      alert('Front Image is required.');
-      return false;
-    }
+
 
     if (structure === 'single') {
+      if (!frontImageUrl) {
+        alert('Front Image is required.');
+        return false;
+      }
       if (!singleBarcode.trim()) {
         alert('Barcode Number is required for single product.');
         return false;
@@ -532,48 +541,10 @@ export default function NewProductForm({
                 </select>
                 <span className="material-symbols-outlined absolute right-3 top-[34px] text-outline-variant text-[20px] pointer-events-none">expand_more</span>
               </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Manufacturer (Optional)</label>
-                <input
-                  type="text"
-                  value={manufacturer}
-                  onChange={(e) => setManufacturer(e.target.value)}
-                  placeholder="e.g. Ceylon Biscuits Ltd"
-                  className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Product Description *</label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                placeholder="Summarize product characteristics, storage notes, and handling details..."
-                className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none resize-none focus:ring-2 focus:ring-primary focus:border-primary"
-                required
-              />
             </div>
           </div>
 
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5 border-b border-slate-100 pb-2">
-              <span className="material-symbols-outlined text-primary text-[20px]">photo_library</span>
-              Product Images
-            </h3>
-            <div>
-              <p className="text-[11px] font-bold text-outline uppercase tracking-wider mb-2">Front Image *</p>
-              <ProductImageUploader imageUrl={frontImageUrl} setImageUrl={setFrontImageUrl} />
-              <p className="text-xs text-outline mt-2">
-                {structure === 'single'
-                  ? 'Image scope: Product-level and single item display.'
-                  : 'Image scope: Product-level cover image. Variant images are managed inside each variant entry.'}
-              </p>
-            </div>
 
-            </div>
 
           <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5 border-b border-slate-100 pb-2">
@@ -611,6 +582,20 @@ export default function NewProductForm({
 
           {structure === 'single' ? (
             <>
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
+                <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <span className="material-symbols-outlined text-primary text-[20px]">photo_library</span>
+                  Product Images
+                </h3>
+                <div>
+                  <p className="text-[11px] font-bold text-outline uppercase tracking-wider mb-2">Front Image *</p>
+                  <ProductImageUploader imageUrl={frontImageUrl} setImageUrl={setFrontImageUrl} />
+                  <p className="text-xs text-outline mt-2">
+                    Image scope: Product-level and single item display.
+                  </p>
+                </div>
+              </div>
+
               <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
                 <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5 border-b border-slate-100 pb-2">
                   <span className="material-symbols-outlined text-primary text-[20px]">payments</span>
@@ -780,55 +765,81 @@ export default function NewProductForm({
                 </div>
 
                 <div className="overflow-x-auto border border-slate-200 rounded-lg">
-                  <table className="w-full min-w-[980px] text-xs">
+                  <table className="w-full min-w-[700px] text-xs">
                     <thead className="bg-slate-50">
-                      <tr className="text-left text-outline uppercase tracking-wider">
-                        <th className="px-3 py-2">Variant Name</th>
-                        <th className="px-3 py-2">Attributes</th>
-                        <th className="px-3 py-2">Unit</th>
-                        <th className="px-3 py-2">Image</th>
-                        <th className="px-3 py-2">Barcode</th>
-                        <th className="px-3 py-2">Cost</th>
-                        <th className="px-3 py-2">Selling</th>
-                        <th className="px-3 py-2">Stock / Capacity</th>
-                        <th className="px-3 py-2">Reorder Point</th>
-                        <th className="px-3 py-2">Actions</th>
+                      <tr className="text-left text-[10px] text-outline uppercase tracking-wider border-b border-slate-200">
+                        <th className="px-3 py-2.5 font-bold">#</th>
+                        <th className="px-3 py-2.5 font-bold whitespace-nowrap">Variant Name</th>
+                        <th className="px-3 py-2.5 font-bold whitespace-nowrap">Attribute</th>
+                        <th className="px-3 py-2.5 font-bold whitespace-nowrap">Barcode</th>
+                        <th className="px-3 py-2.5 font-bold whitespace-nowrap">Stock</th>
+                        <th className="px-3 py-2.5 font-bold whitespace-nowrap">Selling Price</th>
+                        <th className="px-3 py-2.5 font-bold whitespace-nowrap">Expiry Date</th>
+                        <th className="px-3 py-2.5 font-bold text-center">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {variants.length === 0 && (
                         <tr>
-                          <td colSpan={10} className="px-3 py-6 text-center text-outline">
-                            No variants added yet.
+                          <td colSpan={8} className="px-3 py-10 text-center text-outline">
+                            <span className="material-symbols-outlined text-[32px] block mb-1 opacity-30">category</span>
+                            No variants added yet. Click "+ Add Variant" to begin.
                           </td>
                         </tr>
                       )}
-                      {variants.map((item) => (
-                        <tr key={item.id} className="border-t border-slate-100">
-                          <td className="px-3 py-2 font-bold text-on-surface">{item.variantName}</td>
-                          <td className="px-3 py-2">{item.attributeType}: {item.attributeValue || '-'}</td>
-                          <td className="px-3 py-2">{item.unit}</td>
-                          <td className="px-3 py-2">{item.imageUrl ? 'Uploaded' : 'N/A'}</td>
-                          <td className="px-3 py-2">{item.barcode}</td>
-                          <td className="px-3 py-2">{item.costPrice.toFixed(2)}</td>
-                          <td className="px-3 py-2">{item.sellingPrice.toFixed(2)}</td>
-                          <td className="px-3 py-2">{item.stock} / {item.targetCapacity || 100}</td>
-                          <td className="px-3 py-2">{item.reorderLevel} units ({reorderPercent}%)</td>
-                          <td className="px-3 py-2">
+                      {variants.map((item, idx) => (
+                        <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/70 transition-colors group">
+                          <td className="px-3 py-3 text-outline font-bold">{idx + 1}</td>
+                          <td className="px-3 py-3">
                             <div className="flex items-center gap-2">
+                              {item.imageUrl ? (
+                                <img src={item.imageUrl} alt={item.variantName} className="w-7 h-7 rounded-lg object-cover border border-slate-200 shrink-0" />
+                              ) : (
+                                <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                                  <span className="material-symbols-outlined text-[14px] text-outline">image</span>
+                                </div>
+                              )}
+                              <span className="font-bold text-on-surface">{item.variantName}</span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-3">
+                            <div className="flex flex-col gap-0.5">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-primary/10 text-primary w-fit">{item.attributeType}</span>
+                              <span className="text-on-surface-variant">{item.attributeValue || '-'}</span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 font-mono text-[10px] text-outline">{item.barcode}</td>
+                          <td className="px-3 py-3">
+                            <span className={`font-bold ${item.stock <= item.reorderLevel ? 'text-red-600' : 'text-on-surface'}`}>
+                              {item.stock}
+                              <span className="text-outline font-normal"> / {item.targetCapacity || 100}</span>
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 font-bold text-primary">₹{item.sellingPrice.toFixed(2)}</td>
+                          <td className="px-3 py-3">
+                            {item.expiryDate ? (
+                              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100 whitespace-nowrap">
+                                {item.expiryDate}
+                              </span>
+                            ) : <span className="text-outline">-</span>}
+                          </td>
+                          <td className="px-3 py-3">
+                            <div className="flex items-center justify-center gap-1">
                               <button
                                 type="button"
                                 onClick={() => openEditVariantModal(item)}
-                                className="px-2 py-1 rounded bg-slate-100 text-on-surface-variant font-bold"
+                                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-on-surface-variant transition-colors"
+                                title="Edit"
                               >
-                                Edit
+                                <span className="material-symbols-outlined text-[14px]">edit</span>
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleVariantDelete(item.id)}
-                                className="px-2 py-1 rounded bg-red-50 text-red-700 font-bold"
+                                className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
+                                title="Delete"
                               >
-                                Delete
+                                <span className="material-symbols-outlined text-[14px]">delete</span>
                               </button>
                             </div>
                           </td>
@@ -837,46 +848,49 @@ export default function NewProductForm({
                     </tbody>
                   </table>
                 </div>
+
               </div>
             </>
           )}
 
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5 border-b border-slate-100 pb-2">
-              <span className="material-symbols-outlined text-primary text-[20px]">event</span>
-              Expiry Management
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Manufacturing Date</label>
-                <input
-                  type="date"
-                  value={mfgDate}
-                  onChange={(e) => setMfgDate(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Expiry Date (Recommended)</label>
-                <input
-                  type="date"
-                  value={expiryDate}
-                  onChange={(e) => setExpiryDate(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Batch Number</label>
-                <input
-                  type="text"
-                  value={batchNumber}
-                  onChange={(e) => setBatchNumber(e.target.value)}
-                  placeholder="e.g. BAT-2026-050"
-                  className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
-                />
+          {structure === 'single' && (
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
+              <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                <span className="material-symbols-outlined text-primary text-[20px]">event</span>
+                Expiry Management
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Manufacturing Date</label>
+                  <input
+                    type="date"
+                    value={mfgDate}
+                    onChange={(e) => setMfgDate(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Expiry Date (Recommended)</label>
+                  <input
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Batch Number</label>
+                  <input
+                    type="text"
+                    value={batchNumber}
+                    onChange={(e) => setBatchNumber(e.target.value)}
+                    placeholder="e.g. BAT-2026-050"
+                    className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -1114,6 +1128,43 @@ export default function NewProductForm({
                     className="w-full px-4 py-2.5 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-2">
+                 <h4 className="text-xs font-bold text-slate-800 mb-3 flex items-center gap-1.5">
+                   <span className="material-symbols-outlined text-[16px] text-primary">event_note</span>
+                   Expiry Management & Batch
+                 </h4>
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Manufacturing Date</label>
+                      <input
+                        type="date"
+                        value={variantDraft.mfgDate || ''}
+                        onChange={(e) => setVariantDraft((prev) => ({ ...prev, mfgDate: e.target.value }))}
+                        className="w-full px-3 py-2 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Expiry Date (Recommended)</label>
+                      <input
+                        type="date"
+                        value={variantDraft.expiryDate || ''}
+                        onChange={(e) => setVariantDraft((prev) => ({ ...prev, expiryDate: e.target.value }))}
+                        className="w-full px-3 py-2 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Batch Number</label>
+                      <input
+                        type="text"
+                        value={variantDraft.batchNumber || ''}
+                        onChange={(e) => setVariantDraft((prev) => ({ ...prev, batchNumber: e.target.value }))}
+                        placeholder="e.g. BATCH-001"
+                        className="w-full px-3 py-2 bg-background border border-outline-variant rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                 </div>
               </div>
 
               <div>
