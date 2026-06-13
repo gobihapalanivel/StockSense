@@ -371,7 +371,10 @@ export default function ProcurementManagement() {
         mode="add"
         formData={formData}
         formErrors={formErrors}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          if (returnTo) navigate(returnTo);
+        }}
         onChange={handleInputChange}
         onSubmit={handleAddSupplierSubmit}
       />
