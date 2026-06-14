@@ -441,16 +441,43 @@ export default function DiscountRegistry({ products, showToast }: DiscountRegist
                     </div>
                   )}
 
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-outline text-[16px]">shopping_basket</span>
-                    <span>
-                      Applied to:{' '}
-                      <strong className="text-on-surface">
-                        {discount.type === 'COMBO'
-                          ? `${discount.comboItems?.length || 0} Combo Items`
-                          : `${discount.productIds?.length || 0} Products`}
-                      </strong>
-                    </span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-outline text-[16px]">shopping_basket</span>
+                      <span>
+                        Applied to:{' '}
+                        <strong className="text-on-surface">
+                          {discount.type === 'COMBO'
+                            ? `${discount.comboItems?.length || 0} Combo Items`
+                            : `${discount.productIds?.length || 0} Products`}
+                        </strong>
+                      </span>
+                    </div>
+                    {discount.type === 'COMBO' && discount.comboItems && discount.comboItems.length > 0 && (
+                      <div className="mt-1 pl-5 space-y-0.5 border-l border-primary/30 max-h-24 overflow-y-auto">
+                        {discount.comboItems.map((item, idx) => {
+                          const prod = products.find(p => p.id === item.productId);
+                          return (
+                            <div key={idx} className="text-[10px] text-outline-variant font-medium">
+                              • {prod ? prod.name : 'Unknown Product'} (x{item.minQty}) - <strong className="text-primary">Rs. {item.comboPrice}</strong>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {discount.type !== 'COMBO' && discount.productIds && discount.productIds.length > 0 && (
+                      <div className="mt-1 pl-5 space-y-0.5 border-l border-primary/30 max-h-20 overflow-y-auto">
+                        <span className="text-[9px] text-outline font-bold uppercase tracking-wider block">Products:</span>
+                        {discount.productIds.map((pId, idx) => {
+                          const prod = products.find(p => p.id === pId);
+                          return (
+                            <div key={idx} className="text-[10px] text-outline-variant font-medium truncate">
+                              • {prod ? prod.name : 'Unknown Product'}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -551,7 +578,13 @@ export default function DiscountRegistry({ products, showToast }: DiscountRegist
                   </label>
                   <select
                     value={type}
-                    onChange={(e) => setType(e.target.value as any)}
+                    onChange={(e) => {
+                      const nextType = e.target.value as any;
+                      setType(nextType);
+                      if (nextType !== 'COMBO' && discountValue === 0) {
+                        setDiscountValue(10);
+                      }
+                    }}
                     className="w-full px-3 py-2 bg-background border border-outline-variant rounded-lg text-xs text-on-surface outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="SEASONAL">Seasonal Offer (Fixed Date Range)</option>
