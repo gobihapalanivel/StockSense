@@ -281,8 +281,8 @@ export default function POSPage() {
                   <h3 className="text-lg font-extrabold text-gray-900 mb-1">Morning Ritual</h3>
                   <p className="text-gray-500 text-[11px] mb-3 leading-relaxed">Artisanal Coffee + Handcrafted Cookies</p>
                   <div className="mb-1 flex items-baseline gap-1.5">
-                    <span className="text-gray-900 font-extrabold text-xl">$6.49</span>
-                    <span className="text-gray-400 line-through text-xs font-medium">$8.50</span>
+                    <span className="text-gray-900 font-extrabold text-xl">Rs. 6.49</span>
+                    <span className="text-gray-400 line-through text-xs font-medium">Rs. 8.50</span>
                   </div>
                   <div className="flex gap-2 mt-4">
                     <button 
@@ -322,8 +322,8 @@ export default function POSPage() {
                   <h3 className="text-lg font-extrabold text-gray-900 mb-1">Baker's Pick</h3>
                   <p className="text-gray-500 text-[11px] mb-3 leading-relaxed">Organic Milk + Sourdough Loaf</p>
                   <div className="mb-1 flex items-baseline gap-1.5">
-                    <span className="text-gray-900 font-extrabold text-xl">$2.99</span>
-                    <span className="text-gray-400 line-through text-xs font-medium">$4.20</span>
+                    <span className="text-gray-900 font-extrabold text-xl">Rs. 2.99</span>
+                    <span className="text-gray-400 line-through text-xs font-medium">Rs. 4.20</span>
                   </div>
                   <div className="flex gap-2 mt-4">
                     <button 
@@ -370,8 +370,8 @@ export default function POSPage() {
                 <h3 className="text-lg font-extrabold text-gray-900 mb-1">Handcrafted Terra Mug</h3>
                 <p className="text-gray-500 text-xs mb-3 max-w-xs leading-relaxed">Sip your favorite beverages in a vessel carved by tradition.</p>
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <span className="text-[#103e2c] font-extrabold text-2xl">$8.99</span>
-                  <span className="text-gray-400 line-through text-xs font-medium">$12.50</span>
+                  <span className="text-[#103e2c] font-extrabold text-2xl">Rs. 8.99</span>
+                  <span className="text-gray-400 line-through text-xs font-medium">Rs. 12.50</span>
                 </div>
                 <div className="flex gap-2">
                   <button 
@@ -407,8 +407,8 @@ export default function POSPage() {
                 <h3 className="text-lg font-extrabold text-gray-900 mb-1">Organic Granola</h3>
                 <p className="text-gray-500 text-xs mb-3 max-w-xs leading-relaxed">Start your day with wholesome crunch and naturally sweet ingredients.</p>
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <span className="text-[#103e2c] font-extrabold text-2xl">$4.50</span>
-                  <span className="text-gray-400 line-through text-xs font-medium">$6.00</span>
+                  <span className="text-[#103e2c] font-extrabold text-2xl">Rs. 4.50</span>
+                  <span className="text-gray-400 line-through text-xs font-medium">Rs. 6.00</span>
                 </div>
                 <div className="flex gap-2">
                   <button 
@@ -459,8 +459,8 @@ export default function POSPage() {
                 <div className="absolute bottom-0 left-0 w-full p-5 pb-[70px]">
                   <h3 className="text-white text-lg font-bold mb-0.5">Pure Alpine Sparkling</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-extrabold text-2xl">$1.80</span>
-                    <span className="text-white/60 line-through text-xs font-medium">$3.20</span>
+                    <span className="text-white font-extrabold text-2xl">Rs. 1.80</span>
+                    <span className="text-white/60 line-through text-xs font-medium">Rs. 3.20</span>
                   </div>
                 </div>
                 
@@ -502,14 +502,14 @@ export default function POSPage() {
                 <div className="absolute bottom-0 left-0 w-full p-5 pb-[70px]">
                   <h3 className="text-white text-lg font-bold mb-0.5">Artisanal Cocoa Cru</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-extrabold text-2xl">$3.49</span>
-                    <span className="text-white/60 line-through text-xs font-medium">$5.69</span>
+                    <span className="text-white font-extrabold text-2xl">Rs. 3.49</span>
+                    <span className="text-white/60 line-through text-xs font-medium">Rs. 5.69</span>
                   </div>
                 </div>
                 
                 <div className="absolute bottom-[75px] right-5 w-12 h-12 rounded-full bg-[#bbf7d0] text-[#166534] flex flex-col items-center justify-center shadow-lg">
                   <span className="text-[7px] font-bold uppercase leading-none mb-0.5">Off</span>
-                  <span className="text-xs font-extrabold leading-none tracking-tight">$2.20</span>
+                  <span className="text-xs font-extrabold leading-none tracking-tight">Rs. 2.20</span>
                 </div>
 
                 <div className="absolute bottom-4 left-4 right-4 flex gap-2">
@@ -568,8 +568,8 @@ export default function POSPage() {
                   <div>
                     <h3 className="text-gray-900 font-bold text-xs mb-1 truncate">Botanical Defense</h3>
                     <div className="flex items-baseline gap-2 mb-3">
-                      <span className="text-gray-900 font-extrabold text-sm">$2.25</span>
-                      <span className="text-gray-400 line-through text-[10px] font-medium">$2.50</span>
+                      <span className="text-gray-900 font-extrabold text-sm">Rs. 2.25</span>
+                      <span className="text-gray-400 line-through text-[10px] font-medium">Rs. 2.50</span>
                     </div>
                   </div>
                   <button 
@@ -598,7 +598,7 @@ export default function POSPage() {
               >
                 <div className="relative h-36 bg-[#f1f4ed] overflow-hidden">
                   <div className="absolute top-3 left-3 z-10 bg-[#0a3822] text-white text-[8px] font-bold px-2 py-0.5 rounded shadow-sm">
-                    $0.50 OFF
+                    Rs. 0.50 OFF
                   </div>
                   <img src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?q=80&w=400&auto=format&fit=crop" alt="Artisan Olive Oil" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                 </div>
@@ -606,8 +606,8 @@ export default function POSPage() {
                   <div>
                     <h3 className="text-gray-900 font-bold text-xs mb-1 truncate">Artisan Olive Oil</h3>
                     <div className="flex items-baseline gap-2 mb-3">
-                      <span className="text-gray-900 font-extrabold text-sm">$14.50</span>
-                      <span className="text-gray-400 line-through text-[10px] font-medium">$15.00</span>
+                      <span className="text-gray-900 font-extrabold text-sm">Rs. 14.50</span>
+                      <span className="text-gray-400 line-through text-[10px] font-medium">Rs. 15.00</span>
                     </div>
                   </div>
                   <button 
@@ -644,7 +644,7 @@ export default function POSPage() {
                   <div>
                     <h3 className="text-gray-900 font-bold text-xs mb-1 truncate">Terra Mug (Pair)</h3>
                     <div className="flex items-baseline gap-2 mb-3">
-                      <span className="text-gray-900 font-extrabold text-sm">$12.50</span>
+                      <span className="text-gray-900 font-extrabold text-sm">Rs. 12.50</span>
                     </div>
                   </div>
                   <button 
@@ -747,8 +747,7 @@ export default function POSPage() {
                       {product.name}
                     </h3>
                     <div className="flex items-center justify-between mt-1">
-                      <span className="text-gray-600 text-[15px] font-semibold">
-                        ${product.price.toFixed(2)}
+                      <span className="text-gray-600 text-[15px] font-semibold">Rs. {product.price.toFixed(2)}
                       </span>
                       <button className="w-7 h-7 rounded-full bg-[#eff6ff] text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors">
                         <span className="text-[16px] leading-none font-medium mb-[1px]">+</span>
@@ -817,8 +816,7 @@ export default function POSPage() {
                     <h4 className="text-[14px] font-bold text-gray-900 truncate">{match.name}</h4>
                     <p className="text-[12px] text-gray-500 font-medium">Barcode: {match.barcode}</p>
                   </div>
-                  <div className="text-[14px] font-bold text-[#047857]">
-                    ${match.price.toFixed(2)}
+                  <div className="text-[14px] font-bold text-[#047857]">Rs. {match.price.toFixed(2)}
                   </div>
                 </button>
               ))}
@@ -881,8 +879,7 @@ export default function POSPage() {
                           <p className="text-[13px] text-gray-500 font-medium truncate">Ref: #PROD-{item.id} • Standard</p>
                         </div>
                       </div>
-                      <div className="col-span-2 text-center font-bold text-gray-900">
-                        ${item.price.toFixed(2)}
+                      <div className="col-span-2 text-center font-bold text-gray-900">Rs. {item.price.toFixed(2)}
                       </div>
                       <div className="col-span-2 flex justify-center">
                         <div className="flex items-center bg-[#f0f4f8] rounded-lg p-1">
@@ -900,8 +897,7 @@ export default function POSPage() {
                           {item.discount || 0}%
                         </span>
                       </div>
-                      <div className="col-span-2 text-right text-[15px] font-bold text-[#047857]">
-                        ${itemTotal.toFixed(2)}
+                      <div className="col-span-2 text-right text-[15px] font-bold text-[#047857]">Rs. {itemTotal.toFixed(2)}
                       </div>
                     </div>
                   );
@@ -910,7 +906,7 @@ export default function POSPage() {
                 {/* Full-width Subtotal Row summing all item totals */}
                 <div className="border-t border-gray-100 pt-4 mt-6 flex justify-between items-center bg-[#f8fafc] p-4 rounded-xl">
                   <span className="text-sm font-bold text-gray-600 uppercase tracking-wider">Subtotal (Sum of item totals)</span>
-                  <span className="text-xl font-extrabold text-[#047857]">${itemsSubtotal.toFixed(2)}</span>
+                  <span className="text-xl font-extrabold text-[#047857]">Rs. {itemsSubtotal.toFixed(2)}</span>
                 </div>
               </div>
             )}
@@ -972,7 +968,7 @@ export default function POSPage() {
 
               {/* Customer Paid Input */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Customer Paid ($)</label>
+                <label className="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Customer Paid (Rs.)</label>
                 <input 
                   type="number" 
                   min="0"
@@ -990,22 +986,21 @@ export default function POSPage() {
               <div className="flex flex-col md:flex-row items-center gap-8 w-full md:w-auto justify-between md:justify-end">
                 <div className="text-right flex flex-col gap-1">
                   <div className="text-xs text-gray-500 font-semibold">
-                    Items Subtotal: <span className="text-gray-900 font-bold ml-1">${grossTotal.toFixed(2)}</span>
+                    Items Subtotal: <span className="text-gray-900 font-bold ml-1">Rs. {grossTotal.toFixed(2)}</span>
                   </div>
                   {totalSavedAmount > 0 && (
                     <div className="text-xs text-red-600 font-semibold">
-                      Total Discount ({effectiveDiscountPercentage.toFixed(1)}%): <span className="font-bold ml-1">-${totalSavedAmount.toFixed(2)}</span>
+                      Total Discount ({effectiveDiscountPercentage.toFixed(1)}%): <span className="font-bold ml-1">-Rs. {totalSavedAmount.toFixed(2)}</span>
                     </div>
                   )}
 
                   <div className="flex items-baseline gap-2 mt-1">
                     <span className="text-base font-bold text-gray-500">Bill Total:</span>
-                    <span className="text-3xl font-extrabold text-[#047857]">${total.toFixed(2)}</span>
+                    <span className="text-3xl font-extrabold text-[#047857]">Rs. {total.toFixed(2)}</span>
                   </div>
                   {customerPaidInput && (
                     <div className="text-sm font-bold mt-1 text-gray-700">
-                      Change Due: <span className={parseFloat(customerPaidInput) >= total ? 'text-blue-600' : 'text-red-500'}>
-                        ${(Math.max(0, (parseFloat(customerPaidInput) || 0) - total)).toFixed(2)}
+                      Change Due: <span className={parseFloat(customerPaidInput) >= total ? 'text-blue-600' : 'text-red-500'}>Rs. {(Math.max(0, (parseFloat(customerPaidInput) || 0) - total)).toFixed(2)}
                       </span>
                     </div>
                   )}
@@ -1064,7 +1059,7 @@ export default function POSPage() {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-500 font-medium">Est. Value</span>
-                        <span className="text-[#047857] font-bold">${draftGross.toFixed(2)}</span>
+                        <span className="text-[#047857] font-bold">Rs. {draftGross.toFixed(2)}</span>
                       </div>
                     </div>
                     
@@ -1105,7 +1100,7 @@ export default function POSPage() {
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
             <p className="text-xs font-bold text-gray-500 tracking-wider mb-2">NET SALES</p>
-            <h2 className="text-3xl font-extrabold text-[#166534]">$4,280.50</h2>
+            <h2 className="text-3xl font-extrabold text-[#166534]">Rs. 4,280.50</h2>
             <p className="text-xs text-green-600 font-semibold mt-2 flex items-center">
               <span className="mr-1">↗</span> +12% vs yesterday
             </p>
@@ -1114,12 +1109,12 @@ export default function POSPage() {
             <p className="text-xs font-bold text-gray-500 tracking-wider mb-2">TOTAL ORDERS</p>
             <h2 className="text-3xl font-extrabold text-gray-900">128</h2>
             <p className="text-xs text-gray-500 font-semibold mt-2 flex items-center">
-              <FileText className="w-3 h-3 mr-1" /> Average $33.44/ticket
+              <FileText className="w-3 h-3 mr-1" /> Average Rs. 33.44/ticket
             </p>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
             <p className="text-xs font-bold text-gray-500 tracking-wider mb-2">CASH PAYMENTS</p>
-            <h2 className="text-3xl font-extrabold text-gray-900">$1,120.00</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900">Rs. 1,120.00</h2>
             <p className="text-xs text-gray-500 font-semibold mt-2 flex items-center">
               <Banknote className="w-3 h-3 mr-1" /> 26% of transactions
             </p>
@@ -1153,7 +1148,7 @@ export default function POSPage() {
                     </span>
                   </td>
                   <td className={`py-4 px-6 text-right font-extrabold text-lg ${order.total < 0 ? 'text-red-600' : 'text-gray-900'}`}>
-                    {order.total < 0 ? '-' : ''}${Math.abs(order.total).toFixed(2)}
+                    {order.total < 0 ? '-' : ''}Rs.{Math.abs(order.total).toFixed(2)}
                   </td>
                 </tr>
               ))}
@@ -1202,52 +1197,52 @@ export default function POSPage() {
                 <div className="flex pb-1 text-[11px]">
                   <div className="flex-1 truncate pr-1">Organic Coffee Beans</div>
                   <div className="w-8 text-right">2.00</div>
-                  <div className="w-12 text-right">$18.50</div>
-                  <div className="w-12 text-right">$3.70</div>
-                  <div className="w-12 text-right">$33.30</div>
+                  <div className="w-12 text-right">Rs. 18.50</div>
+                  <div className="w-12 text-right">Rs. 3.70</div>
+                  <div className="w-12 text-right">Rs. 33.30</div>
                 </div>
                 <div className="flex pb-1 text-[11px]">
                   <div className="flex-1 truncate pr-1">Cold Brew Pitcher</div>
                   <div className="w-8 text-right">1.00</div>
-                  <div className="w-12 text-right">$45.00</div>
-                  <div className="w-12 text-right">$4.50</div>
-                  <div className="w-12 text-right">$40.50</div>
+                  <div className="w-12 text-right">Rs. 45.00</div>
+                  <div className="w-12 text-right">Rs. 4.50</div>
+                  <div className="w-12 text-right">Rs. 40.50</div>
                 </div>
                 <div className="flex pb-1 text-[11px]">
                   <div className="flex-1 truncate pr-1">Paper Filters (100ct)</div>
                   <div className="w-8 text-right">2.00</div>
-                  <div className="w-12 text-right">$12.50</div>
-                  <div className="w-12 text-right">$2.50</div>
-                  <div className="w-12 text-right">$22.50</div>
+                  <div className="w-12 text-right">Rs. 12.50</div>
+                  <div className="w-12 text-right">Rs. 2.50</div>
+                  <div className="w-12 text-right">Rs. 22.50</div>
                 </div>
 
                 <div className="border-t border-dashed border-black my-2"></div>
 
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>$107.00</span>
+                  <span>Rs. 107.00</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Loyalty Discount:</span>
-                  <span>-$10.70</span>
+                  <span>-Rs. 10.70</span>
                 </div>
 
                 <div className="border-t border-dashed border-black my-2"></div>
 
                 <div className="flex justify-between font-bold">
                   <span>Total:</span>
-                  <span>${selectedOrder.total > 0 ? selectedOrder.total.toFixed(2) : '104.24'}</span>
+                  <span>Rs. {selectedOrder.total > 0 ? selectedOrder.total.toFixed(2) : '104.24'}</span>
                 </div>
 
                 <div className="border-t border-dashed border-black my-2"></div>
 
                 <div className="flex justify-between">
                   <span>Paid Amount:</span>
-                  <span>${selectedOrder.total > 0 ? selectedOrder.total.toFixed(2) : '104.24'}</span>
+                  <span>Rs. {selectedOrder.total > 0 ? selectedOrder.total.toFixed(2) : '104.24'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Change:</span>
-                  <span>$0.00</span>
+                  <span>Rs. 0.00</span>
                 </div>
 
                 <div className="text-center mt-6">
@@ -1317,9 +1312,9 @@ export default function POSPage() {
                     <div key={item.id} className="flex pb-1 text-[11px]">
                       <div className="flex-1 truncate pr-1">{item.name}</div>
                       <div className="w-8 text-right">{item.quantity.toFixed(2)}</div>
-                      <div className="w-12 text-right">${item.price.toFixed(2)}</div>
-                      <div className="w-12 text-right">${itemDiscount.toFixed(2)}</div>
-                      <div className="w-12 text-right">${itemNetTotal.toFixed(2)}</div>
+                      <div className="w-12 text-right">Rs. {item.price.toFixed(2)}</div>
+                      <div className="w-12 text-right">Rs. {itemDiscount.toFixed(2)}</div>
+                      <div className="w-12 text-right">Rs. {itemNetTotal.toFixed(2)}</div>
                     </div>
                   );
                 })}
@@ -1328,12 +1323,12 @@ export default function POSPage() {
 
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>${itemsSubtotal.toFixed(2)}</span>
+                  <span>Rs. {itemsSubtotal.toFixed(2)}</span>
                 </div>
                 {billDiscountAmount > 0 && (
                   <div className="flex justify-between">
                     <span>Discount ({manualDiscount}%):</span>
-                    <span>-${billDiscountAmount.toFixed(2)}</span>
+                    <span>-Rs. {billDiscountAmount.toFixed(2)}</span>
                   </div>
                 )}
 
@@ -1341,18 +1336,18 @@ export default function POSPage() {
 
                 <div className="flex justify-between font-bold">
                   <span>Total:</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>Rs. {total.toFixed(2)}</span>
                 </div>
 
                 <div className="border-t border-dashed border-black my-2"></div>
 
                 <div className="flex justify-between">
                   <span>Paid Amount:</span>
-                  <span>${paid.toFixed(2)}</span>
+                  <span>Rs. {paid.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Change:</span>
-                  <span>${change.toFixed(2)}</span>
+                  <span>Rs. {change.toFixed(2)}</span>
                 </div>
 
                 <div className="text-center mt-6">
@@ -1455,7 +1450,7 @@ export default function POSPage() {
             <p className="text-sm text-gray-500 font-medium mb-6">Barcode: {scannedProduct.barcode}</p>
             
             <div className="flex items-center justify-between mb-8">
-              <span className="text-[#047857] font-extrabold text-3xl">${scannedProduct.price.toFixed(2)}</span>
+              <span className="text-[#047857] font-extrabold text-3xl">Rs. {scannedProduct.price.toFixed(2)}</span>
               
               <div className="flex items-center bg-[#f0f4f8] rounded-xl p-1">
                 <button onClick={() => setScannedProductQty(Math.max(1, scannedProductQty - 1))} className="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-gray-600 shadow-sm hover:text-gray-900 transition-colors">

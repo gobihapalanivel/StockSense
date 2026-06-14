@@ -5,7 +5,7 @@ export default function ProductsPage() {
     {
       id: 1,
       name: 'Midnight Velvet Roast',
-      price: '$24.99',
+      price: 'Rs. 24.99',
       badge: 'Limited',
       badgeClass: 'bg-[#1b4332] text-white',
       image: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=600&auto=format&fit=crop'
@@ -13,31 +13,31 @@ export default function ProductsPage() {
     {
       id: 2,
       name: 'Golden Maple Granola',
-      price: '$14.50',
+      price: 'Rs. 14.50',
       image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?q=80&w=600&auto=format&fit=crop'
     },
     {
       id: 3,
       name: 'Pure Alpine Sparkling',
-      price: '$8.95',
+      price: 'Rs. 8.95',
       image: 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=600&auto=format&fit=crop'
     },
     {
       id: 4,
       name: 'Botanical Defense',
-      price: '$22.00',
+      price: 'Rs. 22.00',
       image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=600&auto=format&fit=crop'
     },
     {
       id: 5,
       name: 'Artisan Sourdough',
-      price: '$6.50',
+      price: 'Rs. 6.50',
       image: 'https://images.unsplash.com/photo-1589367920969-ab8e050eb0e9?q=80&w=600&auto=format&fit=crop'
     },
     {
       id: 6,
       name: 'Cold Brew Conc.',
-      price: '$12.00',
+      price: 'Rs. 12.00',
       badge: 'Special',
       badgeClass: 'bg-[#ffe4e6] text-[#be123c]',
       image: 'https://images.unsplash.com/photo-1611162458324-aae1eb4129a4?q=80&w=600&auto=format&fit=crop'
@@ -45,37 +45,37 @@ export default function ProductsPage() {
     {
       id: 7,
       name: 'Organic Honey',
-      price: '$9.00',
+      price: 'Rs. 9.00',
       image: 'https://images.unsplash.com/photo-1587049352847-4d4b1ed748d1?q=80&w=600&auto=format&fit=crop'
     },
     {
       id: 8,
       name: 'Handcrafted Sea Salt',
-      price: '$14.00',
+      price: 'Rs. 14.00',
       image: 'https://images.unsplash.com/photo-1507048331197-7d4ac70811cf?q=80&w=600&auto=format&fit=crop'
     },
     {
       id: 9,
       name: 'Artisanal Cocoa Cru',
-      price: '$14.00',
+      price: 'Rs. 14.00',
       image: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?q=80&w=600&auto=format&fit=crop'
     },
     {
       id: 10,
       name: 'Premium Green Tea',
-      price: '$18.50',
+      price: 'Rs. 18.50',
       image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=600&auto=format&fit=crop'
     },
     {
       id: 11,
       name: 'Handcrafted Terra Mug',
-      price: '$26.00',
+      price: 'Rs. 26.00',
       image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=600&auto=format&fit=crop'
     },
     {
       id: 12,
       name: 'Small-Batch Olive Oil',
-      price: '$32.00',
+      price: 'Rs. 32.00',
       image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?q=80&w=600&auto=format&fit=crop'
     }
   ];

@@ -24,7 +24,7 @@ export const downloadReport = async (
       <!DOCTYPE html>
       <html>
       <head>
-        <title>${reportName.replace(/_/g, ' ')}</title>
+        <title>Rs. {reportName.replace(/_/g, ' ')}</title>
         <style>
           body { font-family: 'Inter', system-ui, sans-serif; color: #334155; margin: 40px; background: #fff; }
           .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0b8252; padding-bottom: 20px; margin-bottom: 30px; }
@@ -51,14 +51,14 @@ export const downloadReport = async (
             <img src="${brandLogo}" style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px; border: 1px solid #e2e8f0; padding: 2px; background: #fff;" />
             <div>
               <h2>CHAMSON MULTI SHOP</h2>
-              <h1>${reportName.replace(/_/g, ' ')}</h1>
+              <h1>Rs. {reportName.replace(/_/g, ' ')}</h1>
             </div>
           </div>
           <div class="meta">
             <p><strong>Branch:</strong> Colombo 03 Branch</p>
             <p><strong>Business Reg:</strong> PV-00283921</p>
             <p><strong>TIN (18% VAT):</strong> 203928172</p>
-            <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Generated:</strong>Rs. {new Date().toLocaleString()}</p>
           </div>
         </div>
         
@@ -84,14 +84,11 @@ export const downloadReport = async (
         <h3>Detailed Data Breakdown</h3>
         <table>
           <thead>
-            <tr>
-              ${headers.map(h => `<th>${h}</th>`).join('')}
+            <tr>${headers.map(h => `<th>${h}</th>`).join('')}
             </tr>
           </thead>
-          <tbody>
-            ${rows.map(row => `
-              <tr>
-                ${row.map(cell => `<td>${cell}</td>`).join('')}
+          <tbody>${rows.map(row => `
+              <tr>${row.map(cell => `<td>${cell}</td>`).join('')}
               </tr>
             `).join('')}
           </tbody>

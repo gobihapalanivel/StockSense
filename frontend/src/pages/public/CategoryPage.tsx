@@ -15,46 +15,46 @@ export default function CategoryPage() {
     switch (categorySlug) {
       case 'beverages':
         return [
-          { id: 1, name: 'Cold Pressed Orange Juice', price: '$5.99', image: 'https://images.unsplash.com/photo-1622597467836-f382490d3d52?q=80&w=600&auto=format&fit=crop' },
-          { id: 2, name: 'Sparkling Mineral Water', price: '$2.50', image: 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=600&auto=format&fit=crop' },
-          { id: 3, name: 'Organic Green Tea', price: '$4.00', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=600&auto=format&fit=crop' },
-          { id: 4, name: 'Artisan Kombucha', price: '$6.50', image: 'https://images.unsplash.com/photo-1595180120863-87fbd52a5518?q=80&w=600&auto=format&fit=crop' },
+          { id: 1, name: 'Cold Pressed Orange Juice', price: 'Rs. 5.99', image: 'https://images.unsplash.com/photo-1622597467836-f382490d3d52?q=80&w=600&auto=format&fit=crop' },
+          { id: 2, name: 'Sparkling Mineral Water', price: 'Rs. 2.50', image: 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=600&auto=format&fit=crop' },
+          { id: 3, name: 'Organic Green Tea', price: 'Rs. 4.00', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=600&auto=format&fit=crop' },
+          { id: 4, name: 'Artisan Kombucha', price: 'Rs. 6.50', image: 'https://images.unsplash.com/photo-1595180120863-87fbd52a5518?q=80&w=600&auto=format&fit=crop' },
         ];
       case 'snacks':
         return [
-          { id: 1, name: 'Sea Salt Popcorn', price: '$3.50', image: 'https://images.unsplash.com/photo-1572620786524-7eb3907eb641?q=80&w=600&auto=format&fit=crop' },
-          { id: 2, name: 'Kettle Cooked Chips', price: '$4.00', image: 'https://images.unsplash.com/photo-1566478989037-e924e50cb0c2?q=80&w=600&auto=format&fit=crop' },
-          { id: 3, name: 'Mixed Roasted Nuts', price: '$8.99', image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?q=80&w=600&auto=format&fit=crop' },
-          { id: 4, name: 'Dark Chocolate Bar', price: '$5.50', image: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?q=80&w=600&auto=format&fit=crop' },
+          { id: 1, name: 'Sea Salt Popcorn', price: 'Rs. 3.50', image: 'https://images.unsplash.com/photo-1572620786524-7eb3907eb641?q=80&w=600&auto=format&fit=crop' },
+          { id: 2, name: 'Kettle Cooked Chips', price: 'Rs. 4.00', image: 'https://images.unsplash.com/photo-1566478989037-e924e50cb0c2?q=80&w=600&auto=format&fit=crop' },
+          { id: 3, name: 'Mixed Roasted Nuts', price: 'Rs. 8.99', image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?q=80&w=600&auto=format&fit=crop' },
+          { id: 4, name: 'Dark Chocolate Bar', price: 'Rs. 5.50', image: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?q=80&w=600&auto=format&fit=crop' },
         ];
       case 'dairy-products':
         return [
-          { id: 1, name: 'Whole Milk 1 Gallon', price: '$4.50', image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?q=80&w=600&auto=format&fit=crop' },
-          { id: 2, name: 'Aged Cheddar Cheese', price: '$7.00', image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?q=80&w=600&auto=format&fit=crop' },
-          { id: 3, name: 'Greek Yogurt Vanilla', price: '$5.99', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=600&auto=format&fit=crop' },
-          { id: 4, name: 'Farm Fresh Butter', price: '$6.50', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?q=80&w=600&auto=format&fit=crop' },
+          { id: 1, name: 'Whole Milk 1 Gallon', price: 'Rs. 4.50', image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?q=80&w=600&auto=format&fit=crop' },
+          { id: 2, name: 'Aged Cheddar Cheese', price: 'Rs. 7.00', image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?q=80&w=600&auto=format&fit=crop' },
+          { id: 3, name: 'Greek Yogurt Vanilla', price: 'Rs. 5.99', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=600&auto=format&fit=crop' },
+          { id: 4, name: 'Farm Fresh Butter', price: 'Rs. 6.50', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?q=80&w=600&auto=format&fit=crop' },
         ];
       case 'fruits-vegetables':
         return [
-          { id: 1, name: 'Organic Hass Avocados', price: '$4.99', image: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?q=80&w=600&auto=format&fit=crop' },
-          { id: 2, name: 'Fresh Strawberries', price: '$3.99', image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?q=80&w=600&auto=format&fit=crop' },
-          { id: 3, name: 'Crisp Romaine Lettuce', price: '$2.50', image: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?q=80&w=600&auto=format&fit=crop' },
-          { id: 4, name: 'Heirloom Tomatoes', price: '$5.00', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=600&auto=format&fit=crop' },
+          { id: 1, name: 'Organic Hass Avocados', price: 'Rs. 4.99', image: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?q=80&w=600&auto=format&fit=crop' },
+          { id: 2, name: 'Fresh Strawberries', price: 'Rs. 3.99', image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?q=80&w=600&auto=format&fit=crop' },
+          { id: 3, name: 'Crisp Romaine Lettuce', price: 'Rs. 2.50', image: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?q=80&w=600&auto=format&fit=crop' },
+          { id: 4, name: 'Heirloom Tomatoes', price: 'Rs. 5.00', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=600&auto=format&fit=crop' },
         ];
       case 'bakery-items':
         return [
-          { id: 1, name: 'Artisan Sourdough', price: '$6.50', image: 'https://images.unsplash.com/photo-1589367920969-ab8e050eb0e9?q=80&w=600&auto=format&fit=crop' },
-          { id: 2, name: 'Butter Croissants', price: '$4.99', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=600&auto=format&fit=crop' },
-          { id: 3, name: 'Blueberry Muffins', price: '$5.50', image: 'https://images.unsplash.com/photo-1607958996333-41aef7caefaa?q=80&w=600&auto=format&fit=crop' },
-          { id: 4, name: 'French Baguette', price: '$3.00', image: 'https://images.unsplash.com/photo-1597079910443-60c43fc4f729?q=80&w=600&auto=format&fit=crop' },
+          { id: 1, name: 'Artisan Sourdough', price: 'Rs. 6.50', image: 'https://images.unsplash.com/photo-1589367920969-ab8e050eb0e9?q=80&w=600&auto=format&fit=crop' },
+          { id: 2, name: 'Butter Croissants', price: 'Rs. 4.99', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=600&auto=format&fit=crop' },
+          { id: 3, name: 'Blueberry Muffins', price: 'Rs. 5.50', image: 'https://images.unsplash.com/photo-1607958996333-41aef7caefaa?q=80&w=600&auto=format&fit=crop' },
+          { id: 4, name: 'French Baguette', price: 'Rs. 3.00', image: 'https://images.unsplash.com/photo-1597079910443-60c43fc4f729?q=80&w=600&auto=format&fit=crop' },
         ];
       default:
         // Generic fallback for any other category
         return [
-          { id: 1, name: `Premium ${title} Item 1`, price: '$12.99', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=600&auto=format&fit=crop' },
-          { id: 2, name: `Organic ${title} Selection`, price: '$8.50', image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?q=80&w=600&auto=format&fit=crop' },
-          { id: 3, name: `Classic ${title} Variant`, price: '$15.00', image: 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=600&auto=format&fit=crop' },
-          { id: 4, name: `Artisan ${title} Pack`, price: '$22.00', image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=600&auto=format&fit=crop' }
+          { id: 1, name: `Premium ${title} Item 1`, price: 'Rs. 12.99', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=600&auto=format&fit=crop' },
+          { id: 2, name: `Organic ${title} Selection`, price: 'Rs. 8.50', image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?q=80&w=600&auto=format&fit=crop' },
+          { id: 3, name: `Classic ${title} Variant`, price: 'Rs. 15.00', image: 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=600&auto=format&fit=crop' },
+          { id: 4, name: `Artisan ${title} Pack`, price: 'Rs. 22.00', image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=600&auto=format&fit=crop' }
         ];
     }
   };

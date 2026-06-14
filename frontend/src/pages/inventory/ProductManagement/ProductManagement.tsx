@@ -253,7 +253,7 @@ const buildSku = (name: string, category: string) => {
   const prefixSource = `${category || name || 'PRD'}`.replace(/[^a-zA-Z]/g, '');
   const prefix = (prefixSource.slice(0, 3) || 'PRD').toUpperCase();
   const suffix = Date.now().toString().slice(-5);
-  return `${prefix}-${suffix}`;
+  return `${prefix}-Rs. {suffix}`;
 };
 
 const normalizeProduct = (product: Partial<ProductItem> & Record<string, any>, fallbackIndex: number): ProductItem => {

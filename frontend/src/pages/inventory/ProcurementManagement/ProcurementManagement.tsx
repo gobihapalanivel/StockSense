@@ -150,7 +150,7 @@ export default function ProcurementManagement() {
 
     if (!formData.contact.trim()) { errors.contact = 'Contact person is required'; isValid = false; }
 
-    const phoneRegex = /^[+]?[0-9\s-]{7,15}$/;
+    const phoneRegex = /^[+]?[0-9\s-]{7,15}Rs./;
     if (!formData.phone.trim()) {
       errors.phone = 'Supplier contact number is required';
       isValid = false;
@@ -204,7 +204,7 @@ export default function ProcurementManagement() {
       products: 0,
       lastPurchaseDate: new Date().toISOString().split('T')[0],
       totalPurchases: 0,
-      totalValue: '$0.00',
+      totalValue: 'Rs. 0.00',
       reliability: 100,
       onTime: 100,
       rating: 5.0,
