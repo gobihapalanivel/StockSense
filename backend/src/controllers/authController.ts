@@ -4,13 +4,18 @@ import bcrypt from 'bcryptjs'
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
+import { PrismaNeon } from '@prisma/adapter-neon'
 import { z } from 'zod'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js'
 import { AuthRequest } from '../middlewares/authMiddleware.js'
 
+<<<<<<< HEAD
 const connectionString = process.env.DATABASE_URL!
 const pool = new Pool({ connectionString })
 const adapter = new PrismaPg(pool)
+=======
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! })
+>>>>>>> 8e22ad6a137fdceebf6d431b5890357b7d1b01d9
 const prisma = new PrismaClient({ adapter })
 
 // ─── Zod Schemas ────────────────────────────────────────────────────

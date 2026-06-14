@@ -1,13 +1,7 @@
 import 'dotenv/config';
-import { PrismaClient, BrandState, ProductStatus } from '@prisma/client';
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '@prisma/client';
 
-const connectionString = process.env.DATABASE_URL!;
-console.log("DATABASE_URL IS:", connectionString);
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 // EAN-13 barcode generator with 479 (Sri Lanka) prefix
 let barcodeSeq = 100000000;
