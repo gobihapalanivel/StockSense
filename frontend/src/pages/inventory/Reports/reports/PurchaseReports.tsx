@@ -1,4 +1,4 @@
-.import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { downloadReport, ViewState } from './reportUtils';
 import { inventoryOperationsService } from '../../StockOperations/operations/inventoryOperationsService';
 
