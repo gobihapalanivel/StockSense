@@ -1,35 +1,35 @@
-import React, { useState, useMemo, useContext } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Search, ScanLine, ShoppingCart, Settings, LogOut, 
+  Search, ScanLine, ShoppingCart, LogOut, 
   Trash2, Plus, Minus, Receipt, FileText, ChevronRight,
-  Filter, Download, TerminalSquare, CreditCard, Banknote
+  Filter, Download, TerminalSquare, Banknote
 } from 'lucide-react';
 import CategoryMarquee from '../../components/shared/CategoryMarquee/CategoryMarquee';
 import { AuthContext } from '../../context/AuthContext';
 
 // --- MOCK DATA ---
 const MOCK_PRODUCTS = [
-  { id: 1, category: 'ELECTRONICS', name: 'Wireless Headphones', price: 129.99, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=400&auto=format&fit=crop' },
-  { id: 2, category: 'WEARABLES', name: 'Smart Watch Pro', price: 249.00, image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=400&auto=format&fit=crop' },
-  { id: 3, category: 'ACCESSORIES', name: 'Mechanical Keyboard', price: 89.50, image: 'https://images.unsplash.com/photo-1595225476474-87563907a212?q=80&w=400&auto=format&fit=crop' },
-  { id: 4, category: 'ACCESSORIES', name: 'Ergonomic Mouse', price: 55.00, image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=400&auto=format&fit=crop' },
-  { id: 5, category: 'ELECTRONICS', name: 'USB-C Hub', price: 42.00, image: 'https://images.unsplash.com/photo-1528698827591-e192abc8f495?q=80&w=400&auto=format&fit=crop' },
-  { id: 6, category: 'LIFESTYLE', name: 'Travel Mug - Sage', price: 35.50, image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=400&auto=format&fit=crop' },
-  { id: 7, category: 'BEVERAGES', name: 'Midnight Velvet Roast Coffee', price: 24.99, image: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=600&auto=format&fit=crop' },
-  { id: 8, category: 'SNACKS', name: 'Golden Maple Granola', price: 14.50, image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?q=80&w=600&auto=format&fit=crop' },
-  { id: 9, category: 'BEVERAGES', name: 'Pure Alpine Sparkling Water', price: 8.95, image: 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=600&auto=format&fit=crop' },
-  { id: 10, category: 'PERSONAL CARE', name: 'Botanical Defense Soap', price: 22.00, image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=600&auto=format&fit=crop' },
-  { id: 11, category: 'BAKERY ITEMS', name: 'Artisan Sourdough Bread', price: 6.50, image: 'https://images.unsplash.com/photo-1589367920969-ab8e050eb0e9?q=80&w=600&auto=format&fit=crop' },
-  { id: 12, category: 'BEVERAGES', name: 'Cold Brew Coffee Concentrate', price: 12.00, image: 'https://images.unsplash.com/photo-1611162458324-aae1eb4129a4?q=80&w=600&auto=format&fit=crop' },
-  { id: 13, category: 'PACKAGED FOODS', name: 'Organic Forest Honey', price: 9.00, image: 'https://images.unsplash.com/photo-1587049352847-4d4b1ed748d1?q=80&w=600&auto=format&fit=crop' },
-  { id: 14, category: 'PACKAGED FOODS', name: 'Handcrafted Pink Sea Salt', price: 14.00, image: 'https://images.unsplash.com/photo-1507048331197-7d4ac70811cf?q=80&w=600&auto=format&fit=crop' },
-  { id: 15, category: 'SNACKS', name: 'Artisanal Cocoa Cru Chocolate', price: 14.00, image: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?q=80&w=600&auto=format&fit=crop' },
-  { id: 16, category: 'BEVERAGES', name: 'Premium Jasmine Green Tea', price: 18.50, image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=600&auto=format&fit=crop' },
-  { id: 17, category: 'HOUSEHOLD ESSENTIALS', name: 'Handcrafted Terra Mug', price: 26.00, image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=600&auto=format&fit=crop' },
-  { id: 18, category: 'PACKAGED FOODS', name: 'Small-Batch Extra Virgin Olive Oil', price: 32.00, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?q=80&w=600&auto=format&fit=crop' },
-  { id: 19, category: 'DAIRY PRODUCTS', name: 'Organic Fresh Whole Milk', price: 4.50, image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=600&auto=format&fit=crop' },
-  { id: 20, category: 'FRUITS & VEGETABLES', name: 'Fresh Organic Avocados (Pair)', price: 5.99, image: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?q=80&w=600&auto=format&fit=crop' },
+  { id: 1, barcode: '89010001', category: 'ELECTRONICS', name: 'Wireless Headphones', price: 129.99, discount: 10, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=400&auto=format&fit=crop' },
+  { id: 2, barcode: '89010002', category: 'WEARABLES', name: 'Smart Watch Pro', price: 249.00, discount: 15, image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=400&auto=format&fit=crop' },
+  { id: 3, barcode: '89010003', category: 'ACCESSORIES', name: 'Mechanical Keyboard', price: 89.50, discount: 5, image: 'https://images.unsplash.com/photo-1595225476474-87563907a212?q=80&w=400&auto=format&fit=crop' },
+  { id: 4, barcode: '89010004', category: 'ACCESSORIES', name: 'Ergonomic Mouse', price: 55.00, discount: 0, image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=400&auto=format&fit=crop' },
+  { id: 5, barcode: '89010005', category: 'ELECTRONICS', name: 'USB-C Hub', price: 42.00, discount: 8, image: 'https://images.unsplash.com/photo-1528698827591-e192abc8f495?q=80&w=400&auto=format&fit=crop' },
+  { id: 6, barcode: '89010006', category: 'LIFESTYLE', name: 'Travel Mug - Sage', price: 35.50, discount: 12, image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=400&auto=format&fit=crop' },
+  { id: 7, barcode: '89010007', category: 'BEVERAGES', name: 'Midnight Velvet Roast Coffee', price: 24.99, discount: 20, image: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=600&auto=format&fit=crop' },
+  { id: 8, barcode: '89010008', category: 'SNACKS', name: 'Golden Maple Granola', price: 14.50, discount: 0, image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?q=80&w=600&auto=format&fit=crop' },
+  { id: 9, barcode: '89010009', category: 'BEVERAGES', name: 'Pure Alpine Sparkling Water', price: 8.95, discount: 0, image: 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=600&auto=format&fit=crop' },
+  { id: 10, barcode: '89010010', category: 'PERSONAL CARE', name: 'Botanical Defense Soap', price: 22.00, discount: 10, image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=600&auto=format&fit=crop' },
+  { id: 11, barcode: '89010011', category: 'BAKERY ITEMS', name: 'Artisan Sourdough Bread', price: 6.50, discount: 0, image: 'https://images.unsplash.com/photo-1589367920969-ab8e050eb0e9?q=80&w=600&auto=format&fit=crop' },
+  { id: 12, barcode: '89010012', category: 'BEVERAGES', name: 'Cold Brew Coffee Concentrate', price: 12.00, discount: 5, image: 'https://images.unsplash.com/photo-1611162458324-aae1eb4129a4?q=80&w=600&auto=format&fit=crop' },
+  { id: 13, barcode: '89010013', category: 'PACKAGED FOODS', name: 'Organic Forest Honey', price: 9.00, discount: 0, image: 'https://images.unsplash.com/photo-1587049352847-4d4b1ed748d1?q=80&w=600&auto=format&fit=crop' },
+  { id: 14, barcode: '89010014', category: 'PACKAGED FOODS', name: 'Handcrafted Pink Sea Salt', price: 14.00, discount: 0, image: 'https://images.unsplash.com/photo-1507048331197-7d4ac70811cf?q=80&w=600&auto=format&fit=crop' },
+  { id: 15, barcode: '89010015', category: 'SNACKS', name: 'Artisanal Cocoa Cru Chocolate', price: 14.00, discount: 15, image: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?q=80&w=600&auto=format&fit=crop' },
+  { id: 16, barcode: '89010016', category: 'BEVERAGES', name: 'Premium Jasmine Green Tea', price: 18.50, discount: 0, image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=600&auto=format&fit=crop' },
+  { id: 17, barcode: '89010017', category: 'HOUSEHOLD ESSENTIALS', name: 'Handcrafted Terra Mug', price: 26.00, discount: 0, image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=600&auto=format&fit=crop' },
+  { id: 18, barcode: '89010018', category: 'PACKAGED FOODS', name: 'Small-Batch Extra Virgin Olive Oil', price: 32.00, discount: 10, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?q=80&w=600&auto=format&fit=crop' },
+  { id: 19, barcode: '89010019', category: 'DAIRY PRODUCTS', name: 'Organic Fresh Whole Milk', price: 4.50, discount: 0, image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=600&auto=format&fit=crop' },
+  { id: 20, barcode: '89010020', category: 'FRUITS & VEGETABLES', name: 'Fresh Organic Avocados (Pair)', price: 5.99, discount: 0, image: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?q=80&w=600&auto=format&fit=crop' },
 ];
 
 const MOCK_ORDERS = [
@@ -40,14 +40,25 @@ const MOCK_ORDERS = [
   { id: '#SS-9395', time: '13:30 PM', items: 4, method: 'Apple Pay', status: 'Completed', total: 56.00 },
 ];
 
+export interface DraftBill {
+  id: number;
+  cart: any[];
+  timestamp: Date;
+}
+
 export default function POSPage() {
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState<'register'|'orders'>('register');
-  const [registerSubTab, setRegisterSubTab] = useState<'products'|'discounts'>('products');
+  const [activeTab, setActiveTab] = useState<'bill'|'products'|'discounts'|'orders'|'drafts'>('bill');
+  const [draftBills, setDraftBills] = useState<DraftBill[]>([]);
+  const [scannedProduct, setScannedProduct] = useState<any>(null);
+  const [scannedProductQty, setScannedProductQty] = useState<number>(1);
+  const [showAddProductModal, setShowAddProductModal] = useState<boolean>(false);
+  const [searchMatches, setSearchMatches] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [discountType, setDiscountType] = useState<'item' | 'bill' | 'both'>('item');
   const [manualDiscount, setManualDiscount] = useState<number>(0);
   const [discountInput, setDiscountInput] = useState<string>('');
   const [customerPaidInput, setCustomerPaidInput] = useState<string>('');
@@ -82,13 +93,13 @@ export default function POSPage() {
   }, [searchQuery, selectedCategory]);
 
   // --- CART LOGIC ---
-  const addToCart = (product: any) => {
+  const addToCart = (product: any, quantityToAdd: number = 1) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + quantityToAdd } : item);
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity: quantityToAdd, discount: product.discount || 0 }];
     });
   };
 
@@ -102,20 +113,60 @@ export default function POSPage() {
     }).filter(item => item.quantity > 0));
   };
 
-  const removeFromCart = (id: number | string) => {
-    setCart(prev => prev.filter(item => item.id !== id));
+  const passBillToDraft = () => {
+    if (cart.length === 0) return;
+    
+    const usedIds = draftBills.map(d => d.id).sort((a, b) => a - b);
+    let nextId = 1;
+    for (const id of usedIds) {
+      if (id === nextId) nextId++;
+      else break;
+    }
+    
+    const newDraft: DraftBill = {
+      id: nextId,
+      cart: [...cart],
+      timestamp: new Date()
+    };
+    
+    setDraftBills(prev => [...prev, newDraft].sort((a, b) => a.id - b.id));
+    setCart([]);
   };
 
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const discountAmount = (subtotal * manualDiscount) / 100;
-  const total = subtotal - discountAmount;
-
-  const handleApplyDiscount = () => {
-    const val = parseFloat(discountInput);
-    if (!isNaN(val) && val >= 0 && val <= 100) {
-      setManualDiscount(val);
+  const restoreDraftBill = (draftId: number) => {
+    const draft = draftBills.find(d => d.id === draftId);
+    if (draft) {
+      setCart(draft.cart);
+      setDraftBills(prev => prev.filter(d => d.id !== draftId));
+      setActiveTab('bill');
     }
   };
+
+  // Calculate total before any discounts
+  const grossTotal = useMemo(() => {
+    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  }, [cart]);
+
+  // Calculates subtotal summing up item totals after item discounts are applied (if active)
+  const itemsSubtotal = useMemo(() => {
+    return cart.reduce((sum, item) => {
+      const itemDisc = (discountType === 'bill') ? 0 : (item.discount || 0);
+      const itemTotal = (item.price * item.quantity) * (1 - itemDisc / 100);
+      return sum + itemTotal;
+    }, 0);
+  }, [cart, discountType]);
+
+  const billDiscountAmount = useMemo(() => {
+    if (discountType === 'bill' || discountType === 'both') {
+      return (itemsSubtotal * manualDiscount) / 100;
+    }
+    return 0;
+  }, [itemsSubtotal, manualDiscount, discountType]);
+
+  const total = itemsSubtotal - billDiscountAmount;
+  const totalSavedAmount = grossTotal - total;
+  const effectiveDiscountPercentage = grossTotal > 0 ? (totalSavedAmount / grossTotal) * 100 : 0;
+
 
   // --- RENDER HELPERS ---
   const renderSidebar = () => (
@@ -127,11 +178,25 @@ export default function POSPage() {
 
       <nav className="flex-1 px-4 space-y-2 mt-4">
         <button 
-          onClick={() => setActiveTab('register')}
-          className={`w-full flex items-center px-4 py-3 rounded-xl transition-colors font-semibold ${activeTab === 'register' ? 'bg-[#dcfce7] text-[#166534]' : 'text-gray-600 hover:bg-gray-100'}`}
+          onClick={() => setActiveTab('bill')}
+          className={`w-full flex items-center px-4 py-3 rounded-xl transition-colors font-semibold ${activeTab === 'bill' ? 'bg-[#dcfce7] text-[#166534]' : 'text-gray-600 hover:bg-gray-100'}`}
         >
           <TerminalSquare className="w-5 h-5 mr-3" />
-          Register
+          Bill
+        </button>
+        <button 
+          onClick={() => setActiveTab('products')}
+          className={`w-full flex items-center px-4 py-3 rounded-xl transition-colors font-semibold ${activeTab === 'products' ? 'bg-[#dcfce7] text-[#166534]' : 'text-gray-600 hover:bg-gray-100'}`}
+        >
+          <ShoppingCart className="w-5 h-5 mr-3" />
+          Products
+        </button>
+        <button 
+          onClick={() => setActiveTab('discounts')}
+          className={`w-full flex items-center px-4 py-3 rounded-xl transition-colors font-semibold ${activeTab === 'discounts' ? 'bg-[#dcfce7] text-[#166534]' : 'text-gray-600 hover:bg-gray-100'}`}
+        >
+          <Banknote className="w-5 h-5 mr-3" />
+          Discounts
         </button>
         <button 
           onClick={() => setActiveTab('orders')}
@@ -140,44 +205,53 @@ export default function POSPage() {
           <Receipt className="w-5 h-5 mr-3" />
           Orders
         </button>
+        <button 
+          onClick={() => setActiveTab('drafts')}
+          className={`w-full flex items-center px-4 py-3 rounded-xl transition-colors font-semibold relative ${activeTab === 'drafts' ? 'bg-[#dcfce7] text-[#166534]' : 'text-gray-600 hover:bg-gray-100'}`}
+        >
+          <FileText className="w-5 h-5 mr-3" />
+          Draft Bills
+          {draftBills.length > 0 && (
+            <span className="absolute right-4 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+              {draftBills.length}
+            </span>
+          )}
+        </button>
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 mt-auto">
         {activeTab === 'orders' && (
           <button 
-            onClick={() => setActiveTab('register')}
+            onClick={() => setActiveTab('bill')}
             className="w-full bg-[#166534] hover:bg-[#14532d] text-white py-3 rounded-xl flex items-center justify-center font-semibold transition-colors shadow-sm mb-6 animate-in fade-in slide-in-from-bottom-2"
           >
             <Plus className="w-5 h-5 mr-2" />
             New Sale
           </button>
         )}
-
-        <div className="px-2">
-          <div className="flex items-center mb-3">
-            <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden mr-3">
-              <img src="https://ui-avatars.com/api/?name=Alex+Mercer&background=random" alt="Cashier" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-gray-800">Alex Mercer</p>
-              <p className="text-xs text-gray-500">Staff #4209</p>
-            </div>
+        <div className="flex items-center gap-3 px-2 py-3 mb-4 border-b border-gray-200 pb-6">
+          <div className="w-10 h-10 rounded-full bg-[#047857] text-white flex items-center justify-center font-bold text-sm shrink-0">
+            AM
           </div>
-          <button 
-            onClick={async () => {
-              if (authContext?.logout) {
-                await authContext.logout();
-              } else {
-                localStorage.removeItem('stocksense_logged_in');
-              }
-              navigate('/');
-            }}
-            className="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container rounded-lg transition-colors"
-          >
-            <span className="material-symbols-outlined text-outline-variant">logout</span>
-            Logout
-          </button>
+          <div className="flex-1 overflow-hidden">
+            <h4 className="text-[15px] font-bold text-gray-900 leading-tight truncate">Alex Mercer</h4>
+            <p className="text-xs text-gray-500 font-medium mt-0.5">Staff #4209</p>
+          </div>
         </div>
+        <button 
+          onClick={async () => {
+            if (authContext?.logout) {
+              await authContext.logout();
+            } else {
+              localStorage.removeItem('stocksense_logged_in');
+            }
+            navigate('/');
+          }}
+          className="w-full flex items-center px-2 py-2 text-gray-600 hover:text-gray-900 transition-colors font-semibold"
+        >
+          <LogOut className="w-5 h-5 mr-3" />
+          Logout
+        </button>
       </div>
     </div>
   );
@@ -404,7 +478,7 @@ export default function POSPage() {
                       image: 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop',
                       category: 'FLASH'
                     })}
-                    className="flex-1 bg-white text-gray-900 py-2 rounded font-bold text-xs hover:bg-gray-50 transition-colors shadow-sm text-center font-semibold"
+                    className="flex-1 bg-white text-gray-900 py-2 rounded font-bold text-xs hover:bg-gray-50 transition-colors shadow-sm text-center"
                   >
                     Claim Offer
                   </button>
@@ -413,7 +487,7 @@ export default function POSPage() {
                       setManualDiscount(40);
                       setDiscountInput('40');
                     }}
-                    className="bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2 rounded font-bold text-xs transition-colors font-semibold"
+                    className="bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2 rounded font-bold text-xs transition-colors"
                   >
                     Apply 40% Off
                   </button>
@@ -447,7 +521,7 @@ export default function POSPage() {
                       image: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?q=80&w=800&auto=format&fit=crop',
                       category: 'FLASH'
                     })}
-                    className="flex-1 bg-white text-gray-900 py-2 rounded font-bold text-xs hover:bg-gray-50 transition-colors shadow-sm text-center font-semibold"
+                    className="flex-1 bg-white text-gray-900 py-2 rounded font-bold text-xs hover:bg-gray-50 transition-colors shadow-sm text-center"
                   >
                     Claim Offer
                   </button>
@@ -456,7 +530,7 @@ export default function POSPage() {
                       setManualDiscount(39);
                       setDiscountInput('39');
                     }}
-                    className="bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2 rounded font-bold text-xs transition-colors font-semibold"
+                    className="bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2 rounded font-bold text-xs transition-colors"
                   >
                     Apply 39% Off
                   </button>
@@ -588,7 +662,7 @@ export default function POSPage() {
 
               {/* Essential Card 4 (Placeholder) */}
               <div 
-                onClick={() => setRegisterSubTab('products')}
+                onClick={() => setActiveTab('products')}
                 className="bg-[#e2e8f0] rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-lg hover:bg-[#cbd5e1] transition-all flex flex-col items-center justify-center p-6 text-center h-full min-h-[170px] relative cursor-pointer border border-transparent"
               >
                 <div className="absolute top-3 left-3 z-10 bg-[#0a3822] text-white text-[8px] font-bold px-2 py-0.5 rounded shadow-sm tracking-wider">
@@ -608,46 +682,21 @@ export default function POSPage() {
 
   const renderRegisterProducts = () => (
     <div className="flex-1 flex flex-col h-screen overflow-hidden bg-white">
-      {/* Top Header */}
-      <div className="border-b border-gray-100 px-6 py-4 flex flex-col gap-4 shrink-0">
-        <div className="flex items-center justify-between w-full gap-4">
+      <div className="border-b border-gray-100 px-6 py-4 flex flex-col gap-4 shrink-0 bg-white">
           <div className="relative flex-1 max-w-2xl">
             <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
             <input 
               type="text" 
-              placeholder="Search orders, IDs, or items..." 
+              placeholder="Filter products..." 
               className="w-full bg-[#f3f4f6] text-gray-800 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166534]/20 transition-all font-medium"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button 
-            onClick={() => setShowBarcodeModal(true)}
-            className="flex items-center px-5 py-3 bg-[#eff6ff] text-[#1d4ed8] rounded-xl font-semibold hover:bg-blue-100 transition-colors shrink-0"
-          >
-            <ScanLine className="w-5 h-5 mr-2" /> Scan Barcode
-          </button>
-        </div>
-        
-        <div className="flex bg-[#f3f4f6] rounded-xl p-1 w-fit">
-          <button 
-            onClick={() => setRegisterSubTab('products')}
-            className={`px-8 py-2 rounded-lg font-semibold transition-all ${registerSubTab === 'products' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}
-          >
-            Products
-          </button>
-          <button 
-            onClick={() => setRegisterSubTab('discounts')}
-            className={`px-8 py-2 rounded-lg font-semibold transition-all ${registerSubTab === 'discounts' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}
-          >
-            Discounts
-          </button>
-        </div>
       </div>
 
-      {registerSubTab === 'products' ? (
-        /* Product Grid - Matching ProductsPage UI */
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#f8f9fc] relative">
+      {/* Product Grid - Matching ProductsPage UI */}
+      <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#f8f9fc] relative">
           <div className="max-w-7xl mx-auto relative z-10">
             <div className="mb-8">
               <div className="flex items-center justify-between mb-5">
@@ -711,116 +760,326 @@ export default function POSPage() {
             </div>
           </div>
         </div>
-      ) : (
-        renderRegisterDiscounts()
-      )}
+
     </div>
   );
 
-  const renderActiveCart = () => (
-    <div className="w-[380px] bg-white border-l border-gray-200 flex flex-col h-screen shrink-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)] z-10">
-      <div className="h-20 border-b border-gray-100 px-6 flex items-center justify-between shrink-0">
-        <h2 className="text-xl font-bold flex items-center text-gray-800">
-          <ShoppingCart className="w-6 h-6 mr-3 text-gray-800" />
-          Active Cart
-        </h2>
-        {cart.length > 0 && (
-          <button onClick={() => setCart([])} className="text-gray-400 hover:text-red-500 transition-colors p-2">
-            <Trash2 className="w-5 h-5" />
-          </button>
-        )}
+  const handleProductSelect = (product: any) => {
+    setScannedProduct(product);
+    setScannedProductQty(1);
+    setShowAddProductModal(true);
+    setSearchMatches([]);
+    setSearchQuery('');
+  };
+
+  const renderBillPage = () => (
+    <div className="flex-1 flex flex-col h-screen overflow-hidden bg-white relative z-0">
+      {/* Top Header */}
+      <div className="border-b border-gray-100 px-6 py-4 flex items-center gap-4 shrink-0 bg-white relative z-10">
+        <div className="relative flex-1">
+          <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <input 
+            type="text" 
+            placeholder="Scan barcode or search for items (e.g. 89010001, Smart Watch)..." 
+            className="w-full bg-[#f0f4f8] text-gray-800 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166534]/20 transition-all font-medium border-none"
+            value={searchQuery}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && searchMatches.length > 0) {
+                handleProductSelect(searchMatches[0]);
+              }
+            }}
+            onChange={(e) => {
+               const val = e.target.value;
+               setSearchQuery(val);
+               if(val.length > 1) {
+                  const matches = MOCK_PRODUCTS.filter(p => 
+                    p.name.toLowerCase().includes(val.toLowerCase()) || 
+                    (p.barcode && p.barcode.includes(val))
+                  ).slice(0, 5); // Max 5 suggestions
+                  setSearchMatches(matches);
+               } else {
+                  setSearchMatches([]);
+               }
+            }}
+          />
+          
+          {/* Autocomplete Dropdown */}
+          {searchMatches.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden z-50">
+              {searchMatches.map((match, index) => (
+                <button
+                  key={match.id}
+                  onClick={() => handleProductSelect(match)}
+                  className={`w-full flex items-center gap-4 p-3 hover:bg-[#f0fdf4] transition-colors text-left ${index !== 0 ? 'border-t border-gray-100' : ''}`}
+                >
+                  <img src={match.image} alt={match.name} className="w-10 h-10 rounded-lg object-cover bg-gray-50 shrink-0" />
+                  <div className="flex-1 overflow-hidden">
+                    <h4 className="text-[14px] font-bold text-gray-900 truncate">{match.name}</h4>
+                    <p className="text-[12px] text-gray-500 font-medium">Barcode: {match.barcode}</p>
+                  </div>
+                  <div className="text-[14px] font-bold text-[#047857]">
+                    ${match.price.toFixed(2)}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <button 
+          onClick={() => setShowBarcodeModal(true)}
+          className="flex items-center px-6 py-3 bg-[#c6f6d5] text-[#047857] rounded-xl font-bold hover:bg-[#bbf7d0] transition-colors shrink-0"
+        >
+          <ScanLine className="w-5 h-5 mr-2" /> Scan Barcode
+        </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {cart.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
-            <ShoppingCart className="w-16 h-16 opacity-20" />
-            <p className="font-medium">Cart is empty</p>
+      <div className="flex-1 bg-[#f8f9fc] p-6 lg:p-8 flex flex-col items-center overflow-hidden relative z-0">
+        {/* Cart Summary */}
+        <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 w-full flex flex-col overflow-hidden h-full">
+          <div className="p-8 border-b border-gray-100 flex items-start justify-between bg-white shrink-0">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">Cart Summary</h2>
+              <p className="text-sm text-gray-500 font-medium">Review items before finalizing transaction</p>
+            </div>
+            {cart.length > 0 && (
+              <div className="flex items-center gap-2">
+                <button onClick={passBillToDraft} className="text-[#d97706] hover:text-[#b45309] bg-orange-50 hover:bg-orange-100 transition-colors text-sm font-bold flex items-center px-4 py-2 rounded-lg">
+                  <FileText className="w-4 h-4 mr-2" /> Pass Bill
+                </button>
+                <button onClick={() => setCart([])} className="text-gray-500 hover:text-gray-800 transition-colors text-sm font-bold flex items-center px-4 py-2 hover:bg-gray-50 rounded-lg">
+                  <Trash2 className="w-4 h-4 mr-2" /> Clear All
+                </button>
+              </div>
+            )}
           </div>
-        ) : (
-          cart.map(item => (
-            <div key={item.id} className="flex gap-3 bg-white p-3 rounded-xl border border-gray-100 shadow-sm animate-in fade-in slide-in-from-right-4">
-              <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover bg-gray-50" />
-              <div className="flex-1 flex flex-col justify-between">
-                <div>
-                  <h4 className="text-sm font-bold text-gray-800 line-clamp-1">{item.name}</h4>
-                  <p className="text-xs text-gray-500">${item.price.toFixed(2)}</p>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex items-center bg-[#f3f4f6] rounded-lg p-0.5">
-                    <button onClick={() => updateQuantity(item.id, -1)} className="w-7 h-7 flex items-center justify-center rounded-md bg-white text-gray-600 shadow-sm hover:text-gray-900 transition-colors">
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="w-8 text-center text-sm font-bold text-gray-800">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, 1)} className="w-7 h-7 flex items-center justify-center rounded-md bg-white text-gray-600 shadow-sm hover:text-gray-900 transition-colors">
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                  <p className="text-sm font-extrabold text-[#166534]">${(item.price * item.quantity).toFixed(2)}</p>
+
+          <div className="px-8 pb-4 bg-white flex-1 overflow-y-auto">
+            <div className="grid grid-cols-12 gap-4 text-xs font-bold text-gray-500 tracking-wider pt-4 pb-2 uppercase border-b border-gray-100 sticky top-0 bg-white z-10">
+              <div className="col-span-4">Item Details</div>
+              <div className="col-span-2 text-center">Price</div>
+              <div className="col-span-2 text-center">Qty</div>
+              <div className="col-span-2 text-center">Discount (%)</div>
+              <div className="col-span-2 text-right">Total</div>
+            </div>
+
+            {cart.length === 0 ? (
+              <div className="flex flex-col items-center justify-center text-gray-400 py-16">
+                <ShoppingCart className="w-12 h-12 opacity-20 mb-3" />
+                <p className="font-medium">Cart is empty</p>
+              </div>
+            ) : (
+              <div className="space-y-4 pt-4">
+                {cart.map(item => {
+                  const itemDisc = discountType === 'bill' ? 0 : (item.discount || 0);
+                  const itemTotal = (item.price * item.quantity) * (1 - itemDisc / 100);
+                  return (
+                    <div key={item.id} className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 pb-4 last:border-0 last:pb-0">
+                      <div className="col-span-4 flex items-center gap-4">
+                        <img src={item.image} alt={item.name} className="w-14 h-14 rounded-lg object-cover bg-gray-50 border border-gray-100 shrink-0" />
+                        <div className="overflow-hidden">
+                          <h4 className="text-[15px] font-bold text-gray-900 truncate">{item.name}</h4>
+                          <p className="text-[13px] text-gray-500 font-medium truncate">Ref: #PROD-{item.id} • Standard</p>
+                        </div>
+                      </div>
+                      <div className="col-span-2 text-center font-bold text-gray-900">
+                        ${item.price.toFixed(2)}
+                      </div>
+                      <div className="col-span-2 flex justify-center">
+                        <div className="flex items-center bg-[#f0f4f8] rounded-lg p-1">
+                          <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white text-gray-600 hover:shadow-sm transition-all">
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="w-10 text-center text-sm font-bold text-gray-800">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white text-gray-600 hover:shadow-sm transition-all">
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="col-span-2 text-center font-bold">
+                        <span className={discountType === 'bill' ? 'text-gray-400 line-through opacity-50' : 'text-gray-900'}>
+                          {item.discount || 0}%
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right text-[15px] font-bold text-[#047857]">
+                        ${itemTotal.toFixed(2)}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Full-width Subtotal Row summing all item totals */}
+                <div className="border-t border-gray-100 pt-4 mt-6 flex justify-between items-center bg-[#f8fafc] p-4 rounded-xl">
+                  <span className="text-sm font-bold text-gray-600 uppercase tracking-wider">Subtotal (Sum of item totals)</span>
+                  <span className="text-xl font-extrabold text-[#047857]">${itemsSubtotal.toFixed(2)}</span>
                 </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            )}
+          </div>
 
-      <div className="p-6 bg-[#f8f9fc] border-t border-gray-200 shrink-0">
-        <div className="space-y-3 mb-6">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500 font-medium">Subtotal</span>
-            <span className="text-gray-800 font-bold">${subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="relative flex-1">
-              <input 
-                type="text" 
-                placeholder="Manual Discount (%)" 
-                value={discountInput}
-                onChange={e => setDiscountInput(e.target.value)}
-                className="w-full bg-white border border-gray-200 text-gray-800 rounded-lg pl-3 pr-3 py-2 text-sm focus:outline-none focus:border-[#166534] transition-colors"
-              />
+          <div className="shrink-0 p-8 bg-gray-50/50 border-t border-gray-100 flex flex-col gap-6 rounded-b-[24px]">
+            {/* Row 1: Discount Configuration */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+              {/* Discount Type Selector */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Discount Type</label>
+                <select
+                  value={discountType}
+                  onChange={(e) => {
+                    const type = e.target.value as 'item' | 'bill' | 'both';
+                    setDiscountType(type);
+                    if (type === 'item') {
+                      setManualDiscount(0);
+                      setDiscountInput('');
+                    }
+                  }}
+                  className="w-full bg-white border border-gray-200 text-gray-800 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-[#047857] transition-colors shadow-sm"
+                >
+                  <option value="item">Item Value (Individual)</option>
+                  <option value="bill">Bill Value (Overall)</option>
+                  <option value="both">Both (Item & Bill)</option>
+                </select>
+              </div>
+
+              {/* Bill Discount Input */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                  Bill Discount {discountType === 'item' ? '(Inactive)' : '(%)'}
+                </label>
+                <div className="relative">
+                  <input 
+                    type="number" 
+                    min="0"
+                    max="100"
+                    placeholder={discountType === 'item' ? "Select Bill/Both type" : "Enter discount %"}
+                    disabled={discountType === 'item'}
+                    value={discountInput}
+                    onChange={e => {
+                      setDiscountInput(e.target.value);
+                      const val = parseFloat(e.target.value);
+                      if (!isNaN(val) && val >= 0 && val <= 100) {
+                        setManualDiscount(val);
+                      } else {
+                        setManualDiscount(0);
+                      }
+                    }}
+                    className="w-full bg-white disabled:bg-gray-100 border border-gray-200 disabled:text-gray-400 text-gray-800 rounded-xl pl-4 pr-12 py-3 text-sm font-semibold focus:outline-none focus:border-[#047857] transition-colors shadow-sm"
+                  />
+                  {discountType !== 'item' && (
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">%</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Customer Paid Input */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Customer Paid ($)</label>
+                <input 
+                  type="number" 
+                  min="0"
+                  placeholder="Enter amount paid"
+                  value={customerPaidInput}
+                  onChange={e => setCustomerPaidInput(e.target.value)}
+                  className="w-full bg-white border border-gray-200 text-gray-800 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-[#047857] transition-colors shadow-sm"
+                />
+              </div>
             </div>
-            <button onClick={handleApplyDiscount} className="px-4 py-2 bg-[#e0e7ff] text-[#4338ca] rounded-lg text-sm font-bold hover:bg-indigo-200 transition-colors">
-              Apply
-            </button>
-          </div>
-          {manualDiscount > 0 && (
-             <div className="flex justify-between text-sm text-green-600">
-               <span className="font-medium">Discount ({manualDiscount}%)</span>
-               <span className="font-bold">-${discountAmount.toFixed(2)}</span>
-             </div>
-          )}
-          <div className="flex items-center gap-2 mt-2">
-            <div className="relative flex-1">
-              <input 
-                type="text" 
-                placeholder="Customer Paid ($)" 
-                value={customerPaidInput}
-                onChange={e => setCustomerPaidInput(e.target.value)}
-                className="w-full bg-white border border-gray-200 text-gray-800 rounded-lg pl-3 pr-3 py-2 text-sm focus:outline-none focus:border-[#166534] transition-colors"
-              />
+
+            {/* Row 2: Totals & Payment action */}
+            <div className="flex flex-col md:flex-row items-center justify-end gap-6 pt-4 border-t border-gray-100">
+
+              <div className="flex flex-col md:flex-row items-center gap-8 w-full md:w-auto justify-between md:justify-end">
+                <div className="text-right flex flex-col gap-1">
+                  <div className="text-xs text-gray-500 font-semibold">
+                    Items Subtotal: <span className="text-gray-900 font-bold ml-1">${grossTotal.toFixed(2)}</span>
+                  </div>
+                  {totalSavedAmount > 0 && (
+                    <div className="text-xs text-red-600 font-semibold">
+                      Total Discount ({effectiveDiscountPercentage.toFixed(1)}%): <span className="font-bold ml-1">-${totalSavedAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-base font-bold text-gray-500">Bill Total:</span>
+                    <span className="text-3xl font-extrabold text-[#047857]">${total.toFixed(2)}</span>
+                  </div>
+                  {customerPaidInput && (
+                    <div className="text-sm font-bold mt-1 text-gray-700">
+                      Change Due: <span className={parseFloat(customerPaidInput) >= total ? 'text-blue-600' : 'text-red-500'}>
+                        ${(Math.max(0, (parseFloat(customerPaidInput) || 0) - total)).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <button 
+                  className={`px-8 py-4 rounded-xl flex items-center justify-center font-bold text-[17px] transition-all shadow-sm ${cart.length > 0 ? 'bg-[#047857] hover:bg-[#065f46] text-white hover:shadow-md' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                  disabled={cart.length === 0}
+                  onClick={() => setShowInvoiceModal(true)}
+                >
+                  <Banknote className="w-5 h-5 mr-2" />
+                  Complete Payment
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderDraftBills = () => (
+    <div className="flex-1 bg-[#f8f9fc] p-6 lg:p-8 flex flex-col items-center overflow-hidden h-screen">
+      <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 w-full max-w-5xl flex flex-col overflow-hidden h-full">
+        <div className="p-8 border-b border-gray-100 flex items-start justify-between bg-white shrink-0">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">Draft Bills</h2>
+            <p className="text-sm text-gray-500 font-medium">Restore bills that were put on hold</p>
           </div>
         </div>
         
-        <div className="border-t border-gray-200 pt-4 mb-6">
-          <p className="text-xs text-gray-500 font-medium mb-1">Total Amount</p>
-          <div className="flex justify-between items-end">
-            <h1 className="text-4xl font-extrabold text-[#166534]">${total.toFixed(2)}</h1>
-            <span className="px-3 py-1 bg-[#dcfce7] text-[#166534] text-xs font-bold rounded-full mb-1">
-              {cart.reduce((a,b)=>a+b.quantity, 0)} Items
-            </span>
-          </div>
+        <div className="flex-1 overflow-y-auto p-8 bg-gray-50">
+          {draftBills.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+              <FileText className="w-16 h-16 opacity-20 mb-4" />
+              <p className="font-medium text-lg text-gray-500">No Draft Bills on Hold</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {draftBills.map(draft => {
+                const draftGross = draft.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                return (
+                  <div key={draft.id} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-orange-400"></div>
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">Order {draft.id}</h3>
+                        <p className="text-xs text-gray-500 font-medium mt-1">{draft.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      </div>
+                      <span className="bg-orange-50 text-orange-700 font-bold text-xs px-2 py-1 rounded">Hold</span>
+                    </div>
+                    
+                    <div className="space-y-3 mb-6">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500 font-medium">Items</span>
+                        <span className="text-gray-900 font-bold">{draft.cart.reduce((sum, item) => sum + item.quantity, 0)} items</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500 font-medium">Est. Value</span>
+                        <span className="text-[#047857] font-bold">${draftGross.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => restoreDraftBill(draft.id)}
+                      className="w-full bg-orange-100 hover:bg-orange-200 text-orange-800 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center justify-center"
+                    >
+                      <ShoppingCart className="w-4 h-4 mr-2" /> Move to Cart
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-
-        <button 
-          className={`w-full py-4 rounded-xl flex items-center justify-center font-bold text-lg transition-all shadow-md ${cart.length > 0 ? 'bg-[#166534] hover:bg-[#14532d] text-white hover:shadow-lg' : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}`}
-          disabled={cart.length === 0}
-          onClick={() => setShowInvoiceModal(true)}
-        >
-          <CreditCard className="w-6 h-6 mr-3" />
-          Complete Payment
-        </button>
       </div>
     </div>
   );
@@ -932,30 +1191,34 @@ export default function POSPage() {
 
                 <div className="border-t border-dashed border-black my-2"></div>
                 
-                <div className="flex font-bold pb-1">
+                <div className="flex font-bold pb-1 text-[11px]">
                   <div className="flex-1">Item</div>
-                  <div className="w-12 text-right">Qty</div>
-                  <div className="w-16 text-right">Price</div>
-                  <div className="w-16 text-right">Total</div>
+                  <div className="w-8 text-right">Qty</div>
+                  <div className="w-12 text-right">Price</div>
+                  <div className="w-12 text-right">Disc.</div>
+                  <div className="w-12 text-right">Total</div>
                 </div>
                 
-                <div className="flex pb-1">
+                <div className="flex pb-1 text-[11px]">
                   <div className="flex-1 truncate pr-1">Organic Coffee Beans</div>
-                  <div className="w-12 text-right">2.00</div>
-                  <div className="w-16 text-right">$18.50</div>
-                  <div className="w-16 text-right">$37.00</div>
+                  <div className="w-8 text-right">2.00</div>
+                  <div className="w-12 text-right">$18.50</div>
+                  <div className="w-12 text-right">$3.70</div>
+                  <div className="w-12 text-right">$33.30</div>
                 </div>
-                <div className="flex pb-1">
+                <div className="flex pb-1 text-[11px]">
                   <div className="flex-1 truncate pr-1">Cold Brew Pitcher</div>
-                  <div className="w-12 text-right">1.00</div>
-                  <div className="w-16 text-right">$45.00</div>
-                  <div className="w-16 text-right">$45.00</div>
+                  <div className="w-8 text-right">1.00</div>
+                  <div className="w-12 text-right">$45.00</div>
+                  <div className="w-12 text-right">$4.50</div>
+                  <div className="w-12 text-right">$40.50</div>
                 </div>
-                <div className="flex pb-1">
+                <div className="flex pb-1 text-[11px]">
                   <div className="flex-1 truncate pr-1">Paper Filters (100ct)</div>
-                  <div className="w-12 text-right">2.00</div>
-                  <div className="w-16 text-right">$12.50</div>
-                  <div className="w-16 text-right">$25.00</div>
+                  <div className="w-8 text-right">2.00</div>
+                  <div className="w-12 text-right">$12.50</div>
+                  <div className="w-12 text-right">$2.50</div>
+                  <div className="w-12 text-right">$22.50</div>
                 </div>
 
                 <div className="border-t border-dashed border-black my-2"></div>
@@ -1037,32 +1300,40 @@ export default function POSPage() {
 
                 <div className="border-t border-dashed border-black my-2"></div>
                 
-                <div className="flex font-bold pb-1">
+                <div className="flex font-bold pb-1 text-[11px]">
                   <div className="flex-1">Item</div>
-                  <div className="w-12 text-right">Qty</div>
-                  <div className="w-16 text-right">Price</div>
-                  <div className="w-16 text-right">Total</div>
+                  <div className="w-8 text-right">Qty</div>
+                  <div className="w-12 text-right">Price</div>
+                  <div className="w-12 text-right">Disc.</div>
+                  <div className="w-12 text-right">Total</div>
                 </div>
                 
-                {cart.map(item => (
-                  <div key={item.id} className="flex pb-1">
-                    <div className="flex-1 truncate pr-1">{item.name}</div>
-                    <div className="w-12 text-right">{item.quantity.toFixed(2)}</div>
-                    <div className="w-16 text-right">${item.price.toFixed(2)}</div>
-                    <div className="w-16 text-right">${(item.quantity * item.price).toFixed(2)}</div>
-                  </div>
-                ))}
+                {cart.map(item => {
+                  const itemTotal = item.quantity * item.price;
+                  const itemDiscPercent = discountType === 'bill' ? 0 : (item.discount || 0);
+                  const itemDiscount = itemTotal * (itemDiscPercent / 100);
+                  const itemNetTotal = itemTotal - itemDiscount;
+                  return (
+                    <div key={item.id} className="flex pb-1 text-[11px]">
+                      <div className="flex-1 truncate pr-1">{item.name}</div>
+                      <div className="w-8 text-right">{item.quantity.toFixed(2)}</div>
+                      <div className="w-12 text-right">${item.price.toFixed(2)}</div>
+                      <div className="w-12 text-right">${itemDiscount.toFixed(2)}</div>
+                      <div className="w-12 text-right">${itemNetTotal.toFixed(2)}</div>
+                    </div>
+                  );
+                })}
 
                 <div className="border-t border-dashed border-black my-2"></div>
 
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>${itemsSubtotal.toFixed(2)}</span>
                 </div>
-                {manualDiscount > 0 && (
+                {billDiscountAmount > 0 && (
                   <div className="flex justify-between">
-                    <span>Discount:</span>
-                    <span>-${discountAmount.toFixed(2)}</span>
+                    <span>Discount ({manualDiscount}%):</span>
+                    <span>-${billDiscountAmount.toFixed(2)}</span>
                   </div>
                 )}
 
@@ -1159,19 +1430,84 @@ export default function POSPage() {
     );
   };
 
+  const renderAddProductModal = () => {
+    if (!showAddProductModal || !scannedProduct) return null;
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 animate-in fade-in">
+        <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95">
+          <div className="relative h-64 bg-gray-50 border-b border-gray-100">
+            <img src={scannedProduct.image} alt={scannedProduct.name} className="w-full h-full object-cover" />
+            <button 
+              onClick={() => {
+                setShowAddProductModal(false);
+                setScannedProduct(null);
+              }}
+              className="absolute top-4 right-4 w-8 h-8 bg-white/80 hover:bg-white backdrop-blur-md rounded-full flex items-center justify-center text-gray-600 transition-colors shadow-sm"
+            >
+              &times;
+            </button>
+          </div>
+          <div className="p-8">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="px-3 py-1 bg-[#dcfce7] text-[#166534] text-xs font-bold rounded-full">IN STOCK</span>
+            </div>
+            <h3 className="text-2xl font-extrabold text-gray-900 mb-1">{scannedProduct.name}</h3>
+            <p className="text-sm text-gray-500 font-medium mb-6">Barcode: {scannedProduct.barcode}</p>
+            
+            <div className="flex items-center justify-between mb-8">
+              <span className="text-[#047857] font-extrabold text-3xl">${scannedProduct.price.toFixed(2)}</span>
+              
+              <div className="flex items-center bg-[#f0f4f8] rounded-xl p-1">
+                <button onClick={() => setScannedProductQty(Math.max(1, scannedProductQty - 1))} className="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-gray-600 shadow-sm hover:text-gray-900 transition-colors">
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="w-12 text-center text-base font-bold text-gray-800">{scannedProductQty}</span>
+                <button onClick={() => setScannedProductQty(scannedProductQty + 1)} className="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-gray-600 shadow-sm hover:text-gray-900 transition-colors">
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => {
+                  setShowAddProductModal(false);
+                  setScannedProduct(null);
+                }}
+                className="px-6 py-4 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  addToCart(scannedProduct, scannedProductQty);
+                  setShowAddProductModal(false);
+                  setScannedProduct(null);
+                  setScannedProductQty(1);
+                }}
+                className="flex-1 bg-[#047857] hover:bg-[#065f46] text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-sm flex items-center justify-center"
+              >
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex h-screen w-full bg-white font-sans overflow-hidden">
       {renderSidebar()}
-      {activeTab === 'register' ? (
-        <>
-          {renderRegisterProducts()}
-          {renderActiveCart()}
-        </>
-      ) : (
-        renderOrdersView()
-      )}
+      {activeTab === 'bill' && renderBillPage()}
+      {activeTab === 'products' && renderRegisterProducts()}
+      {activeTab === 'discounts' && renderRegisterDiscounts()}
+      {activeTab === 'orders' && renderOrdersView()}
+      {activeTab === 'drafts' && renderDraftBills()}
       {renderInvoiceModal()}
       {renderBarcodeModal()}
+      {renderAddProductModal()}
     </div>
   );
 }
