@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_NODE_API_URL || 'http://localhost:5001/api'
+const API_URL = import.meta.env.VITE_NODE_API_URL || 'http://localhost:5000/api'
 
 // ── Axios Instance ────────────────────────────────────────────────────
 // withCredentials: true is REQUIRED to send the HttpOnly refresh cookie
@@ -37,8 +37,17 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // If error is 401 (Unauthorized) and we haven't retried yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // IMPORTANT: Never try to auto-refresh on auth endpoints themselves.
+    // If /auth/login fails with 401 (wrong password), we should NOT call
+    // /auth/refresh — that causes "No refresh token provided" to show instead
+    // of the real error message.
+    const isAuthEndpoint = originalRequest?.url?.includes('/auth/')
+
+    // Only auto-refresh if:
+    // 1. The response was 401 Unauthorized
+    // 2. We haven't already retried this request
+    // 3. The original request was NOT an auth endpoint
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true // Mark as retried to prevent infinite loops
 
       try {

@@ -104,13 +104,13 @@ function InventoryHealthOverviewCard({
               onMouseLeave={() => setHoveredDonutSegment(null)}
             />
             <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f59e0b" strokeWidth="4"
-              strokeDasharray={`${dynamicHealthStats.warning} 100`} strokeDashoffset={`-${dynamicHealthStats.healthy}`}
+              strokeDasharray={`${dynamicHealthStats.warning} 100`} strokeDashoffset={`-Rs. {dynamicHealthStats.healthy}`}
               className="transition-all duration-300 cursor-pointer"
               onMouseEnter={() => setHoveredDonutSegment('Warning')}
               onMouseLeave={() => setHoveredDonutSegment(null)}
             />
             <circle cx="18" cy="18" r="15.915" fill="none" stroke="#dc2626" strokeWidth="4"
-              strokeDasharray={`${dynamicHealthStats.critical} 100`} strokeDashoffset={`-${dynamicHealthStats.healthy + dynamicHealthStats.warning}`}
+              strokeDasharray={`${dynamicHealthStats.critical} 100`} strokeDashoffset={`-Rs. {dynamicHealthStats.healthy + dynamicHealthStats.warning}`}
               className="transition-all duration-300 cursor-pointer"
               onMouseEnter={() => setHoveredDonutSegment('Critical')}
               onMouseLeave={() => setHoveredDonutSegment(null)}
