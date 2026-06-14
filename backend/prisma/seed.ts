@@ -1,9 +1,8 @@
 import 'dotenv/config';
-import { PrismaClient, BrandState, ProductStatus } from '@prisma/client';
-import { PrismaNeon } from '@prisma/adapter-neon';
+import { PrismaClient, BrandState, ProductStatus, Role } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 // EAN-13 barcode generator with 479 (Sri Lanka) prefix
 let barcodeSeq = 100000000;
@@ -806,12 +805,55 @@ async function main() {
     ]);
   }
 
-  console.log(`\n✅ Seeding complete! Total SKUs generated: ${totalSkus}`);
+  console.log(`\n✅ Inventory seeding complete! Total SKUs generated: ${totalSkus}`);
   console.log(`📊 Summary:`);
   console.log(`   - ${suppliersRaw.length} Suppliers`);
   console.log(`   - ${categoriesRaw.length} Categories`);
   console.log(`   - ${brandsRaw.length} Brands`);
   console.log(`   - ~${totalSkus} Product SKUs`);
+
+  // ─── USERS ───────────────────────────────────────────────────────────────────
+  console.log('\n👥 Seeding users...');
+  const passwordHashAdmin = await bcrypt.hash('Admin@123', 12);
+  const passwordHashCashier = await bcrypt.hash('Cashier@123', 12);
+  const passwordHashManager = await bcrypt.hash('Manager@123', 12);
+
+  await prisma.user.upsert({
+    where: { email: 'admin@stocksense.com' },
+    update: {},
+    create: {
+      name: 'Super Admin',
+      email: 'admin@stocksense.com',
+      passwordHash: passwordHashAdmin,
+      role: Role.ADMIN,
+      isActive: true,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'cashier@stocksense.com' },
+    update: {},
+    create: {
+      name: 'Main Cashier',
+      email: 'cashier@stocksense.com',
+      passwordHash: passwordHashCashier,
+      role: Role.CASHIER,
+      isActive: true,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'manager@stocksense.com' },
+    update: {},
+    create: {
+      name: 'Stock Manager',
+      email: 'manager@stocksense.com',
+      passwordHash: passwordHashManager,
+      role: Role.INVENTORY_MANAGER,
+      isActive: true,
+    },
+  });
+  console.log('✅ Users seeded successfully!');
 }
 
 main()
