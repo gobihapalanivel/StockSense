@@ -1,7 +1,9 @@
 import 'dotenv/config';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, BrandState, ProductStatus } from '@prisma/client';
+import { PrismaNeon } from '@prisma/adapter-neon';
 
-const prisma = new PrismaClient();
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 // EAN-13 barcode generator with 479 (Sri Lanka) prefix
 let barcodeSeq = 100000000;
@@ -222,7 +224,7 @@ async function main() {
 
   const brandMap: Record<string, any> = {};
   for (const b of brandsRaw) {
-    brandMap[b.name] = await prisma.brand.create({ data: { name: b.name, description: b.description, state: $Enums.BrandState.ACTIVE } });
+    brandMap[b.name] = await prisma.brand.create({ data: { name: b.name, description: b.description, state: BrandState.ACTIVE } });
   }
 
   // ─── PRODUCTS ────────────────────────────────────────────────────────────────
@@ -263,7 +265,7 @@ async function main() {
         currentStock: v.stock,
         reorderLevel: 20,
         targetCapacity: 300,
-        status: $Enums.ProductStatus.ACTIVE,
+        status: ProductStatus.ACTIVE,
         imageUrl,
         variantAttributeType: v.size,
       };
