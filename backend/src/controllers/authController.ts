@@ -36,7 +36,7 @@ export async function login(req: Request, res: Response): Promise<void> {
       return
     }
 
-    const isMatch = await bcrypt.compare(password, user.password)
+    const isMatch = await bcrypt.compare(password, user.passwordHash)
     if (!isMatch) {
       res.status(401).json({ success: false, message: 'Invalid email or password.' })
       return
@@ -58,7 +58,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     })
 
@@ -170,9 +170,8 @@ export async function createUser(req: AuthRequest, res: Response): Promise<void>
       data: {
         name,
         email,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
         role,
-        createdById: req.user!.id,
       },
       select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
     })

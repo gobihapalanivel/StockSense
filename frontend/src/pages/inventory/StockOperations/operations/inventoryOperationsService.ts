@@ -338,7 +338,7 @@ export const inventoryOperationsService = {
 
   createGRN: async (grn: Omit<GRNRecord, 'id' | 'grnNumber' | 'accuracyScore' | 'status'>): Promise<GRNRecord> => {
     const grns = load<GRNRecord>(GRN_KEY, initialGRNs);
-    const grnNumber = `GRN-2026-${String(grns.length + 1).padStart(3, '0')}`;
+    const grnNumber = `GRN-2026-Rs. {String(grns.length + 1).padStart(3, '0')}`;
 
     // Calculate total quantity & cost & shortage/over accuracy
     let totalQuantity = 0;
@@ -431,7 +431,7 @@ export const inventoryOperationsService = {
 
   createAdjustment: async (adj: Omit<AdjustmentRecord, 'id' | 'adjustmentNumber' | 'totalValue' | 'beforeStock' | 'afterStock' | 'status'>): Promise<AdjustmentRecord> => {
     const adjustments = load<AdjustmentRecord>(ADJUSTMENT_KEY, initialAdjustments);
-    const adjustmentNumber = `ADJ-2026-${String(adjustments.length + 1).padStart(3, '0')}`;
+    const adjustmentNumber = `ADJ-2026-Rs. {String(adjustments.length + 1).padStart(3, '0')}`;
 
     // Read current stock
     const products = load<ProductItem>(PRODUCT_KEY, initialProducts);

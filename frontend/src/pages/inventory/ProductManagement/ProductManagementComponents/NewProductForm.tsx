@@ -762,7 +762,7 @@ export default function NewProductForm({
                               const num = parseInt(char, 10) || 0;
                               const widthClass = num % 3 === 0 ? 'w-[2px]' : 'w-[1px]';
                               const colorClass = index % 3 === 0 && num > 4 ? 'bg-transparent' : 'bg-black';
-                              return <div key={`${char}-${index}`} className={`h-full ${widthClass} ${colorClass}`} />;
+                              return <div key={`${char}-Rs. {index}`} className={`h-full ${widthClass} ${colorClass}`} />;
                             })}
                           </div>
                           <span className="text-[7px] font-mono tracking-widest text-outline mt-0.5">{singleBarcode.substring(0, 8)}...</span>
