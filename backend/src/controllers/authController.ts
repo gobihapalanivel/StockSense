@@ -1,12 +1,17 @@
 import 'dotenv/config'
 import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js'
 import { AuthRequest } from '../middlewares/authMiddleware.js'
 
-const prisma = new PrismaClient()
+const connectionString = process.env.DATABASE_URL!
+const pool = new Pool({ connectionString })
+const adapter = new PrismaPg(pool)
+const prisma = new PrismaClient({ adapter })
 
 // ─── Zod Schemas ────────────────────────────────────────────────────
 const loginSchema = z.object({
