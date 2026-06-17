@@ -406,14 +406,14 @@ export default function GRNPage() {
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-100 text-slate-700 font-extrabold uppercase border-b border-slate-200 text-[10px]">
-                    <th className="px-4 py-2.5">Product Name</th>
-                    <th className="px-4 py-2.5 w-32">SKU</th>
-                    <th className="px-4 py-2.5 w-24 text-center">Current Stock Qty</th>
-                    <th className="px-4 py-2.5 w-24 text-center">Added Qty</th>
-                    <th className="px-4 py-2.5 w-28 text-center font-black">Final Quantity</th>
-                    <th className="px-4 py-2.5 w-28">Unit Cost</th>
-                    <th className="px-4 py-2.5 w-32">MFG Date</th>
-                    <th className="px-4 py-2.5 w-32">EXP Date</th>
+                    <th className="px-4 py-2.5 min-w-[260px]">Product Name</th>
+                    <th className="px-4 py-2.5 min-w-[140px]">SKU</th>
+                    <th className="px-4 py-2.5 min-w-[110px] text-center">Current Stock Qty</th>
+                    <th className="px-4 py-2.5 min-w-[100px] text-center">Added Qty</th>
+                    <th className="px-4 py-2.5 min-w-[100px] text-center font-black">Final Quantity</th>
+                    <th className="px-4 py-2.5 min-w-[110px]">Unit Cost</th>
+                    <th className="px-4 py-2.5 min-w-[130px]">MFG Date</th>
+                    <th className="px-4 py-2.5 min-w-[130px]">EXP Date</th>
                     <th className="px-4 py-2.5 w-10"></th>
                   </tr>
                 </thead>
@@ -432,7 +432,7 @@ export default function GRNPage() {
                         </td>
 
                         {/* SKU */}
-                        <td className="px-4 py-2 text-slate-500 font-mono font-bold">
+                        <td className="px-4 py-2 text-slate-500 font-mono font-bold whitespace-nowrap">
                           {item.sku || 'N/A'}
                         </td>
 
@@ -450,7 +450,7 @@ export default function GRNPage() {
                             min="0"
                             value={item.receivedQty}
                             onChange={(e) => handleRowValueChange(idx, 'receivedQty', parseInt(e.target.value) || 0)}
-                            className="w-full px-2 py-1.5 border border-slate-300 focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] outline-none rounded text-xs font-bold text-center transition-all bg-emerald-50/30 text-emerald-900"
+                            className="w-full min-w-[70px] px-2 py-1.5 border border-slate-300 focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] outline-none rounded text-xs font-bold text-center transition-all bg-emerald-50/30 text-emerald-900"
                           />
                         </td>
 
@@ -471,7 +471,7 @@ export default function GRNPage() {
                               step="0.01"
                               value={item.unitCost}
                               onChange={(e) => handleRowValueChange(idx, 'unitCost', parseFloat(e.target.value) || 0)}
-                              className="w-full pl-6 pr-2 py-1.5 border border-slate-300 focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] outline-none rounded text-xs font-bold text-left transition-all"
+                              className="w-full min-w-[85px] pl-6 pr-2 py-1.5 border border-slate-300 focus:border-[#0b8252] focus:ring-1 focus:ring-[#0b8252] outline-none rounded text-xs font-bold text-left transition-all"
                             />
                           </div>
                         </td>
