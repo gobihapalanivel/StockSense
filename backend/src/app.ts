@@ -10,6 +10,11 @@ import brandRoutes from './routes/brandRoutes.js'
 import supplierRoutes from './routes/supplierRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 import inventoryRoutes from './routes/inventoryRoutes.js'
+import dashboardRoutes from './routes/dashboardRoutes.js'
+import discountRoutes from './routes/discountRoutes.js'
+import salesRoutes from './routes/salesRoutes.js'
+import refundRoutes from './routes/refundRoutes.js'
+import reportRoutes from './routes/reportRoutes.js'
 
 const app = express()
 
@@ -24,8 +29,8 @@ app.use(helmet({ crossOriginResourcePolicy: false })) // Set security HTTP heade
 app.use(cookieParser()) // Parse HttpOnly cookies
 
 // ── Body Parser ───────────────────────────────────────
-app.use(express.json({ limit: '10kb' })) // Limit body size to prevent DOS attacks
-app.use(express.urlencoded({ extended: true, limit: '10kb' }))
+app.use(express.json({ limit: '5mb' })) // Limit body size to prevent DOS attacks (increased for base64 image uploads)
+app.use(express.urlencoded({ extended: true, limit: '5mb' }))
 
 // Sanitize data (Prevent XSS attacks)
 import { xss } from 'express-xss-sanitizer'
@@ -50,6 +55,11 @@ app.use('/api/brands', brandRoutes)
 app.use('/api/suppliers', supplierRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/inventory', inventoryRoutes)
+app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/discounts', discountRoutes)
+app.use('/api/sales', salesRoutes)
+app.use('/api/refunds', refundRoutes)
+app.use('/api/reports', reportRoutes)
 
 // ── 404 Handler ───────────────────────────────────────
 app.use((_req: Request, res: Response) => {

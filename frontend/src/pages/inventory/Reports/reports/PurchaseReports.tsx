@@ -12,6 +12,12 @@ export default function PurchaseReports({ onViewChange: _onViewChange }: { onVie
   // Live Purchases States
   const [grns, setGrns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset pagination on filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, period]);
 
   useEffect(() => {
     let active = true;
@@ -58,10 +64,13 @@ export default function PurchaseReports({ onViewChange: _onViewChange }: { onVie
       start.setHours(0, 0, 0, 0);
     } else if (period === 'Week') {
       start.setDate(now.getDate() - 7);
+      start.setHours(0, 0, 0, 0);
     } else if (period === 'Month') {
       start.setDate(now.getDate() - 30);
+      start.setHours(0, 0, 0, 0);
     } else if (period === 'Year') {
       start.setDate(now.getDate() - 365);
+      start.setHours(0, 0, 0, 0);
     } else if (period === 'Custom Range') {
       if (dateRange.start) start = new Date(dateRange.start);
       if (dateRange.end) {
@@ -102,9 +111,17 @@ export default function PurchaseReports({ onViewChange: _onViewChange }: { onVie
 
   // KPIs
   const totalPurchases = periodGrns.length;
+  const totalSpending = periodGrns.reduce((sum, g) => sum + g.totalCost, 0);
   const totalItemsPurchased = periodGrns.reduce((sum, g) => sum + g.totalQuantity, 0);
   const activeSuppliers = new Set(periodGrns.map(g => g.supplierName)).size;
-  const pendingDeliveries = periodGrns.filter(g => g.status === 'Shortage').length;
+  const avgOrderValue = totalPurchases > 0 ? totalSpending / totalPurchases : 0;
+
+  // Pagination Logic
+  const itemsPerPage = 8;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredPurchases.length);
+  const paginatedItems = filteredPurchases.slice(startIndex, endIndex);
+  const totalPages = Math.max(1, Math.ceil(filteredPurchases.length / itemsPerPage));
 
   const reportHeaders = ['Ref #', 'Date', 'Supplier', 'Product', 'Qty', 'Unit Price', 'Total'];
   const reportRows = filteredPurchases.map(p => [p.ref, p.date, p.sup, p.prod, p.qty, p.price, p.total]);
@@ -154,11 +171,15 @@ export default function PurchaseReports({ onViewChange: _onViewChange }: { onVie
             )}
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="flex bg-white p-1 rounded-lg border border-slate-200">
-            <button onClick={() => downloadReport(reportName, 'pdf', reportData)} className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:bg-slate-50 rounded text-sm font-bold border-l border-slate-200"><span className="material-symbols-outlined text-[18px]">picture_as_pdf</span> Export PDF</button>
-            <button onClick={() => downloadReport(reportName, 'excel', reportData)} className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:bg-slate-50 rounded text-sm font-bold border-l border-slate-200"><span className="material-symbols-outlined text-[18px]">table_chart</span> Export Excel</button>
-          </div>
+        <div className="flex items-center gap-3">
+          <button onClick={() => downloadReport(reportName, 'pdf', reportData, 'Purchase')} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-all">
+            <span className="material-symbols-outlined text-[18px] text-slate-500">picture_as_pdf</span>
+            Export PDF
+          </button>
+          <button onClick={() => downloadReport(reportName, 'excel', reportData, 'Purchase')} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-all">
+            <span className="material-symbols-outlined text-[18px] text-slate-500">table_chart</span>
+            Export Excel
+          </button>
         </div>
       </div>
 
@@ -182,27 +203,85 @@ export default function PurchaseReports({ onViewChange: _onViewChange }: { onVie
         })}
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <p className="text-xs font-bold text-slate-500 mb-2">Total Purchases</p>
-          <h3 className="text-2xl font-bold text-slate-800">{loading ? '...' : totalPurchases}</h3>
-          <p className="text-[10px] font-bold text-slate-400 mt-1">Orders processed</p>
+      {/* KPI SECTION (Glassmorphism) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        {/* Total Orders */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
+          <div className="flex justify-between items-start mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">local_shipping</span>
+            </div>
+            <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Orders</span>
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{loading ? '...' : totalPurchases}</h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Total Purchases</p>
+          </div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <p className="text-xs font-bold text-slate-500 mb-2">Total Items Purchased</p>
-          <h3 className="text-2xl font-bold text-slate-800">{loading ? '...' : totalItemsPurchased}</h3>
-          <p className="text-[10px] font-bold text-slate-400 mt-1">Units received</p>
+
+        {/* Total Spending */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
+          <div className="flex justify-between items-start mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+            </div>
+            <span className="text-[10px] font-black text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">Spent</span>
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+              {loading ? '...' : `Rs. ${totalSpending.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            </h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Total Spending</p>
+          </div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <p className="text-xs font-bold text-slate-500 mb-2">Total Suppliers Active</p>
-          <h3 className="text-2xl font-bold text-slate-800">{loading ? '...' : activeSuppliers}</h3>
-          <p className="text-[10px] font-bold text-slate-400 mt-1">Unique vendors</p>
+
+        {/* Total Items Purchased */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
+          <div className="flex justify-between items-start mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">category</span>
+            </div>
+            <span className="text-[10px] font-black text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">Units</span>
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{loading ? '...' : totalItemsPurchased}</h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Items Purchased</p>
+          </div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <p className="text-xs font-bold text-slate-500 mb-2">Shortages / Issues</p>
-          <h3 className="text-2xl font-bold text-[#d97706]">{loading ? '...' : pendingDeliveries}</h3>
-          <p className="text-[10px] font-bold text-[#d97706] mt-1">Partial deliveries</p>
+
+        {/* Avg Order Value */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
+          <div className="flex justify-between items-start mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">trending_up</span>
+            </div>
+            <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">Avg</span>
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+              {loading ? '...' : `Rs. ${avgOrderValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            </h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Avg Order Value</p>
+          </div>
+        </div>
+
+        {/* Active Suppliers */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
+          <div className="flex justify-between items-start mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">storefront</span>
+            </div>
+            <span className="text-[10px] font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">Vendors</span>
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{loading ? '...' : activeSuppliers}</h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Active Suppliers</p>
+          </div>
         </div>
       </div>
 
@@ -242,24 +321,46 @@ export default function PurchaseReports({ onViewChange: _onViewChange }: { onVie
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-slate-500">Loading live purchases...</td>
                 </tr>
-              ) : filteredPurchases.map((item, i) => (
+              ) : paginatedItems.map((item, i) => (
                 <tr key={i} className="hover:bg-slate-50/50 transition-colors">
                   <td className="p-4 font-bold text-[#0b8252]">{item.ref}</td>
                   <td className="p-4 text-slate-600 text-xs w-20">{item.date}</td>
                   <td className="p-4 text-slate-700 font-medium">{item.sup}</td>
-                  <td className="p-4 text-slate-800">{item.prod}</td>
-                  <td className="p-4 text-slate-600 text-xs w-16">{item.qty}</td>
-                  <td className="p-4 text-slate-600">{item.price}</td>
+                  <td className="p-4 text-slate-800 font-medium">{item.prod}</td>
+                  <td className="p-4 text-slate-600 text-xs w-16 font-bold">{item.qty}</td>
+                  <td className="p-4 text-slate-600 font-semibold">{item.price}</td>
                   <td className="p-4 font-bold text-slate-800">{item.total}</td>
                 </tr>
               ))}
-              {!loading && filteredPurchases.length === 0 && (
+              {!loading && paginatedItems.length === 0 && (
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-slate-500">No records match your filters.</td>
                 </tr>
               )}
             </tbody>
           </table>
+        </div>
+        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <span className="text-xs font-bold text-slate-500">
+            Showing {filteredPurchases.length > 0 ? startIndex + 1 : 0}-{endIndex} of {filteredPurchases.length} items
+          </span>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className={`w-8 h-8 rounded border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-white transition-colors ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+            </button>
+            <span className="text-xs font-bold text-slate-600">Page {currentPage} of {totalPages}</span>
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className={`w-8 h-8 rounded border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-white transition-colors ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

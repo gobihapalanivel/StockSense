@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { downloadReport, ViewState } from './reportUtils';
 import { inventoryOperationsService } from '../../StockOperations/operations/inventoryOperationsService';
+import { MasterDataService } from '../../../../services/masterDataService';
 
 export default function SupplierReports({ onViewChange }: { onViewChange: (view: ViewState) => void }) {
   const [period, setPeriod] = useState<'Today' | 'Week' | 'Month' | 'Year' | 'Custom Range'>('Month');
@@ -14,34 +15,24 @@ export default function SupplierReports({ onViewChange }: { onViewChange: (view:
   const [products, setProducts] = useState<any[]>([]);
   const [grns, setGrns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset pagination on filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, period]);
 
   useEffect(() => {
     let active = true;
     async function loadSuppliersData() {
       try {
-        const [loadedProds, loadedGrns] = await Promise.all([
+        const [loadedProds, loadedGrns, supplierRes] = await Promise.all([
           inventoryOperationsService.getProducts(),
-          inventoryOperationsService.getGRNHistory()
+          inventoryOperationsService.getGRNHistory(),
+          MasterDataService.getSuppliers()
         ]);
 
-        let loadedSups: any[] = [];
-        try {
-          const stored = localStorage.getItem('stocksense_suppliers_registry');
-          if (stored) {
-            loadedSups = JSON.parse(stored);
-          }
-        } catch (e) {
-          console.error('Failed to parse supplier registry from local storage', e);
-        }
-
-        if (loadedSups.length === 0) {
-          loadedSups = [
-            { id: 's-1', name: 'FreshFarm Supplies', phone: '+94 77 123 4567', email: 'sales@freshfarm.lk', address: '45 Orchard Lane, Colombo 03', status: 'Active' },
-            { id: 's-2', name: 'Golden Crust Bakery', phone: '+94 11 234 5678', email: 'orders@goldencrust.lk', address: '12 Bakery Lane, Kandy', status: 'Active' },
-            { id: 's-3', name: 'Ocean Harvest', phone: '+94 91 345 6789', email: 'supply@oceanharvest.lk', address: '78 Fishery Pier, Galle', status: 'Active' },
-            { id: 's-4', name: 'Ceylon Beverage Distributors', phone: '+94 71 456 7890', email: 'info@ceylonbev.lk', address: '102 Industrial Zone, Orugodawatta', status: 'Active' }
-          ];
-        }
+        const loadedSups = supplierRes.data || supplierRes || [];
 
         if (!active) return;
         setProducts(loadedProds);
@@ -75,48 +66,98 @@ export default function SupplierReports({ onViewChange }: { onViewChange: (view:
     ? `Supplier_Report_${dateRange.start}_to_${dateRange.end}`
     : `Supplier_Report_${period}`;
 
-  // Process live data to match UI display structure
-  const processedSuppliers = suppliers.map((sup, idx) => {
-    const supProducts = products.filter(
-      p => p.supplier.trim().toLowerCase() === sup.name.trim().toLowerCase()
-    );
-    const productsCount = supProducts.length;
+  // Period Date Range calculation
+  const getPeriodDateRange = () => {
+    const now = new Date();
+    let start = new Date();
+    let end = new Date();
 
-    // Find last supply date from GRN history
-    const supplierGrns = grns.filter(
-      g => g.supplierName.trim().toLowerCase() === sup.name.trim().toLowerCase()
-    );
-    const lastDate = supplierGrns.length > 0
-      ? new Date(Math.max(...supplierGrns.map(g => new Date(g.receivedDate).getTime()))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-      : 'No delivery recorded';
+    if (period === 'Today') {
+      start.setHours(0, 0, 0, 0);
+    } else if (period === 'Week') {
+      start.setDate(now.getDate() - 7);
+      start.setHours(0, 0, 0, 0);
+    } else if (period === 'Month') {
+      start.setDate(now.getDate() - 30);
+      start.setHours(0, 0, 0, 0);
+    } else if (period === 'Year') {
+      start.setDate(now.getDate() - 365);
+      start.setHours(0, 0, 0, 0);
+    } else if (period === 'Custom Range') {
+      if (dateRange.start) start = new Date(dateRange.start);
+      if (dateRange.end) {
+        end = new Date(dateRange.end);
+        end.setHours(23, 59, 59, 999);
+      }
+    }
+    return { start, end };
+  };
 
-    const pct = products.length > 0 ? Math.min(100, Math.round((productsCount / products.length) * 100)) : 0;
-    const initials = sup.name.split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase();
-
-    return {
-      id: sup.id,
-      name: sup.name,
-      sku: sup.id.startsWith('s-') ? `SUP-${sup.id.replace('s-', '00')}` : `SUP-${idx + 100}`,
-      initials,
-      email: sup.email,
-      phone: sup.phone,
-      products: productsCount,
-      pct,
-      date: lastDate,
-      status: sup.status || 'Active',
-      sClass: sup.status === 'Active' ? 'bg-[#eef8f2] text-[#0b8252]' : 'bg-slate-100 text-slate-500'
-    };
+  const { start, end } = getPeriodDateRange();
+  const periodGrns = grns.filter(g => {
+    const gDate = new Date(g.receivedDate);
+    return gDate >= start && gDate <= end;
   });
+
+  // Process live data to match UI display structure
+  const processedSuppliers = useMemo(() => {
+    return suppliers.map((sup, idx) => {
+      const supProducts = products.filter(
+        p => p.supplier.trim().toLowerCase() === sup.name.trim().toLowerCase()
+      );
+      const productsCount = supProducts.length;
+
+      // Find deliveries from GRN history within selected period
+      const supplierGrns = periodGrns.filter(
+        g => g.supplierName.trim().toLowerCase() === sup.name.trim().toLowerCase()
+      );
+      
+      const totalOrders = supplierGrns.length;
+      const totalSpent = supplierGrns.reduce((sum, g) => sum + g.totalCost, 0);
+
+      const lastDate = supplierGrns.length > 0
+        ? new Date(Math.max(...supplierGrns.map(g => new Date(g.receivedDate).getTime()))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : '-';
+
+      const pct = products.length > 0 ? Math.min(100, Math.round((productsCount / products.length) * 100)) : 0;
+      const initials = sup.name.split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase();
+
+      return {
+        id: sup.id,
+        name: sup.name,
+        sku: `SUP-${sup.id.substring(0, 5).toUpperCase()}`,
+        initials,
+        email: sup.email || 'N/A',
+        phone: sup.phone || 'N/A',
+        products: productsCount,
+        pct,
+        date: lastDate,
+        totalOrders,
+        totalSpent,
+        status: sup.status || 'Active',
+        sClass: (sup.status || 'Active') === 'Active' ? 'bg-[#eef8f2] text-[#0b8252]' : 'bg-slate-100 text-slate-500'
+      };
+    });
+  }, [suppliers, products, periodGrns]);
 
   const filteredSuppliers = processedSuppliers.filter(item => filter === 'All' || item.status === filter);
 
   // KPIs
   const totalSuppliersCount = suppliers.length;
-  const activeSuppliersCount = suppliers.filter(s => s.status === 'Active').length;
-  const avgLeadTimeText = "2.2 Days";
+  const activeThisPeriod = processedSuppliers.filter(s => s.totalOrders > 0).length;
+  const totalPeriodSpent = processedSuppliers.reduce((sum, s) => sum + s.totalSpent, 0);
+  const totalPeriodOrders = processedSuppliers.reduce((sum, s) => sum + s.totalOrders, 0);
+  const avgOrderValue = totalPeriodOrders > 0 ? totalPeriodSpent / totalPeriodOrders : 0;
 
-  const reportHeaders = ['Supplier Name', 'Code', 'Email', 'Phone', 'Products Supplied', 'Last Supply Date', 'Status'];
-  const reportRows = filteredSuppliers.map(s => [s.name, s.sku, s.email, s.phone, `${s.products} Items`, s.date, s.status]);
+  // Pagination Logic
+  const itemsPerPage = 8;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredSuppliers.length);
+  const paginatedItems = filteredSuppliers.slice(startIndex, endIndex);
+  const totalPages = Math.max(1, Math.ceil(filteredSuppliers.length / itemsPerPage));
+
+  const reportHeaders = ['Supplier Name', 'Code', 'Email', 'Phone', 'Products Supplied', 'Orders (Period)', 'Spent (Period)', 'Last Supply Date', 'Status'];
+  const reportRows = filteredSuppliers.map(s => [s.name, s.sku, s.email, s.phone, `${s.products} Items`, s.totalOrders, `Rs. ${s.totalSpent.toFixed(2)}`, s.date, s.status]);
   const reportData = { headers: reportHeaders, rows: reportRows };
 
   return (
@@ -164,12 +205,12 @@ export default function SupplierReports({ onViewChange }: { onViewChange: (view:
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => downloadReport(reportName, 'pdf', reportData)} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
-            <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+          <button onClick={() => downloadReport(reportName, 'pdf', reportData, 'Supplier')} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-all">
+            <span className="material-symbols-outlined text-[18px] text-slate-500">picture_as_pdf</span>
             Export PDF
           </button>
-          <button onClick={() => downloadReport(reportName, 'excel', reportData)} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
-            <span className="material-symbols-outlined text-[18px]">table_chart</span>
+          <button onClick={() => downloadReport(reportName, 'excel', reportData, 'Supplier')} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-all">
+            <span className="material-symbols-outlined text-[18px] text-slate-500">table_chart</span>
             Export Excel
           </button>
         </div>
@@ -195,53 +236,70 @@ export default function SupplierReports({ onViewChange }: { onViewChange: (view:
         })}
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* KPI SECTION (Glassmorphism) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* Total Suppliers */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm relative overflow-hidden flex flex-col justify-center h-[130px]">
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded bg-[#eef8f2] text-[#0b8252] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[18px]">groups</span>
-              </div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Suppliers</p>
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
+          <div className="flex justify-between items-start mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">groups</span>
             </div>
-            <h3 className="text-3xl font-bold text-slate-800 tracking-tight">{loading ? '...' : totalSuppliersCount}</h3>
-            <p className="text-xs font-bold text-slate-400 mt-2">Registered in registry</p>
+            <span className="text-[10px] font-black text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">Directory</span>
           </div>
-          <div className="absolute right-0 top-0 w-32 h-32 bg-slate-50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{loading ? '...' : totalSuppliersCount}</h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Total Suppliers</p>
+          </div>
         </div>
 
-        {/* Active Suppliers */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm relative overflow-hidden flex flex-col justify-center h-[130px]">
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded bg-[#dcfce7] text-[#16a34a] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[18px]">verified</span>
-              </div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Suppliers</p>
+        {/* Active This Period */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
+          <div className="flex justify-between items-start mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">local_shipping</span>
             </div>
-            <h3 className="text-3xl font-bold text-slate-800 tracking-tight">{loading ? '...' : activeSuppliersCount}</h3>
-            <p className="text-xs font-bold text-[#0b8252] mt-2 flex items-center gap-1">
-              Currently operational
-            </p>
+            <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Active</span>
           </div>
-          <div className="absolute right-0 top-0 w-32 h-32 bg-[#eef8f2] rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none opacity-50"></div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{loading ? '...' : activeThisPeriod}</h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Vendors This Period</p>
+          </div>
         </div>
 
-        {/* Avg Lead Time */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm relative overflow-hidden flex flex-col justify-center h-[130px]">
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded bg-[#fef3c7] text-[#d97706] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[18px]">local_shipping</span>
-              </div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Avg. Lead Time</p>
+        {/* Total Period Spent */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
+          <div className="flex justify-between items-start mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">account_balance_wallet</span>
             </div>
-            <h3 className="text-3xl font-bold text-slate-800 tracking-tight">{avgLeadTimeText}</h3>
-            <p className="text-xs font-bold text-[#10b981] mt-2">Average transit duration</p>
+            <span className="text-[10px] font-black text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">Spent</span>
           </div>
-          <div className="absolute right-0 top-0 w-32 h-32 bg-[#fffedd] rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none opacity-50"></div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+              {loading ? '...' : `Rs. ${totalPeriodSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            </h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Period Total</p>
+          </div>
+        </div>
+
+        {/* Avg Order Value */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
+          <div className="flex justify-between items-start mb-3 relative z-10">
+            <div className="w-9 h-9 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">trending_up</span>
+            </div>
+            <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">Avg</span>
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+              {loading ? '...' : `Rs. ${avgOrderValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            </h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Avg Order Value</p>
+          </div>
         </div>
       </div>
 
@@ -270,17 +328,19 @@ export default function SupplierReports({ onViewChange }: { onViewChange: (view:
               <tr className="border-b border-slate-100 bg-slate-50/50">
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Supplier Name</th>
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Contact Details</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Total Products</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Last Supply Date</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Products</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Orders</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Spent</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Last Supply</th>
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-500">Loading live suppliers...</td>
+                  <td colSpan={7} className="p-8 text-center text-slate-500">Loading live suppliers...</td>
                 </tr>
-              ) : filteredSuppliers.map((item, i) => (
+              ) : paginatedItems.map((item, i) => (
                 <tr key={i} className="hover:bg-slate-50/50 transition-colors">
                   <td className="p-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded font-bold text-sm bg-slate-100 text-slate-600 flex items-center justify-center">
@@ -303,7 +363,9 @@ export default function SupplierReports({ onViewChange }: { onViewChange: (view:
                       </div>
                     </div>
                   </td>
-                  <td className="p-4 text-slate-600">{item.date}</td>
+                  <td className="p-4 text-slate-800 font-bold text-right">{item.totalOrders}</td>
+                  <td className="p-4 text-[#0b8252] font-bold text-right">Rs. {item.totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="p-4 text-slate-600 font-medium text-center">{item.date}</td>
                   <td className="p-4 text-center">
                     <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-full ${item.sClass}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${item.status === 'Active' ? 'bg-[#10b981]' : 'bg-slate-400'}`}></span>
@@ -312,9 +374,9 @@ export default function SupplierReports({ onViewChange }: { onViewChange: (view:
                   </td>
                 </tr>
               ))}
-              {!loading && filteredSuppliers.length === 0 && (
+              {!loading && paginatedItems.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-500">No suppliers match your filters.</td>
+                  <td colSpan={7} className="p-8 text-center text-slate-500">No suppliers match your filters.</td>
                 </tr>
               )}
             </tbody>
@@ -322,8 +384,27 @@ export default function SupplierReports({ onViewChange }: { onViewChange: (view:
         </div>
 
         {/* Footer Pagination */}
-        <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
-          <p>Showing <strong>{filteredSuppliers.length > 0 ? 1 : 0} - {filteredSuppliers.length}</strong> of <strong>{filteredSuppliers.length}</strong> suppliers</p>
+        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <span className="text-xs font-bold text-slate-500">
+            Showing {filteredSuppliers.length > 0 ? startIndex + 1 : 0}-{endIndex} of {filteredSuppliers.length} items
+          </span>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className={`w-8 h-8 rounded border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-white transition-colors ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+            </button>
+            <span className="text-xs font-bold text-slate-600">Page {currentPage} of {totalPages}</span>
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className={`w-8 h-8 rounded border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-white transition-colors ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

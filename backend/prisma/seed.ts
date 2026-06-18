@@ -28,6 +28,9 @@ function makeSku(brand: string, product: string, size: string, seq: number): str
 
 async function main() {
   console.log('🧹 Clearing inventory data...');
+  await prisma.discountComboItem.deleteMany();
+  await prisma.discountProduct.deleteMany();
+  await prisma.discount.deleteMany();
   await prisma.billItem.deleteMany();
   await prisma.bill.deleteMany();
   await prisma.grnItem.deleteMany();
@@ -62,6 +65,8 @@ async function main() {
     { name: 'Sathosa Mannar Hub', contactPerson: 'Manager', email: 'sathosa.mannar@gov.lk', phone: '0232227890', address: 'Mannar Town' },
   ];
 
+  const baseDate = new Date('2023-01-01T00:00:00Z');
+
   const supplierMap: Record<string, any> = {};
   for (const s of suppliersRaw) {
     supplierMap[s.name] = await prisma.supplier.create({ 
@@ -70,7 +75,8 @@ async function main() {
         companyName: s.name, 
         email: s.email, 
         phone: s.phone, 
-        address: s.address 
+        address: s.address,
+        createdAt: baseDate
       } 
     });
   }
@@ -327,7 +333,8 @@ async function main() {
         subCategoryId: subCategory ? subCategory.id : undefined,
         brandId: brand.id,
         supplierId: supplier.id,
-        hasVariant: mp.variants.length > 1
+        hasVariant: mp.variants.length > 1,
+        createdAt: baseDate
       }
     });
 
@@ -356,7 +363,9 @@ async function main() {
           targetCapacity: 150,
           status: ProductStatus.ACTIVE,
           imageUrl,
-          variantAttributeType: variant.v
+          variantAttributeType: variant.v,
+          createdAt: baseDate,
+          updatedAt: baseDate
         }
       });
       totalSkus++;
@@ -383,7 +392,7 @@ async function main() {
           name: `${mp.name} ${variant.v} (Pack of 3)`, unitType: 'PACK', costPrice: variant.c * 3,
           sellingPrice: Math.round(price3x), currentStock: Math.floor(Math.random() * 30),
           reorderLevel: 10, targetCapacity: 50, status: ProductStatus.ACTIVE, imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80',
-          variantAttributeType: `Pack of 3`
+          variantAttributeType: `Pack of 3`, createdAt: baseDate, updatedAt: baseDate
         }
       });
       totalSkus++;
@@ -397,7 +406,7 @@ async function main() {
           name: `${mp.name} ${variant.v} (Pack of 6)`, unitType: 'PACK', costPrice: variant.c * 6,
           sellingPrice: Math.round(price6x), currentStock: Math.floor(Math.random() * 20),
           reorderLevel: 10, targetCapacity: 50, status: ProductStatus.ACTIVE, imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80',
-          variantAttributeType: `Pack of 6`
+          variantAttributeType: `Pack of 6`, createdAt: baseDate, updatedAt: baseDate
         }
       });
       totalSkus++;
@@ -417,21 +426,245 @@ async function main() {
   const passwordHashCashier = await bcrypt.hash('Cashier@123', 12);
   const passwordHashManager = await bcrypt.hash('Manager@123', 12);
 
-  await prisma.user.upsert({
+  const adminUser = await prisma.user.upsert({
     where: { email: 'admin@stocksense.com' }, update: {},
-    create: { name: 'Super Admin', email: 'admin@stocksense.com', passwordHash: passwordHashAdmin, role: Role.ADMIN, isActive: true },
+    create: { name: 'Super Admin', email: 'admin@stocksense.com', passwordHash: passwordHashAdmin, role: Role.ADMIN, isActive: true, createdAt: baseDate, updatedAt: baseDate },
   });
 
-  await prisma.user.upsert({
+  const cashierUser = await prisma.user.upsert({
     where: { email: 'cashier@stocksense.com' }, update: {},
-    create: { name: 'Main Cashier', email: 'cashier@stocksense.com', passwordHash: passwordHashCashier, role: Role.CASHIER, isActive: true },
+    create: { name: 'Main Cashier', email: 'cashier@stocksense.com', passwordHash: passwordHashCashier, role: Role.CASHIER, isActive: true, createdAt: baseDate, updatedAt: baseDate },
   });
 
-  await prisma.user.upsert({
+  const managerUser = await prisma.user.upsert({
     where: { email: 'manager@stocksense.com' }, update: {},
-    create: { name: 'Stock Manager', email: 'manager@stocksense.com', passwordHash: passwordHashManager, role: Role.INVENTORY_MANAGER, isActive: true },
+    create: { name: 'Stock Manager', email: 'manager@stocksense.com', passwordHash: passwordHashManager, role: Role.INVENTORY_MANAGER, isActive: true, createdAt: baseDate, updatedAt: baseDate },
   });
   console.log('✅ Users seeded successfully!');
+
+  // ─── HISTORICAL DATA GENERATION ──────────────────────────────────────────────
+  console.log('\\n🕰️ Generating historical transactions (2023 - 2026)...');
+  
+  const startDate = new Date('2023-01-01T00:00:00Z').getTime();
+  const endDate = new Date('2026-01-01T00:00:00Z').getTime();
+
+  function randomDate() {
+    return new Date(startDate + Math.random() * (endDate - startDate));
+  }
+
+  function randomInt(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  const allProducts = await prisma.product.findMany();
+  const allSuppliers = await prisma.supplier.findMany();
+  const usersForOps = [adminUser.id, managerUser.id];
+  const cashiers = [cashierUser.id];
+
+  // 1. Generate GRNs
+  console.log('   📦 Generating 300 Goods Receiving Notes...');
+  const grnItemData = [];
+  for (let i = 1; i <= 300; i++) {
+    const grnId = `GRN-${i.toString().padStart(5, '0')}`;
+    const rDate = randomDate();
+    const supplier = allSuppliers[randomInt(0, allSuppliers.length - 1)];
+    const operatorId = usersForOps[randomInt(0, usersForOps.length - 1)];
+    
+    // Create GRN
+    const dbGrn = await prisma.goodsReceivingNote.create({
+      data: {
+        grnId,
+        supplierId: supplier.id,
+        operatorId,
+        grnDate: rDate,
+        notes: `Historical GRN ${i}`
+      }
+    });
+
+    const numItems = randomInt(2, 8);
+    for (let j = 0; j < numItems; j++) {
+      const product = allProducts[randomInt(0, allProducts.length - 1)];
+      const addedQty = randomInt(10, 100);
+      grnItemData.push({
+        grnId: dbGrn.id,
+        sku: product.sku,
+        addedQuantity: addedQty,
+        finalQuantity: addedQty + randomInt(0, 50),
+        unitCost: product.costPrice,
+      });
+    }
+  }
+  if (grnItemData.length > 0) {
+    await prisma.grnItem.createMany({ data: grnItemData });
+  }
+
+  // 2. Generate Stock Adjustments
+  console.log('   ⚖️ Generating 150 Stock Adjustments...');
+  const reasons = ['DAMAGED', 'LOST', 'EXPIRED', 'RETURNED', 'COUNTING_ERROR', 'SYSTEM_CORRECTION'] as const;
+  const adjData = [];
+  for (let i = 0; i < 150; i++) {
+    const product = allProducts[randomInt(0, allProducts.length - 1)];
+    const rDate = randomDate();
+    const reason = reasons[randomInt(0, reasons.length - 1)];
+    const qtyChanged = randomInt(-10, 10);
+    if (qtyChanged === 0) continue;
+
+    adjData.push({
+      sku: product.sku,
+      qtyChanged,
+      reason,
+      adjustedById: usersForOps[randomInt(0, usersForOps.length - 1)],
+      finalQuantity: Math.max(0, product.currentStock + qtyChanged),
+      createdAt: rDate
+    });
+  }
+  if (adjData.length > 0) {
+    await prisma.stockAdjustment.createMany({ data: adjData });
+  }
+
+  // 3. Generate Sales Bills
+  console.log('   🧾 Generating 2000 Sales Bills...');
+  let billCount = 1;
+  const BATCH_SIZE = 500;
+  
+  for (let batch = 0; batch < 4; batch++) { // 4 * 500 = 2000
+    const billsBatch = [];
+    
+    for (let i = 0; i < BATCH_SIZE; i++) {
+      const rDate = randomDate();
+      const cashierId = cashiers[0];
+      const numItems = randomInt(1, 10);
+      let subtotal = 0;
+      let totalQty = 0;
+      const billItemsToCreate = [];
+
+      for (let j = 0; j < numItems; j++) {
+        const product = allProducts[randomInt(0, allProducts.length - 1)];
+        const qty = randomInt(1, 5);
+        const itemTotal = qty * product.sellingPrice;
+        
+        subtotal += itemTotal;
+        totalQty += qty;
+
+        billItemsToCreate.push({
+          sku: product.sku,
+          qty,
+          unitPrice: product.sellingPrice,
+          total: itemTotal,
+        });
+      }
+
+      const totalDiscount = Math.random() > 0.9 ? randomInt(50, 200) : 0;
+      const totalBill = Math.max(0, subtotal - totalDiscount);
+      
+      const billNumber = `INV-${billCount.toString().padStart(6, '0')}`;
+      billCount++;
+
+      billsBatch.push({
+        billNumber,
+        cashierId,
+        subtotal,
+        totalDiscount,
+        totalBill,
+        paymentMethod: Math.random() > 0.7 ? 'CARD' : 'CASH',
+        draft: false,
+        totalQty,
+        createdAt: rDate,
+        items: billItemsToCreate
+      });
+    }
+
+    for (const b of billsBatch) {
+      await prisma.bill.create({
+        data: {
+          billNumber: b.billNumber,
+          cashierId: b.cashierId,
+          subtotal: b.subtotal,
+          totalDiscount: b.totalDiscount,
+          totalBill: b.totalBill,
+          paymentMethod: b.paymentMethod as any,
+          draft: b.draft,
+          totalQty: b.totalQty,
+          createdAt: b.createdAt,
+          billItems: {
+            create: b.items
+          }
+        }
+      });
+    }
+  }
+
+  console.log('✅ Historical transactions seeded successfully!');
+  console.log('\n🏷️ Seeding discount campaigns...');
+  const nescafe = await prisma.product.findFirst({ where: { name: { contains: 'Nescafe' } } });
+  const bread = await prisma.product.findFirst({ where: { name: { contains: 'Sliced Bread' } } });
+  const lemonPuff = await prisma.product.findFirst({ where: { name: { contains: 'Lemon Puff' } } });
+
+  if (nescafe) {
+    await prisma.discount.create({
+      data: {
+        id: 'd-1',
+        name: 'New Year Mega Sale',
+        type: 'SEASONAL',
+        discountValue: 30,
+        label: 'New Year 30% Off ⚡',
+        imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=600&auto=format&fit=crop',
+        startDate: new Date('2026-12-25'),
+        endDate: new Date('2027-01-05'),
+        isActive: true,
+        approvalStatus: 'APPROVED',
+        discountProducts: {
+          create: [
+            { sku: nescafe.sku }
+          ]
+        }
+      }
+    });
+  }
+
+  if (bread) {
+    await prisma.discount.create({
+      data: {
+        id: 'd-2',
+        name: 'Morning Bakery Deal',
+        type: 'DAILY',
+        discountValue: 15,
+        label: 'Breakfast Special 🍞',
+        imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=600&auto=format&fit=crop',
+        dailyStartTime: '07:00',
+        dailyEndTime: '10:00',
+        isActive: true,
+        approvalStatus: 'APPROVED',
+        discountProducts: {
+          create: [
+            { sku: bread.sku }
+          ]
+        }
+      }
+    });
+  }
+
+  if (nescafe && lemonPuff) {
+    await prisma.discount.create({
+      data: {
+        id: 'd-3',
+        name: 'Morning Ritual Combo',
+        type: 'COMBO',
+        discountValue: 20,
+        label: 'Morning Ritual ☕',
+        imageUrl: 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=600&auto=format&fit=crop',
+        isActive: true,
+        approvalStatus: 'DRAFT',
+        comboItems: {
+          create: [
+            { sku: nescafe.sku, minQty: 1 },
+            { sku: lemonPuff.sku, minQty: 1 }
+          ]
+        }
+      }
+    });
+  }
+  console.log('✅ Discount campaigns seeded successfully!');
 }
 
 main()

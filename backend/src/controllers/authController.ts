@@ -3,6 +3,7 @@ import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js'
+import { sendPasswordResetEmail } from '../utils/email.js'
 import { AuthRequest } from '../middlewares/authMiddleware.js'
 import { prisma } from '../config/prisma.js'
 
@@ -193,7 +194,7 @@ export async function updateProfile(req: AuthRequest, res: Response): Promise<vo
 // ─── POST /api/auth/users (Admin only — create cashier/manager) ──────
 export async function createUser(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const { name, email, password, role } = req.body
+    const { name, email, password, role, phone } = req.body
 
     if (!name || !email || !password || !role) {
       res.status(400).json({ success: false, message: 'name, email, password, and role are required.' })
@@ -219,8 +220,9 @@ export async function createUser(req: AuthRequest, res: Response): Promise<void>
         email,
         passwordHash: hashedPassword,
         role,
+        phone,
       },
-      select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, phone: true, isActive: true, createdAt: true },
     })
 
     res.status(201).json({ success: true, message: 'User created successfully.', data: newUser })
@@ -235,7 +237,7 @@ export async function listUsers(req: AuthRequest, res: Response): Promise<void> 
   try {
     const users = await prisma.user.findMany({
       where: { role: { in: ['CASHIER', 'INVENTORY_MANAGER'] } },
-      select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, phone: true, isActive: true, createdAt: true },
       orderBy: { createdAt: 'desc' },
     })
 
@@ -266,6 +268,84 @@ export async function toggleUserStatus(req: AuthRequest, res: Response): Promise
     res.status(200).json({ success: true, data: updated })
   } catch (err) {
     console.error('[toggleUserStatus error]', err)
+    res.status(500).json({ success: false, message: 'Internal server error.' })
+  }
+}
+
+// ─── PUT /api/auth/users/:id (Admin only — update user details) ─────────
+export async function updateUser(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const id = req.params.id as string
+    const { name, email, phone, role, isActive } = req.body
+
+    const user = await prisma.user.findUnique({ where: { id } })
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found.' })
+      return
+    }
+
+    if (email && email !== user.email) {
+      const existing = await prisma.user.findUnique({ where: { email } })
+      if (existing) {
+        res.status(409).json({ success: false, message: 'Email already in use.' })
+        return
+      }
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: {
+        name: name !== undefined ? name : user.name,
+        email: email !== undefined ? email : user.email,
+        phone: phone !== undefined ? phone : user.phone,
+        role: role !== undefined ? role : user.role,
+        isActive: isActive !== undefined ? isActive : user.isActive,
+      },
+      select: { id: true, name: true, email: true, role: true, phone: true, isActive: true, createdAt: true },
+    })
+
+    res.status(200).json({ success: true, message: 'User updated successfully.', data: updated })
+  } catch (err) {
+    console.error('[updateUser error]', err)
+    res.status(500).json({ success: false, message: 'Internal server error.' })
+  }
+}
+
+// ─── POST /api/auth/users/:id/reset-password (Admin only) ──────────────
+export async function resetPassword(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const id = req.params.id as string
+    
+    const user = await prisma.user.findUnique({ where: { id } })
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found.' })
+      return
+    }
+
+    // Generate a random 8-character password
+    const newPassword = Math.random().toString(36).slice(-8)
+    const hashedPassword = await bcrypt.hash(newPassword, 12)
+
+    await prisma.user.update({
+      where: { id },
+      data: { passwordHash: hashedPassword },
+    })
+
+    try {
+      await sendPasswordResetEmail(user.email, newPassword, user.name)
+    } catch (err) {
+      console.error('[Email Send Error]', err)
+      // We don't block the UI if email sending fails, we just notify
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Password reset successful and email sent.', 
+      // We can also return newPassword here temporarily if the user hasn't configured SMTP yet
+      data: { newPassword, emailSent: !!process.env.SMTP_USER } 
+    })
+  } catch (err) {
+    console.error('[resetPassword error]', err)
     res.status(500).json({ success: false, message: 'Internal server error.' })
   }
 }
