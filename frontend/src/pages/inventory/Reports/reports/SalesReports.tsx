@@ -12,6 +12,12 @@ export default function SalesReports({ onViewChange }: { onViewChange: (view: Vi
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset pagination on filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [categoryFilter, period]);
 
   useEffect(() => {
     let active = true;
@@ -119,6 +125,13 @@ export default function SalesReports({ onViewChange }: { onViewChange: (view: Vi
     if (b.qty !== a.qty) return b.qty - a.qty;
     return a.name.localeCompare(b.name);
   });
+
+  // Pagination Logic
+  const itemsPerPage = 8;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, sortedProducts.length);
+  const paginatedItems = sortedProducts.slice(startIndex, endIndex);
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / itemsPerPage));
 
   // KPIs
   const totalSalesValue = salesItems.reduce((sum, item) => sum + item.numericRev, 0);
@@ -297,7 +310,7 @@ export default function SalesReports({ onViewChange }: { onViewChange: (view: Vi
                 <tr>
                   <td colSpan={4} className="p-8 text-center text-slate-500">Loading live sales records...</td>
                 </tr>
-              ) : sortedProducts.map((item, i) => (
+              ) : paginatedItems.map((item, i) => (
                 <tr key={i} className="hover:bg-slate-50/50 transition-colors">
                   <td className="p-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-[#eef8f2] flex items-center justify-center text-[#0b8252]">
@@ -313,7 +326,7 @@ export default function SalesReports({ onViewChange }: { onViewChange: (view: Vi
                   <td className="p-4 text-right font-bold text-slate-800">{item.rev}</td>
                 </tr>
               ))}
-              {!loading && sortedProducts.length === 0 && (
+              {!loading && paginatedItems.length === 0 && (
                 <tr>
                   <td colSpan={4} className="p-8 text-center text-slate-500">
                     No products found in this category.
@@ -322,6 +335,28 @@ export default function SalesReports({ onViewChange }: { onViewChange: (view: Vi
               )}
             </tbody>
           </table>
+        </div>
+        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <span className="text-xs font-bold text-slate-500">
+            Showing {sortedProducts.length > 0 ? startIndex + 1 : 0}-{endIndex} of {sortedProducts.length} items
+          </span>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className={`w-8 h-8 rounded border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-white transition-colors ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+            </button>
+            <span className="text-xs font-bold text-slate-600">Page {currentPage} of {totalPages}</span>
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className={`w-8 h-8 rounded border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-white transition-colors ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

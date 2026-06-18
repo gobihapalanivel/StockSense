@@ -77,10 +77,13 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
       start.setHours(0, 0, 0, 0);
     } else if (period === 'Week') {
       start.setDate(now.getDate() - 7);
+      start.setHours(0, 0, 0, 0);
     } else if (period === 'Month') {
       start.setDate(now.getDate() - 30);
+      start.setHours(0, 0, 0, 0);
     } else if (period === 'Year') {
       start.setDate(now.getDate() - 365);
+      start.setHours(0, 0, 0, 0);
     } else if (period === 'Custom Range') {
       if (dateRange.start) start = new Date(dateRange.start);
       if (dateRange.end) {
@@ -98,10 +101,29 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
   });
 
   // Dynamically map products to include 'sold' quantities in selected period and real-time status
+  const ledgerBySku = new Map<string, { sold: number, received: number, adjusted: number }>();
+  periodLedger.forEach(entry => {
+    if (!ledgerBySku.has(entry.sku)) {
+      ledgerBySku.set(entry.sku, { sold: 0, received: 0, adjusted: 0 });
+    }
+    const data = ledgerBySku.get(entry.sku)!;
+    if (entry.movementType === 'Sale') {
+      data.sold += Math.abs(entry.quantityChange);
+    } else if (entry.movementType === 'GRN') {
+      data.received += entry.quantityChange;
+    } else if (entry.movementType === 'Adjustment' || entry.movementType === 'Expiry Removal') {
+      data.adjusted += entry.quantityChange;
+    }
+  });
+
   const mappedProducts = products.map(product => {
-    const sold = periodLedger
-      .filter(entry => entry.sku === product.sku && entry.movementType === 'Sale')
-      .reduce((sum, entry) => sum + Math.abs(entry.quantityChange), 0);
+    const stats = ledgerBySku.get(product.sku) || { sold: 0, received: 0, adjusted: 0 };
+    const { sold, received, adjusted } = stats;
+
+    const netMovement = received - sold + adjusted;
+
+    const turnoverVal = product.stock > 0 ? (sold / product.stock).toFixed(2) : (sold > 0 ? 'High' : '0.00');
+    const turnover = turnoverVal === 'High' ? turnoverVal : `${turnoverVal}x`;
 
     const isExpired = product.expiryDate && new Date(product.expiryDate) < new Date();
     let status = "In Stock";
@@ -129,6 +151,10 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
     return {
       ...product,
       sold,
+      received,
+      adjusted,
+      netMovement,
+      turnover,
       status,
       sColor,
       dot
@@ -162,7 +188,7 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
 
   // Prepare Exportable Data
-  const reportHeaders = ['Product Name', 'SKU', 'Category', 'Stock Qty', 'Cost Price (Rs.)', 'Selling Price (Rs.)', 'Sold Units (Period)', 'Supplier', 'Status'];
+  const reportHeaders = ['Product Name', 'SKU', 'Category', 'Stock Qty', 'Cost Price (Rs.)', 'Selling Price (Rs.)', 'Sold (Period)', 'Received', 'Adjusted', 'Net Movement', 'Turnover', 'Status'];
   const reportRows = filteredItems.map(p => [
     p.name,
     p.sku,
@@ -171,7 +197,10 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
     p.costPrice.toFixed(2),
     p.sellingPrice.toFixed(2),
     p.sold,
-    p.supplier,
+    p.received,
+    p.adjusted,
+    p.netMovement > 0 ? `+${p.netMovement}` : p.netMovement,
+    p.turnover,
     p.status
   ]);
   const reportData = { headers: reportHeaders, rows: reportRows };
@@ -221,6 +250,20 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <button onClick={() => {
+            setLoading(true);
+            Promise.all([
+              inventoryOperationsService.getProducts(),
+              inventoryOperationsService.getLedger(),
+            ]).then(([loadedProducts, loadedLedger]) => {
+              setProducts(loadedProducts);
+              setLedger(loadedLedger);
+              setLoading(false);
+            });
+          }} className="flex items-center gap-2 bg-white border border-slate-200 text-[#0b8252] px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:shadow-md hover:bg-slate-50 hover:-translate-y-0.5 transition-all">
+            <span className="material-symbols-outlined text-[18px]">refresh</span>
+            Refresh Data
+          </button>
           <button onClick={() => downloadReport(reportName, 'pdf', reportData)} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:shadow-md hover:bg-slate-50 hover:-translate-y-0.5 transition-all">
             <span className="material-symbols-outlined text-[18px] text-red-500">picture_as_pdf</span>
             Export PDF
@@ -395,10 +438,10 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
                   <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Product</th>
                   <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">SKU</th>
                   <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Category</th>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Qty in Stock</th>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Cost Price</th>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Selling Price</th>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sold (Period)</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Stock</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Sold</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Movement</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Turnover</th>
                   <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
@@ -412,10 +455,19 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
                     <td className="p-4 font-bold text-slate-800">{item.name}</td>
                     <td className="p-4 text-slate-500 font-semibold uppercase">{item.sku}</td>
                     <td className="p-4 text-slate-600 font-medium">{item.category}</td>
-                    <td className="p-4 font-bold text-slate-800">{item.stock}</td>
-                    <td className="p-4 text-slate-600">Rs. {item.costPrice.toFixed(2)}</td>
-                    <td className="p-4 text-slate-600 font-semibold">Rs. {item.sellingPrice.toFixed(2)}</td>
-                    <td className="p-4 font-bold text-[#0b8252]">{item.sold}</td>
+                    <td className="p-4 font-bold text-slate-800 text-right">{item.stock}</td>
+                    <td className="p-4 font-bold text-[#0b8252] text-right">{item.sold}</td>
+                    <td className="p-4 font-bold text-slate-600 text-right">
+                      <div className="flex flex-col items-end">
+                        <span className={item.netMovement > 0 ? 'text-green-600' : item.netMovement < 0 ? 'text-red-500' : 'text-slate-400'}>
+                          {item.netMovement > 0 ? `+${item.netMovement}` : item.netMovement}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-normal">
+                          {item.received} In, {item.adjusted} Adj
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-4 text-slate-600 font-semibold text-right">{item.turnover}</td>
                     <td className="p-4">
                       <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase ${item.sColor}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${item.dot}`}></span>

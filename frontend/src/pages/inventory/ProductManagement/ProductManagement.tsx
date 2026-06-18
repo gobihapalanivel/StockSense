@@ -35,7 +35,7 @@ export type CategoryItem = {
 };
 
 // Initial preloaded mock supermarket categories matching specifications
-const initialCategories: CategoryItem[] = [
+export const initialCategories: CategoryItem[] = [
   {
     id: 'grocery',
     name: 'Grocery',
@@ -256,7 +256,7 @@ const buildSku = (name: string, category: string) => {
   const prefixSource = `${category || name || 'PRD'}`.replace(/[^a-zA-Z]/g, '');
   const prefix = (prefixSource.slice(0, 3) || 'PRD').toUpperCase();
   const suffix = Date.now().toString().slice(-5);
-  return `${prefix}-Rs. {suffix}`;
+  return `${prefix}-${suffix}`;
 };
 
 const normalizeProduct = (product: Partial<ProductItem> & Record<string, any>, fallbackIndex: number): ProductItem => {
@@ -287,7 +287,7 @@ const normalizeProduct = (product: Partial<ProductItem> & Record<string, any>, f
   };
 };
 
-const loadStoredProducts = (): ProductItem[] => {
+export const loadStoredProducts = (): ProductItem[] => {
   const stored = localStorage.getItem(PRODUCT_STORAGE_KEY);
   if (!stored) {
     return initialProducts;
@@ -336,7 +336,8 @@ const mapBackendProductToFrontend = (p: any): ProductItem => {
     targetCapacity: p.targetCapacity,
     mfgDate: p.mfgDate ? p.mfgDate.split('T')[0] : '',
     expiryDate: p.expiryDate ? p.expiryDate.split('T')[0] : '',
-    batchNumber: p.batchNumber || ''
+    batchNumber: p.batchNumber || '',
+    lastUpdated: p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : formatUpdatedAt()
   };
 };
 
@@ -559,7 +560,7 @@ export default function ProductManagement() {
   };
 
   // Toggle Subcategory Status (Archive/Restore)
-  const handleToggleSubcategoryStatus = async (parentId: string, subId: string, targetStatus: 'Active' | 'Inactive') => {
+  const handleToggleSubcategoryStatus = async (_parentId: string, subId: string, targetStatus: 'Active' | 'Inactive') => {
     const action = async () => {
       try {
         await MasterDataService.updateSubCategory(subId, { isActive: targetStatus === 'Active' });
@@ -599,7 +600,7 @@ export default function ProductManagement() {
   };
 
   // Edit Subcategory node
-  const handleEditSubcategoryNode = async (parentId: string, subId: string, updatedName: string) => {
+  const handleEditSubcategoryNode = async (_parentId: string, subId: string, updatedName: string) => {
     try {
       await MasterDataService.updateSubCategory(subId, {
         name: updatedName
@@ -1014,7 +1015,7 @@ export default function ProductManagement() {
             )}
 
             {confirmConfig && confirmConfig.isOpen && (() => {
-              const isDeleteAction = /delete|archive|remove/i.test(confirmConfig.title) || /delete|archive|remove/i.test(confirmConfig.message);
+              const isDeleteAction = /delete|archive|remove/i.test(confirmConfig.title) || (typeof confirmConfig.message === 'string' && /delete|archive|remove/i.test(confirmConfig.message));
               const iconColor = isDeleteAction ? 'text-rose-600 bg-rose-50' : 'text-primary bg-primary-50';
               const iconName = isDeleteAction ? 'warning' : 'help';
               const confirmBtnBg = isDeleteAction ? 'bg-rose-600 hover:bg-rose-700 text-white' : 'bg-primary text-white';

@@ -10,6 +10,7 @@ import brandRoutes from './routes/brandRoutes.js'
 import supplierRoutes from './routes/supplierRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 import inventoryRoutes from './routes/inventoryRoutes.js'
+import dashboardRoutes from './routes/dashboardRoutes.js'
 import discountRoutes from './routes/discountRoutes.js'
 import salesRoutes from './routes/salesRoutes.js'
 import refundRoutes from './routes/refundRoutes.js'
@@ -53,6 +54,7 @@ app.use('/api/brands', brandRoutes)
 app.use('/api/suppliers', supplierRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/inventory', inventoryRoutes)
+app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/discounts', discountRoutes)
 app.use('/api/sales', salesRoutes)
 app.use('/api/refunds', refundRoutes)
