@@ -12,6 +12,8 @@ export interface GeneratedReport {
   category: string;
   format: string;
   status: string;
+  createdByRole: string;
+  createdById?: string;
   createdAt: string;
 }
 

@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { AuthRequest } from '../middlewares/authMiddleware.js';
 
-export const createReportLog = async (req: Request, res: Response): Promise<void> => {
+export const createReportLog = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { name, category, format, status = 'Ready' } = req.body;
     if (!name || !category || !format) {
@@ -9,12 +10,17 @@ export const createReportLog = async (req: Request, res: Response): Promise<void
       return;
     }
 
+    const createdByRole = req.user?.role || 'ADMIN';
+    const createdById   = req.user?.id   || null;
+
     const report = await prisma.generatedReport.create({
       data: {
         name,
         category,
         format,
         status,
+        createdByRole,
+        createdById,
       },
     });
 
@@ -25,12 +31,13 @@ export const createReportLog = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const getReportHistory = async (_req: Request, res: Response): Promise<void> => {
+export const getReportHistory = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const role = req.user?.role;
+
     const reports = await prisma.generatedReport.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+      where: { createdByRole: role },
+      orderBy: { createdAt: 'desc' },
     });
 
     res.status(200).json({ success: true, data: reports });
@@ -40,9 +47,14 @@ export const getReportHistory = async (_req: Request, res: Response): Promise<vo
   }
 };
 
-export const clearReportHistory = async (_req: Request, res: Response): Promise<void> => {
+export const clearReportHistory = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    await prisma.generatedReport.deleteMany({});
+    const role = req.user?.role;
+
+    await prisma.generatedReport.deleteMany({
+      where: { createdByRole: role },
+    });
+
     res.status(200).json({ success: true, message: 'Report history cleared successfully.' });
   } catch (error: any) {
     console.error('Error clearing report history:', error);
