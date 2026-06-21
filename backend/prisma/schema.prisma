@@ -63,6 +63,7 @@ model User {
   grns             GoodsReceivingNote[]
   stockAdjustments StockAdjustment[]
   refunds          Refund[]
+  notificationStates UserNotificationState[]
 
   @@map("users")
 }
@@ -174,6 +175,7 @@ model Product {
   discountProducts DiscountProduct[]
   comboItems       DiscountComboItem[]
   refundItems      RefundItem[]
+  notifications    Notification[]
 
   @@map("products")
 }
@@ -381,4 +383,65 @@ model SystemSetting {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("system_settings")
+}
+
+// ─────────────────────────────────────
+// NOTIFICATIONS SCHEMA
+// ─────────────────────────────────────
+
+enum NotificationType {
+  DISCOUNT_APPROVAL
+  DISCOUNT_RESPONSE
+  LOW_STOCK
+  OUT_OF_STOCK
+  OVERSTOCK
+  EXPIRING_SOON
+  EXPIRED
+  DEMAND_FORECAST
+  STOCK_VELOCITY
+  COMBO_SUGGESTION
+  SYSTEM
+}
+
+enum NotificationSeverity {
+  CRITICAL
+  WARNING
+  INFO
+}
+
+model Notification {
+  id              String               @id @default(uuid())
+  type            NotificationType
+  severity        NotificationSeverity @default(INFO)
+  title           String
+  message         String
+  sku             String?              @map("sku")
+  suggestedAction String?              @map("suggested_action")
+  metadata        Json?                // Stores dynamic data (e.g. discountId, forecastQty, combo items)
+  targetRole      Role?                @map("target_role") // Targeted to Role (ADMIN, INVENTORY_MANAGER, etc.)
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+
+  // Relations
+  product         Product?             @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  userStates      UserNotificationState[]
+
+  @@map("notifications")
+}
+
+model UserNotificationState {
+  id             String       @id @default(uuid())
+  userId         String       @map("user_id")
+  notificationId String       @map("notification_id")
+  isRead         Boolean      @default(false) @map("is_read")
+  isDismissed    Boolean      @default(false) @map("is_dismissed")
+  readAt         DateTime?    @map("read_at")
+  dismissedAt    DateTime?    @map("dismissed_at")
+
+  // Relations
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, notificationId])
+  @@map("user_notification_states")
 }

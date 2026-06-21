@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { DiscountType, ApprovalStatus } from '@prisma/client';
+import { NotificationService } from '../services/notificationService.js';
 
 // Get all discounts
 export const getDiscounts = async (_req: Request, res: Response): Promise<void> => {
@@ -57,10 +58,21 @@ export const getDiscounts = async (_req: Request, res: Response): Promise<void> 
       isActive: d.isActive,
       approvalStatus: d.approvalStatus,
       createdAt: d.createdAt.toISOString(),
+      // Include full product details for popup display
       productIds: d.discountProducts.map(p => p.sku),
+      products: d.discountProducts.map(p => ({
+        sku: p.product.sku,
+        name: p.product.name,
+        currentStock: p.product.currentStock,
+        sellingPrice: p.product.sellingPrice,
+        imageUrl: p.product.imageUrl || undefined,
+      })),
       comboItems: d.comboItems.map(item => ({
         productId: item.sku,
-        minQty: item.minQty
+        minQty: item.minQty,
+        productName: item.product.name,
+        sellingPrice: item.product.sellingPrice,
+        currentStock: item.product.currentStock,
       }))
     }));
 
@@ -141,6 +153,26 @@ export const createDiscount = async (req: Request, res: Response): Promise<void>
 
       return discount;
     });
+
+    // Notify ADMIN of new discount awaiting approval
+    try {
+      await NotificationService.createNotification({
+        type: 'DISCOUNT_APPROVAL',
+        severity: 'INFO',
+        title: 'Discount Campaign Approval Needed',
+        message: `A new discount campaign "${newDiscount.name}" was created by the Inventory Manager and requires Admin approval.`,
+        suggestedAction: 'View Request',
+        metadata: {
+          discountId: newDiscount.id,
+          campaignName: newDiscount.name,
+          discountValue: newDiscount.discountValue,
+          type: newDiscount.type
+        },
+        targetRole: 'ADMIN'
+      });
+    } catch (err) {
+      console.error('Error creating discount approval notification:', err);
+    }
 
     res.status(201).json({ success: true, data: newDiscount });
   } catch (error) {
@@ -235,6 +267,37 @@ export const updateDiscount = async (req: Request, res: Response): Promise<void>
       return updatedDiscount;
     });
 
+    // Notify Admin of the updated discount pending re-approval
+    try {
+      // Remove any existing stale approval notifications for this discount
+      const oldApprovals = await prisma.notification.findMany({
+        where: { type: 'DISCOUNT_APPROVAL' }
+      });
+      const toDelete = oldApprovals
+        .filter(n => (n.metadata as any)?.discountId === id)
+        .map(n => n.id);
+      if (toDelete.length > 0) {
+        await prisma.notification.deleteMany({ where: { id: { in: toDelete } } });
+      }
+
+      await NotificationService.createNotification({
+        type: 'DISCOUNT_APPROVAL',
+        severity: 'INFO',
+        title: 'Discount Campaign Updated — Re-approval Needed',
+        message: `The discount campaign "${updated.name}" was updated by the Inventory Manager and requires Admin re-approval.`,
+        suggestedAction: 'View Request',
+        metadata: {
+          discountId: updated.id,
+          campaignName: updated.name,
+          discountValue: updated.discountValue,
+          type: updated.type
+        },
+        targetRole: 'ADMIN'
+      });
+    } catch (err) {
+      console.error('Error creating update approval notification:', err);
+    }
+
     res.status(200).json({ success: true, data: updated });
   } catch (error) {
     console.error('Error updating discount:', error);
@@ -261,6 +324,58 @@ export const toggleStatus = async (req: Request, res: Response): Promise<void> =
         approvalStatus: approvalStatus !== undefined ? (approvalStatus as ApprovalStatus) : ApprovalStatus.DRAFT
       }
     });
+
+    // Clean up approval requests for this discount
+    try {
+      const oldApprovals = await prisma.notification.findMany({
+        where: { type: 'DISCOUNT_APPROVAL' }
+      });
+      const toDelete = oldApprovals.filter(n => {
+        const meta = n.metadata as any;
+        return meta && meta.discountId === id;
+      }).map(n => n.id);
+      if (toDelete.length > 0) {
+        await prisma.notification.deleteMany({
+          where: { id: { in: toDelete } }
+        });
+      }
+    } catch (err) {
+      console.error('Error cleaning up old approval alerts:', err);
+    }
+
+    // Trigger response notifications based on status change
+    try {
+      if (approvalStatus === 'APPROVED') {
+        await NotificationService.createNotification({
+          type: 'DISCOUNT_RESPONSE',
+          severity: 'INFO',
+          title: 'Discount Request Approved',
+          message: `Your discount campaign "${discount.name}" has been APPROVED by the Admin.`,
+          metadata: {
+            discountId: discount.id,
+            campaignName: discount.name,
+            status: 'APPROVED'
+          },
+          targetRole: 'INVENTORY_MANAGER'
+        });
+      } else if (approvalStatus === 'DRAFT' && discount.approvalStatus === 'APPROVED') {
+        // If Admin sets it back to DRAFT or rejects
+        await NotificationService.createNotification({
+          type: 'DISCOUNT_RESPONSE',
+          severity: 'WARNING',
+          title: 'Discount Request Revoked/Declined',
+          message: `Your discount campaign "${discount.name}" has been declined or set to draft state.`,
+          metadata: {
+            discountId: discount.id,
+            campaignName: discount.name,
+            status: 'DRAFT'
+          },
+          targetRole: 'INVENTORY_MANAGER'
+        });
+      }
+    } catch (err) {
+      console.error('Error creating approval response/revoke alert:', err);
+    }
 
     res.status(200).json({ success: true, data: updated });
   } catch (error) {

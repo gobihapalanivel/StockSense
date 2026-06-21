@@ -121,10 +121,12 @@ export default function GRNPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    if (searchParams.get('action') === 'add') {
+    if (searchParams.get('action') === 'add' || searchParams.get('sku')) {
       setShowCreateForm(true);
-      searchParams.delete('action');
-      setSearchParams(searchParams, { replace: true });
+      if (searchParams.get('action') === 'add') {
+        searchParams.delete('action');
+        setSearchParams(searchParams, { replace: true });
+      }
     }
   }, [searchParams, setSearchParams]);
 
@@ -160,13 +162,25 @@ export default function GRNPage() {
 
     // Set first product cost/sku defaults
     if (prods.length > 0) {
+      const targetSku = searchParams.get('sku');
+      let initialProduct = prods[0];
+      if (targetSku) {
+        const match = prods.find(p => p.sku === targetSku);
+        if (match) {
+          initialProduct = match;
+          if (match.supplier) {
+            setSelectedSupplier(match.supplier);
+          }
+        }
+      }
+
       setFormItems([
         {
-          productName: prods[0].name,
-          sku: prods[0].sku,
-          orderedQty: prods[0].stock,
+          productName: initialProduct.name,
+          sku: initialProduct.sku,
+          orderedQty: initialProduct.stock,
           receivedQty: 0,
-          unitCost: prods[0].costPrice,
+          unitCost: initialProduct.costPrice,
           mfgDate: new Date().toISOString().split('T')[0],
           expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         }
@@ -324,7 +338,7 @@ export default function GRNPage() {
       {/* Toast popup */}
       {toast && (
         <div className="fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl shadow-lg animate-in fade-in slide-in-from-top-4 duration-200">
-          <span className="material-symbols-outlined text-primary text-emerald-400">check_circle</span>
+          <span className="material-symbols-outlined text-emerald-400">check_circle</span>
           <span className="text-xs font-extrabold text-white">{toast}</span>
         </div>
       )}
@@ -338,7 +352,7 @@ export default function GRNPage() {
         {!showCreateForm ? (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-primary bg-[#0b8252] text-white rounded-lg text-xs font-bold hover:bg-[#096a43] transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#0b8252] text-white rounded-lg text-xs font-bold hover:bg-[#096a43] transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
             New Goods Receiving Note (GRN)
@@ -562,7 +576,7 @@ export default function GRNPage() {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-primary bg-[#0b8252] text-white rounded-lg text-xs font-bold hover:bg-[#096a43] transition-colors shadow-sm"
+              className="px-5 py-2 bg-[#0b8252] text-white rounded-lg text-xs font-bold hover:bg-[#096a43] transition-colors shadow-sm"
             >
               Save Receipt & Update Stock
             </button>

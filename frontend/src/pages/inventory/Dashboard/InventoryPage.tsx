@@ -66,7 +66,6 @@ export default function InventoryPage() {
   const totalStockValue = products.reduce((acc, product) => acc + product.stock * product.costPrice, 0);
   const activeSuppliersCount = new Set(products.map((product) => product.supplier)).size;
   const pendingGrns = grns.filter((grn) => grn.status !== 'Completed').length;
-  const criticalAlerts = products.filter((product) => product.stock === 0 || product.stock <= product.reorderLevel).length;
   const lowStockCount = products.filter((product) => product.stock > 0 && product.stock <= product.reorderLevel).length;
   const outOfStockCount = products.filter((product) => product.stock === 0).length;
 
@@ -100,10 +99,10 @@ export default function InventoryPage() {
       tone: 'text-amber-700 bg-amber-50',
     },
     {
-      label: 'Critical Alerts',
-      value: criticalAlerts.toString(),
-      helper: 'Low or out-of-stock items',
-      icon: 'notification_important',
+      label: 'Out of Stock Items',
+      value: outOfStockCount.toString(),
+      helper: 'Products with zero stock',
+      icon: 'cancel',
       tone: 'text-rose-700 bg-rose-50',
     },
   ];

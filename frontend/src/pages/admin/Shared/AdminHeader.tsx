@@ -1,49 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
+import { NotificationService, NotificationItem } from '../../../services/notificationService';
+import NotificationDetailsPopup from '../../../components/shared/NotificationDetailsPopup';
+import { toast } from 'sonner';
 
 interface AdminHeaderProps {
   children?: React.ReactNode;
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   NOTIFICATIONS CONFIG
-   ────────────────────────────────────────────────────────────────────────── */
-const notifications = [
-  {
-    title: 'Rice 5kg expected to run out in 3 days',
-    subtitle: 'Reorder suggestion available',
-    time: '2 min ago',
-    severity: 'critical' as const,
-  },
-  {
-    title: 'Milk Packet requires urgent restock',
-    subtitle: 'Critical low-stock alert',
-    time: '15 min ago',
-    severity: 'warning' as const,
-  },
-  {
-    title: 'Supplier delays increasing stock risk',
-    subtitle: 'Watch inventory intake schedule',
-    time: '1 hr ago',
-    severity: 'info' as const,
-  },
-];
-
 const severityConfig = {
-  critical: {
+  CRITICAL: {
     dot: 'bg-red-500',
     badge: 'bg-red-50 text-red-600 border-red-100',
-    label: 'Urgent',
+    label: 'Critical',
     icon: 'error',
   },
-  warning: {
+  WARNING: {
     dot: 'bg-amber-500',
     badge: 'bg-amber-50 text-amber-600 border-amber-100',
     label: 'Warning',
     icon: 'warning',
   },
-  info: {
+  INFO: {
     dot: 'bg-blue-500',
     badge: 'bg-blue-50 text-blue-600 border-blue-100',
     label: 'Info',
@@ -72,6 +51,43 @@ function NotificationDropdown({ activeDropdown, setActiveDropdown }: { activeDro
   const toggle = () => setActiveDropdown(isOpen ? null : 'notifications');
   const close = () => setActiveDropdown(null);
 
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await NotificationService.getNotifications();
+      if (res.success) {
+        setNotifications(res.data);
+      }
+    } catch (err) {
+      console.error('Error fetching notifications in admin header:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchNotifications();
+    }
+  }, [isOpen]);
+
+  const handleDismiss = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    try {
+      const res = await NotificationService.dismiss(id);
+      if (res.success) {
+        toast.success('Notification dismissed.');
+        fetchNotifications();
+      }
+    } catch {
+      toast.error('Failed to dismiss notification.');
+    }
+  };
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -88,6 +104,20 @@ function NotificationDropdown({ activeDropdown, setActiveDropdown }: { activeDro
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hr${diffHours > 1 ? 's' : ''} ago`;
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  };
+
   return (
     <div className="relative" ref={containerRef}>
       <button
@@ -103,10 +133,12 @@ function NotificationDropdown({ activeDropdown, setActiveDropdown }: { activeDro
         aria-label="Open notifications"
       >
         <span className="material-symbols-outlined text-[22px]">notifications</span>
-        <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-white" />
-        </span>
+        {notifications.length > 0 && (
+          <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-white" />
+          </span>
+        )}
       </button>
 
       {isOpen && (
@@ -124,34 +156,71 @@ function NotificationDropdown({ activeDropdown, setActiveDropdown }: { activeDro
                 <p className="text-[11px] text-slate-500">{notifications.length} active notifications</p>
               </div>
             </div>
-            <button type="button" onClick={close} className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-all duration-150">
-              <span className="material-symbols-outlined text-[18px]">close</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              {notifications.length > 0 && (
+                <button
+                  type="button"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    try {
+                      await Promise.all(notifications.map(n => NotificationService.markRead(n.id)));
+                      toast.success('All notifications marked as read.');
+                      fetchNotifications();
+                    } catch {
+                      toast.error('Failed to mark all as read.');
+                    }
+                  }}
+                  className="text-[11px] font-bold text-[#0b8252] hover:text-[#096b43] hover:underline cursor-pointer flex items-center gap-0.5"
+                  title="Mark all notifications as read"
+                >
+                  <span className="material-symbols-outlined text-[13px]">done_all</span>
+                  Mark All
+                </button>
+              )}
+              <button type="button" onClick={close} className="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-all duration-150">
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
           </div>
 
           {/* List */}
           <div className="max-h-80 overflow-y-auto p-2.5 space-y-1.5">
-            {notifications.map((n) => {
-              const config = severityConfig[n.severity];
-              return (
-                <div
-                  key={n.title}
-                  className="rounded-xl border border-slate-100 bg-white hover:bg-slate-50/80 p-3 transition-colors duration-150 cursor-pointer group"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`mt-0.5 flex items-center justify-center w-7 h-7 rounded-lg ${config.badge} border shrink-0`}>
-                      <span className="material-symbols-outlined text-[15px]">{config.icon}</span>
+            {notifications.length === 0 ? (
+              <div className="text-center py-8 text-xs font-semibold text-slate-400">
+                No active notifications
+              </div>
+            ) : (
+              notifications.map((n) => {
+                const config = (severityConfig as any)[n.severity] || severityConfig.INFO;
+                return (
+                  <div
+                    key={n.id}
+                    onClick={() => setSelectedNotification(n)}
+                    className="rounded-xl border border-slate-100 bg-white hover:bg-slate-50/80 p-3 transition-colors duration-150 cursor-pointer group relative"
+                  >
+                    <div className="flex items-start gap-3 pr-6">
+                      <div className={`mt-0.5 flex items-center justify-center w-7 h-7 rounded-lg ${config.badge} border shrink-0`}>
+                        <span className="material-symbols-outlined text-[15px]">{config.icon}</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-semibold leading-snug text-slate-800 group-hover:text-[#0b8252] transition-colors">{n.title}</p>
+                        <p className="mt-0.5 text-[11px] text-slate-500 leading-relaxed truncate">{n.message}</p>
+                        <p className="mt-1.5 text-[10px] text-slate-400 font-medium">{formatTime(n.createdAt)}</p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-semibold leading-snug text-slate-800 group-hover:text-[#0b8252] transition-colors">{n.title}</p>
-                      <p className="mt-0.5 text-[11px] text-slate-500 leading-relaxed">{n.subtitle}</p>
-                      <p className="mt-1.5 text-[10px] text-slate-400 font-medium">{n.time}</p>
-                    </div>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide border ${config.badge}`}>{config.label}</span>
+                    {/* Dismiss Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleDismiss(e, n.id)}
+                      className="absolute top-3 right-3 text-slate-300 hover:text-slate-600 p-0.5 rounded transition-colors"
+                      title="Dismiss notification"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">close</span>
+                    </button>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
           {/* Footer */}
@@ -172,6 +241,15 @@ function NotificationDropdown({ activeDropdown, setActiveDropdown }: { activeDro
             </button>
           </div>
         </div>
+      )}
+
+      {/* Details Popup */}
+      {selectedNotification && (
+        <NotificationDetailsPopup
+          notification={selectedNotification}
+          onClose={() => setSelectedNotification(null)}
+          onActionComplete={fetchNotifications}
+        />
       )}
     </div>
   );

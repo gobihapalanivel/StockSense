@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ProductItem } from './ProductsRegistry';
 import { toast } from 'sonner';
 import { DiscountService, DiscountPayload } from '../../../../services/discountService';
@@ -32,6 +33,7 @@ interface DiscountRegistryProps {
 }
 
 export default function DiscountRegistry({ products, showToast, showConfirm }: DiscountRegistryProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [discounts, setDiscounts] = useState<DiscountItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -107,7 +109,7 @@ export default function DiscountRegistry({ products, showToast, showConfirm }: D
     }, 0);
   }, [comboItems, products]);
 
-  const handleOpenAddModal = () => {
+  const handleOpenAddModal = (initialProductIds: string[] = [], initialComboItems: { productId: string; minQty: number }[] = []) => {
     setEditingDiscount(null);
     setName('');
     setType('SEASONAL');
@@ -119,8 +121,8 @@ export default function DiscountRegistry({ products, showToast, showConfirm }: D
     setDailyStartTime('');
     setDailyEndTime('');
     setApplicableDate('');
-    setSelectedProductIds([]);
-    setComboItems([]);
+    setSelectedProductIds(initialProductIds);
+    setComboItems(initialComboItems);
     setProductSearch('');
     setIsModalOpen(true);
   };
@@ -320,6 +322,40 @@ export default function DiscountRegistry({ products, showToast, showConfirm }: D
     return matchesSearch && matchesType;
   });
 
+  // Handle URL action=add / add-combo and sku trigger
+  useEffect(() => {
+    const action = searchParams.get('action');
+    const sku = searchParams.get('sku');
+    if ((action === 'add' || action === 'add-combo') && products.length > 0) {
+      // Clear URL params so we don't reopen/repopulate on subsequent renders
+      setSearchParams(prev => {
+        prev.delete('action');
+        prev.delete('sku');
+        return prev;
+      }, { replace: true });
+
+      let initialProductIds: string[] = [];
+      let initialComboItems: { productId: string; minQty: number }[] = [];
+
+      if (sku) {
+        const product = products.find(p => p.sku.toLowerCase() === sku.toLowerCase() || p.id.toLowerCase() === sku.toLowerCase());
+        if (product) {
+          if (action === 'add-combo') {
+            initialComboItems = [{ productId: product.id, minQty: 1 }];
+          } else {
+            initialProductIds = [product.sku];
+          }
+        }
+      }
+
+      handleOpenAddModal(initialProductIds, initialComboItems);
+
+      if (action === 'add-combo') {
+        setType('COMBO');
+      }
+    }
+  }, [searchParams, products, setSearchParams]);
+
   return (
     <div className="space-y-6">
       {/* Premium Statistics Overview deck */}
@@ -388,7 +424,7 @@ export default function DiscountRegistry({ products, showToast, showConfirm }: D
         </div>
 
         <button
-          onClick={handleOpenAddModal}
+          onClick={() => handleOpenAddModal()}
           className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 transition-all shadow-sm self-start sm:self-auto"
         >
           <span className="material-symbols-outlined text-[16px]">add</span>

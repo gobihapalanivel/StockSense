@@ -1,6 +1,8 @@
-import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Sidebar from "../Shared/Sidebar";
+import { useAuth } from '../../../hooks/useAuth';
+import AdminSidebar from "../../admin/Shared/Sidebar";
+import AdminHeader from "../../admin/Shared/AdminHeader";
+import InventorySidebar from "../Shared/Sidebar";
 import InventoryHeader from "../Shared/InventoryHeader";
 import { useAlerts } from './hooks/useAlerts';
 import AlertSummary from './components/AlertSummary';
@@ -8,6 +10,7 @@ import AlertFilterBar from './components/AlertFilterBar';
 import EmptyAlertsState from './components/EmptyAlertsState';
 import AlertCard from './components/AlertCard';
 import AlertSettings from './components/AlertSettings';
+import NotificationDetailsPopup from '../../../components/shared/NotificationDetailsPopup';
 
 export default function Alerts() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,16 +45,23 @@ export default function Alerts() {
     dismiss,
     markRead,
     markAllRead,
-    handlePrimary
+    handlePrimary,
+    loading,
+    selectedNotification,
+    setSelectedNotification,
+    loadDynamicAlerts
   } = useAlerts();
+
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
 
   return (
     <div className="flex h-screen bg-[#f8f9fa] text-slate-800 font-sans overflow-hidden">
-      <Sidebar />
+      {isAdmin ? <AdminSidebar /> : <InventorySidebar />}
       <div className="flex-1 flex flex-col overflow-hidden relative">
 
         {/* Header */}
-        <InventoryHeader />
+        {isAdmin ? <AdminHeader /> : <InventoryHeader />}
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto px-6 py-6 bg-[#f8f9fa]">
@@ -146,7 +156,11 @@ export default function Alerts() {
 
             {/* Alert Cards */}
             <div className="space-y-4">
-              {filtered.length === 0 ? (
+              {loading && filtered.length === 0 ? (
+                <div className="text-center py-12 text-sm font-bold text-slate-500">
+                  Loading active alerts...
+                </div>
+              ) : filtered.length === 0 ? (
                 <EmptyAlertsState
                   setActiveTab={setActiveTab}
                   setSevFilter={setSevFilter}
@@ -170,6 +184,15 @@ export default function Alerts() {
           </div>
         </main>
       </div>
+
+      {/* Notification Details Dialog Popup */}
+      {selectedNotification && (
+        <NotificationDetailsPopup
+          notification={selectedNotification}
+          onClose={() => setSelectedNotification(null)}
+          onActionComplete={loadDynamicAlerts}
+        />
+      )}
     </div>
   );
 }

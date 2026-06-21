@@ -24,6 +24,7 @@ export interface AlertItem {
   expiryDate?: string;
   daysUntilExpiry?: number;
   stockPercentage?: number;
+  sku?: string;
 }
 
 export interface Toast {

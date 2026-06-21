@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { inventoryOperationsService, ProductItem, AdjustmentRecord } from './inventoryOperationsService';
 
@@ -112,6 +113,7 @@ const SearchableProductSelect = ({ products, value, onChange }: { products: Prod
 };
 
 export default function StockAdjustments() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [adjustments, setAdjustments] = useState<AdjustmentRecord[]>([]);
   const [toast, setToast] = useState<string | null>(null);
@@ -135,6 +137,36 @@ export default function StockAdjustments() {
     const adjs = await inventoryOperationsService.getAdjustments();
     setAdjustments(adjs);
   };
+
+  // Handle URL SKU and Reason trigger
+  useEffect(() => {
+    const sku = searchParams.get('sku');
+    const reason = searchParams.get('reason');
+    if (sku && products.length > 0) {
+      const idx = products.findIndex(
+        p => p.sku.toLowerCase() === sku.toLowerCase() || (p.barcode && p.barcode.toLowerCase() === sku.toLowerCase())
+      );
+      if (idx !== -1) {
+        setSelectedProductIndex(idx);
+
+        // Clear query parameters so it does not loop
+        setSearchParams(prev => {
+          prev.delete('sku');
+          prev.delete('reason');
+          return prev;
+        }, { replace: true });
+      }
+
+      if (reason) {
+        const matchedReason = ['Damaged', 'Lost', 'Expired', 'Returned', 'Counting error', 'System correction'].find(
+          r => r.toLowerCase() === reason.toLowerCase()
+        );
+        if (matchedReason) {
+          setSelectedReason(matchedReason as any);
+        }
+      }
+    }
+  }, [searchParams, products, setSearchParams]);
 
   const triggerToast = (message: string) => {
     setToast(message);
@@ -226,7 +258,7 @@ export default function StockAdjustments() {
       {/* Toast alert */}
       {toast && (
         <div className="fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl shadow-lg animate-in fade-in slide-in-from-top-4 duration-200">
-          <span className="material-symbols-outlined text-primary text-emerald-400">check_circle</span>
+          <span className="material-symbols-outlined text-emerald-400">check_circle</span>
           <span className="text-xs font-extrabold text-white">{toast}</span>
         </div>
       )}
@@ -345,7 +377,7 @@ export default function StockAdjustments() {
               <div className="md:col-span-1">
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-primary bg-[#0b8252] text-white rounded-lg text-xs font-black hover:bg-[#096a43] transition-colors shadow-sm text-center h-full"
+                  className="w-full py-3.5 bg-[#0b8252] text-white rounded-lg text-xs font-black hover:bg-[#096a43] transition-colors shadow-sm text-center h-full"
                 >
                   Commit Stock Correction
                 </button>

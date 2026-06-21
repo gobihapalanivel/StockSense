@@ -178,7 +178,7 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
   const totalStockValue = products.reduce((acc, product) => acc + product.stock * product.costPrice, 0);
   const activeSuppliersCount = new Set(products.map((product) => product.supplier)).size;
   const lowStockCount = products.filter((product) => product.stock > 0 && product.stock <= product.reorderLevel).length;
-  const criticalAlerts = products.filter((product) => product.stock === 0 || product.stock <= product.reorderLevel).length;
+  const outOfStockCount = products.filter((product) => product.stock === 0).length;
 
   // Pagination Logic
   const itemsPerPage = 8;
@@ -345,18 +345,18 @@ export default function InventoryReports({ onViewChange }: { onViewChange: (view
           </div>
         </div>
 
-        {/* Critical Alerts */}
+        {/* Out of Stock Items */}
         <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-5 hover:-translate-y-1 transition-all group relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
           <div className="flex justify-between items-start mb-3 relative z-10">
             <div className="w-9 h-9 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center shadow-sm">
-              <span className="material-symbols-outlined text-[20px]">notification_important</span>
+              <span className="material-symbols-outlined text-[20px]">cancel</span>
             </div>
             <span className="text-[10px] font-black text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full">Critical</span>
           </div>
           <div className="relative z-10">
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{criticalAlerts}</h3>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Critical Alerts</p>
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{outOfStockCount}</h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Out of Stock Items</p>
           </div>
         </div>
       </div>

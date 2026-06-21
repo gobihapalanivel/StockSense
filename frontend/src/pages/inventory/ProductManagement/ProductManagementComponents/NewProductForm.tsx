@@ -178,6 +178,24 @@ export default function NewProductForm({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('scrollTo') === 'reorder') {
+      const timer = setTimeout(() => {
+        const el = document.getElementById('reorder-point-section');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Highlight with a nice green glow/ring
+          el.classList.add('ring-4', 'ring-[#0b8252]', 'ring-offset-4', 'rounded-xl', 'bg-emerald-50/20');
+          setTimeout(() => {
+            el.classList.remove('ring-4', 'ring-[#0b8252]', 'ring-offset-4', 'bg-emerald-50/20');
+          }, 3000);
+        }
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   const handleCategorySelect = (parentName: string, childName?: string) => {
     setCategory(parentName);
     setSubcategory(childName || '');
@@ -705,7 +723,7 @@ export default function NewProductForm({
                     />
                     <p className="text-[9px] text-outline mt-1 font-medium">Current physical stock quantity.</p>
                   </div>
-                  <div>
+                  <div id="reorder-point-section" className="transition-all duration-300">
                     <label className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">Calculated Reorder Point</label>
                     <div className="relative flex items-center">
                       <input

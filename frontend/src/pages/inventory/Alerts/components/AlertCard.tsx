@@ -54,13 +54,13 @@ const getExpiryBadge = (days: number | undefined) => {
 export default function AlertCard({ alert, handlePrimary, dismiss, markRead }: AlertCardProps) {
   const expiryBadge = getExpiryBadge(alert.daysUntilExpiry);
   const stockPct = alert.stockPercentage ?? null;
-  const sku = extractSku(alert.id);
+  const sku = alert.sku || extractSku(alert.id);
 
   // Decide where "View" button links based on alert category
   const viewLink = alert.category === 'Overstock' || alert.primaryAction === 'View Procurement'
     ? '/procurement'
     : sku
-      ? `/manage-products?tab=products&sku=${sku}`
+      ? `/manage-products?tab=products&search=${sku}`
       : '/manage-products?tab=products';
 
   const viewLabel = alert.category === 'Overstock' || alert.primaryAction === 'View Procurement'
@@ -152,20 +152,12 @@ export default function AlertCard({ alert, handlePrimary, dismiss, markRead }: A
           >
             {viewLabel}
           </Link>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => markRead(alert.id)}
-              className="px-2 py-1.5 rounded-lg text-[10px] font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              Mark Read
-            </button>
-            <button
-              onClick={() => dismiss(alert.id)}
-              className="px-2 py-1.5 rounded-lg text-[10px] font-bold border border-slate-200 bg-white text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
-            >
-              Dismiss
-            </button>
-          </div>
+          <button
+            onClick={() => markRead(alert.id)}
+            className="w-full px-3 py-2 rounded-lg text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            Mark Read
+          </button>
         </div>
 
       </div>

@@ -129,15 +129,11 @@ export default function ProductsRegistry({
 
   // Sync initial props if they update (e.g. from Categories View link redirect)
   React.useEffect(() => {
-    if (initialCategory !== 'All Categories') {
-      setCategoryFilter(initialCategory);
-    }
+    setCategoryFilter(initialCategory);
   }, [initialCategory]);
 
   React.useEffect(() => {
-    if (initialSearch) {
-      setSearch(initialSearch);
-    }
+    setSearch(initialSearch);
   }, [initialSearch]);
 
   React.useEffect(() => {
@@ -616,7 +612,7 @@ export default function ProductsRegistry({
 
               {/* Financial Breakdown Section */}
               <div className="border border-outline-variant/60 rounded-xl p-4 space-y-3 bg-emerald-50/20">
-                <h5 className="text-[10px] font-black text-outline uppercase tracking-wider text-emerald-800">Financial Breakdown</h5>
+                <h5 className="text-[10px] font-black uppercase tracking-wider text-emerald-800">Financial Breakdown</h5>
                 <div className="grid grid-cols-3 gap-2">
                   <div className="flex flex-col">
                     <span className="text-[9px] text-outline font-semibold">Cost Price</span>

@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { AuthRequest } from '../middlewares/authMiddleware.js';
 import { PaymentMethod } from '@prisma/client';
+import { NotificationService } from '../services/notificationService.js';
 
 // Create a new bill (either completed or draft)
 export const createBill = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -128,6 +129,15 @@ export const createBill = async (req: AuthRequest, res: Response): Promise<void>
 
       return bill;
     });
+
+    // After transaction completes successfully, check stock levels for alerts
+    if (!draft) {
+      for (const item of items) {
+        NotificationService.checkAndTriggerStockAlerts(item.sku).catch(err => 
+          console.error(`Error checking stock alerts for SKU ${item.sku}:`, err)
+        );
+      }
+    }
 
     res.status(201).json({
       success: true,

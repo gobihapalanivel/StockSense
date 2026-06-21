@@ -343,7 +343,8 @@ const mapBackendProductToFrontend = (p: any): ProductItem => {
 
 export default function ProductManagement() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'products';
+  const activeTabRaw = searchParams.get('tab') || 'products';
+  const activeTab = activeTabRaw === 'promotions' ? 'discounts' : activeTabRaw;
 
   // React shared catalog states
   const [products, setProducts] = useState<ProductItem[]>([]);
@@ -447,8 +448,8 @@ export default function ProductManagement() {
   }, []);
 
   // Filter redirection state
-  const [initialSearch] = useState('');
-  const [initialCategory] = useState('All Categories');
+  const initialSearch = searchParams.get('search') || '';
+  const initialCategory = searchParams.get('category') || 'All Categories';
   const initialBrand = searchParams.get('brand') || '';
 
   // Edit target state
@@ -835,7 +836,24 @@ export default function ProductManagement() {
     showToast(`Product "${name}" has been marked as Inactive`, 'info');
   };
 
+  // Handle URL parameter trigger for editing a product
+  useEffect(() => {
+    const action = searchParams.get('action');
+    const sku = searchParams.get('sku');
+    if (action === 'edit' && sku && products.length > 0) {
+      const product = products.find(p => p.sku === sku || p.id === sku);
+      if (product) {
+        // Keep the tab as products or other params, but remove action/sku trigger so it doesn't loop
+        setSearchParams(prev => {
+          prev.delete('action');
+          prev.delete('sku');
+          return prev;
+        }, { replace: true });
 
+        handleEditProduct(product);
+      }
+    }
+  }, [searchParams, products, setSearchParams]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background font-sans text-on-surface">
