@@ -1,83 +1,24 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '../Shared/Sidebar';
 import AdminHeader from '../Shared/AdminHeader';
-import { toast } from 'sonner';
-import { authService, AuthUser } from '@/services/authService';
 import { useAuth } from '@/hooks/useAuth';
 import { dashboardService, DashboardMetrics } from '@/services/dashboardService';
 
-import SettingsStockRules from '../settings/SettingComponent/SettingsStockRules';
-import SettingsAlerts from '../settings/SettingComponent/SettingsAlerts';
-import { StockRulesConfig } from '../settings/SettingComponent/types';
-
-const DEFAULT_RULES: StockRulesConfig = {
-  defaultReorderLevel: '50',
-  minimumStockThreshold: '20',
-  maximumStockLimit: 'No limit',
-  stockUpdateMode: 'Real-time',
-  allowNegativeStock: false,
-  autoDeductStock: true,
-  enableLowStockAlerts: true,
-  enableOutOfStockAlerts: true,
-  enableDeadStockAlerts: false,
-  enableExpiringSoonAlerts: true,
-  enableOverstockAlerts: false,
-  notifyInApp: true,
-  notifyEmail: true,
-  notifySMS: false,
-};
-
 export default function DashboardPage() {
   const { user: currentAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'settings'>('overview');
-  const [settingsSubTab, setSettingsSubTab] = useState<'rules' | 'alerts'>('rules');
+  const [activeTab, setActiveTab] = useState<'overview'>('overview');
 
-  // Staff User State
-  const [users, setUsers] = useState<AuthUser[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(false);
-  const [showAddUserModal, setShowAddUserModal] = useState(false);
 
-  // New User Form State
-  const [newUserName, setNewUserName] = useState('');
-  const [newUserEmail, setNewUserEmail] = useState('');
-  const [newUserPassword, setNewUserPassword] = useState('');
-  const [newUserRole, setNewUserRole] = useState<'CASHIER' | 'INVENTORY_MANAGER'>('CASHIER');
-  const [submittingUser, setSubmittingUser] = useState(false);
 
-  // Configuration settings state
-  const [rules, setRules] = useState<StockRulesConfig>(DEFAULT_RULES);
-
-  // Load backend staff users
-  const loadUsers = async () => {
-    setLoadingUsers(true);
-    try {
-      const data = await authService.listUsers();
-      setUsers(data);
-    } catch (err) {
-      console.error('Failed to load users', err);
-    } finally {
-      setLoadingUsers(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === 'users') {
-      loadUsers();
-    }
-  }, [activeTab]);
 
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [loadingMetrics, setLoadingMetrics] = useState(false);
 
   const loadMetrics = async () => {
-    setLoadingMetrics(true);
     try {
       const data = await dashboardService.getAdminDashboardMetrics();
       setMetrics(data);
     } catch (err) {
       console.error('Failed to load metrics', err);
-    } finally {
-      setLoadingMetrics(false);
     }
   };
 
@@ -87,78 +28,7 @@ export default function DashboardPage() {
     }
   }, [activeTab]);
 
-  // Load stock rules from local storage
-  useEffect(() => {
-    const stored = localStorage.getItem('stocksense_settings_config');
-    if (stored) {
-      try {
-        setRules(JSON.parse(stored));
-      } catch (e) {
-        setRules(DEFAULT_RULES);
-      }
-    }
-  }, []);
 
-  const saveSettings = () => {
-    localStorage.setItem('stocksense_settings_config', JSON.stringify(rules));
-    toast.success("Configuration settings saved successfully!");
-  };
-
-  const resetSettings = () => {
-    setRules(DEFAULT_RULES);
-    localStorage.setItem('stocksense_settings_config', JSON.stringify(DEFAULT_RULES));
-    toast.success("Configuration settings reset to default.");
-  };
-
-  // Toggle user activation status
-  const handleToggleStatus = async (id: string) => {
-    try {
-      await authService.toggleUserStatus(id);
-      setUsers((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, isActive: !u.isActive } : u))
-      );
-    } catch (err) {
-      console.error('Failed to toggle user status', err);
-    }
-  };
-
-  // Handle staff creation submit
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!newUserName || !newUserEmail || !newUserPassword || !newUserRole) {
-      toast.error('All fields are required.');
-      return;
-    }
-
-    if (newUserPassword.length < 6) {
-      toast.error('Password must be at least 6 characters.');
-      return;
-    }
-
-    setSubmittingUser(true);
-    try {
-      const created = await authService.createUser({
-        name: newUserName,
-        email: newUserEmail,
-        password: newUserPassword,
-        role: newUserRole,
-      });
-      setUsers((prev) => [created, ...prev]);
-      toast.success('Staff member registered successfully!');
-      setNewUserName('');
-      setNewUserEmail('');
-      setNewUserPassword('');
-      setTimeout(() => {
-        setShowAddUserModal(false);
-      }, 1500);
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || 'Failed to create user.';
-      toast.error(msg);
-    } finally {
-      setSubmittingUser(false);
-    }
-  };
 
   return (
     <div className="flex h-screen bg-[radial-gradient(circle_at_top_right,_rgba(11,130,82,0.10),_transparent_30%),linear-gradient(180deg,_#f8fafc_0%,_#f5f7fb_100%)] text-slate-800 font-sans overflow-hidden">
@@ -193,28 +63,6 @@ export default function DashboardPage() {
                   >
                     <span className="material-symbols-outlined text-[18px]">monitoring</span>
                     Overview
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('users')}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
-                      activeTab === 'users'
-                        ? 'bg-[#0b8252] text-white shadow-md'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">group</span>
-                    Staff Directory
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('settings')}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
-                      activeTab === 'settings'
-                        ? 'bg-[#0b8252] text-white shadow-md'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">settings</span>
-                    System Settings
                   </button>
                 </div>
               </div>
@@ -395,273 +243,9 @@ export default function DashboardPage() {
                 </div>
               </div>
             )}
-
-            {/* TAB CONTENT: STAFF DIRECTORY */}
-            {activeTab === 'users' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                {/* Header Actions */}
-                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900">Registered Staff Directory</h2>
-                    <p className="text-xs text-slate-500 mt-1">Manage accounts and platform access permissions for supermarket staff.</p>
-                  </div>
-                  <button
-                    onClick={() => setShowAddUserModal(true)}
-                    className="bg-[#0b8252] hover:bg-[#096b43] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-colors flex items-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">person_add</span>
-                    Register Staff Member
-                  </button>
-                </div>
-
-                {/* Users List Table */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse min-w-[800px]">
-                      <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50">
-                          <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name</th>
-                          <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</th>
-                          <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Assigned Role</th>
-                          <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Created At</th>
-                          <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
-                          <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Toggle Access</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 text-sm">
-                        {loadingUsers ? (
-                          <tr>
-                            <td colSpan={6} className="p-8 text-center text-slate-500">
-                              Loading staff members...
-                            </td>
-                          </tr>
-                        ) : users.length > 0 ? (
-                          users.map((item) => (
-                            <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                              <td className="p-4 flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 uppercase">
-                                  {item.name.substring(0, 2)}
-                                </div>
-                                <span className="font-bold text-slate-800">{item.name}</span>
-                              </td>
-                              <td className="p-4 text-slate-600 font-medium">{item.email}</td>
-                              <td className="p-4">
-                                <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide ${
-                                  item.role === 'INVENTORY_MANAGER'
-                                    ? 'bg-blue-50 text-blue-700 border border-blue-100'
-                                    : 'bg-teal-50 text-teal-700 border border-teal-100'
-                                }`}>
-                                  {item.role === 'INVENTORY_MANAGER' ? 'Manager' : 'Cashier'}
-                                </span>
-                              </td>
-                              <td className="p-4 text-slate-500">
-                                {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}
-                              </td>
-                              <td className="p-4 text-center">
-                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider ${
-                                  item.isActive
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                                    : 'bg-rose-50 text-rose-700 border border-rose-100'
-                                }`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${item.isActive ? 'bg-[#10b981]' : 'bg-red-500'}`} />
-                                  {item.isActive ? 'Active' : 'Suspended'}
-                                </span>
-                              </td>
-                              <td className="p-4 text-center">
-                                <button
-                                  onClick={() => handleToggleStatus(item.id)}
-                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-                                    item.isActive
-                                      ? 'bg-white border-slate-200 text-rose-600 hover:bg-rose-50/50 hover:border-rose-100'
-                                      : 'bg-[#0b8252] border-[#0b8252] text-white hover:bg-[#096b43]'
-                                  }`}
-                                >
-                                  {item.isActive ? 'Suspend' : 'Activate'}
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={6} className="p-8 text-center text-slate-500">
-                              No staff members registered yet.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB CONTENT: CONFIGURATION SETTINGS */}
-            {activeTab === 'settings' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                {/* Secondary segmented control for settings tabs */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex overflow-hidden min-h-[600px]">
-                  
-                  {/* Left Settings Navigation Pane */}
-                  <div className="w-64 border-r border-slate-200 p-4 flex flex-col gap-1 overflow-y-auto bg-white shrink-0">
-
-                    <button
-                      onClick={() => setSettingsSubTab('rules')}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition-colors ${
-                        settingsSubTab === 'rules'
-                          ? 'bg-[#0b8252] text-white shadow-sm'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[20px]">rule</span>
-                      Stock Rules
-                    </button>
-                    <button
-                      onClick={() => setSettingsSubTab('alerts')}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition-colors ${
-                        settingsSubTab === 'alerts'
-                          ? 'bg-[#0b8252] text-white shadow-sm'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[20px]">notifications</span>
-                      System Alerts
-                    </button>
-                  </div>
-
-                  {/* Right Sub-Tab Renderer */}
-                  <div className="flex-1 flex flex-col bg-white overflow-hidden">
-                    <div className="p-8 flex-1 overflow-y-auto bg-slate-50/30">
-                      
-
-                      {settingsSubTab === 'rules' && (
-                        <SettingsStockRules rules={rules} onChange={(updated) => setRules(updated)} />
-                      )}
-                      {settingsSubTab === 'alerts' && (
-                        <SettingsAlerts rules={rules} onChange={(updated) => setRules(updated)} />
-                      )}
-
-                    </div>
-
-                    {/* Settings Form Footers */}
-                    {(settingsSubTab === 'rules' || settingsSubTab === 'alerts') && (
-                      <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
-                        <p className="text-xs text-slate-500 italic">Unsaved settings adjustments will be lost.</p>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={resetSettings}
-                            className="px-5 py-2 bg-white border border-slate-300 text-slate-700 font-bold text-xs rounded-lg shadow-sm hover:bg-slate-50"
-                          >
-                            Reset Defaults
-                          </button>
-                          <button
-                            onClick={saveSettings}
-                            className="px-5 py-2 bg-[#0b8252] text-white font-bold text-xs rounded-lg shadow-sm hover:bg-[#096b43]"
-                          >
-                            Save Settings
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                </div>
-              </div>
-            )}
-
           </div>
         </main>
       </div>
-
-      {/* MODAL: ADD STAFF MEMBER */}
-      {showAddUserModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#0b8252]">person_add</span>
-                Register Staff Account
-              </h3>
-              <button
-                onClick={() => setShowAddUserModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-              >
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateUser} className="p-6 space-y-4">
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name</label>
-                <input
-                  type="text"
-                  value={newUserName}
-                  onChange={(e) => setNewUserName(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#f8f9fa] border border-slate-200 text-slate-800 text-sm rounded-lg focus:outline-none focus:border-[#0b8252]"
-                  placeholder="e.g. Shalini Silva"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
-                <input
-                  type="email"
-                  value={newUserEmail}
-                  onChange={(e) => setNewUserEmail(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#f8f9fa] border border-slate-200 text-slate-800 text-sm rounded-lg focus:outline-none focus:border-[#0b8252]"
-                  placeholder="e.g. shalini@stocksense.com"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
-                <input
-                  type="password"
-                  value={newUserPassword}
-                  onChange={(e) => setNewUserPassword(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#f8f9fa] border border-slate-200 text-slate-800 text-sm rounded-lg focus:outline-none focus:border-[#0b8252]"
-                  placeholder="•••••••• (Min 6 chars)"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Assign Role</label>
-                <div className="relative">
-                  <select
-                    value={newUserRole}
-                    onChange={(e) => setNewUserRole(e.target.value as any)}
-                    className="w-full appearance-none bg-[#f8f9fa] border border-slate-200 text-slate-800 text-sm rounded-lg px-3.5 py-2 focus:outline-none focus:border-[#0b8252] cursor-pointer"
-                  >
-                    <option value="CASHIER">Cashier (POS Checkout only)</option>
-                    <option value="INVENTORY_MANAGER">Inventory Manager (Catalog & Procurement)</option>
-                  </select>
-                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[18px]">expand_more</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowAddUserModal(false)}
-                  className="px-4 py-2 border border-slate-200 text-slate-500 font-bold text-xs rounded-xl hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingUser}
-                  className="px-5 py-2 bg-[#0b8252] hover:bg-[#096b43] text-white font-bold text-xs rounded-xl shadow-md disabled:opacity-50"
-                >
-                  {submittingUser ? 'Registering...' : 'Register User'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
