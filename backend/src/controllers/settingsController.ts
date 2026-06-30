@@ -28,7 +28,7 @@ export const getSettings = async (req: Request, res: Response) => {
     });
 
     if (!setting) {
-      return res.status(404).json({ message: "Setting not found", data: null });
+      return res.status(200).json({ message: "Setting not found, returning null", data: null });
     }
 
     res.status(200).json({ message: "Setting retrieved successfully", data: setting.value });

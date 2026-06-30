@@ -99,7 +99,7 @@ export default function Settings() {
       }
     } catch (error: any) {
       console.error("Failed to save settings:", error);
-      toast.error(error.response?.data?.message || "Failed to save settings to server.");
+      // toast.error is handled globally in axiosInstance.ts
     }
   };
 
