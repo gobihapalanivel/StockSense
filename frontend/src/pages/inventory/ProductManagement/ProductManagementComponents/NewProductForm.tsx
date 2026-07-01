@@ -279,6 +279,41 @@ export default function NewProductForm({
       return;
     }
 
+    if (variantDraft.mfgDate && variantDraft.expiryDate) {
+      const mfg = new Date(variantDraft.mfgDate);
+      const exp = new Date(variantDraft.expiryDate);
+      if (exp <= mfg) {
+        toast.error('Variant Expiry Date must be after Manufacturing Date.');
+        return;
+      }
+    }
+
+    const vCost = Number(variantDraft.costPrice);
+    const vSell = Number(variantDraft.sellingPrice);
+    const vStock = Number(variantDraft.stock || 0);
+    const vCapacity = Number(variantDraft.targetCapacity || 50);
+
+    if (isNaN(vCost) || vCost <= 0) {
+      toast.error('Variant Cost Price must be a positive number.');
+      return;
+    }
+    if (isNaN(vSell) || vSell <= 0) {
+      toast.error('Variant Selling Price must be a positive number.');
+      return;
+    }
+    if (vSell < vCost) {
+      toast.error('Variant Selling Price cannot be less than Cost Price.');
+      return;
+    }
+    if (isNaN(vStock) || vStock < 0 || !Number.isInteger(vStock)) {
+      toast.error('Variant Stock must be a non-negative integer.');
+      return;
+    }
+    if (isNaN(vCapacity) || vCapacity <= 0 || !Number.isInteger(vCapacity)) {
+      toast.error('Variant Target Capacity must be a positive integer.');
+      return;
+    }
+
     const duplicate = variants.some(
       (item) => item.barcode === trimmedBarcode && item.id !== editingVariantId
     );
@@ -333,6 +368,39 @@ export default function NewProductForm({
       if (!singleUnit) {
         toast.error('Unit of Measurement is required.');
         return false;
+      }
+      const cost = Number(singleCostPrice);
+      const sell = Number(singleSellingPrice);
+      const stock = Number(singleStock || 0);
+      const capacity = Number(singleTargetCapacity || 50);
+
+      if (isNaN(cost) || cost <= 0) {
+        toast.error('Cost Price must be a positive number.');
+        return false;
+      }
+      if (isNaN(sell) || sell <= 0) {
+        toast.error('Selling Price must be a positive number.');
+        return false;
+      }
+      if (sell < cost) {
+        toast.error('Selling Price cannot be less than Cost Price.');
+        return false;
+      }
+      if (isNaN(stock) || stock < 0 || !Number.isInteger(stock)) {
+        toast.error('Stock must be a non-negative integer.');
+        return false;
+      }
+      if (isNaN(capacity) || capacity <= 0 || !Number.isInteger(capacity)) {
+        toast.error('Target Capacity must be a positive integer.');
+        return false;
+      }
+      if (mfgDate && expiryDate) {
+        const mfg = new Date(mfgDate);
+        const exp = new Date(expiryDate);
+        if (exp <= mfg) {
+          toast.error('Expiry Date must be after Manufacturing Date.');
+          return false;
+        }
       }
     }
 

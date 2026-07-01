@@ -132,6 +132,9 @@ export default function ProcurementManagement() {
     if (!formData.name.trim()) {
       errors.name = 'Supplier name is required';
       isValid = false;
+    } else if (formData.name.trim().length > 100) {
+      errors.name = 'Supplier name must be 100 characters or less';
+      isValid = false;
     } else {
       const isDuplicate = suppliersList.some(s =>
         s.name.toLowerCase() === formData.name.trim().toLowerCase() &&
@@ -146,6 +149,9 @@ export default function ProcurementManagement() {
     if (!formData.companyName.trim()) {
       errors.companyName = 'Company name is required';
       isValid = false;
+    } else if (formData.companyName.trim().length > 100) {
+      errors.companyName = 'Company name must be 100 characters or less';
+      isValid = false;
     }
 
     const cleanPhone = formData.phone.trim().replace(/[\s()-]/g, '');
@@ -153,19 +159,30 @@ export default function ProcurementManagement() {
     if (!formData.phone.trim()) {
       errors.phone = 'Phone number is required';
       isValid = false;
+    } else if (formData.phone.trim().length > 20) {
+      errors.phone = 'Phone number must be 20 characters or less';
+      isValid = false;
     } else if (!phoneRegex.test(cleanPhone)) {
       errors.phone = 'Enter a valid Sri Lankan phone number (e.g. 0771234567)';
       isValid = false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (formData.email.trim() && !emailRegex.test(formData.email)) {
-      errors.email = 'Enter a valid email address';
-      isValid = false;
+    if (formData.email.trim()) {
+      if (formData.email.trim().length > 100) {
+        errors.email = 'Email must be 100 characters or less';
+        isValid = false;
+      } else if (!emailRegex.test(formData.email)) {
+        errors.email = 'Enter a valid email address';
+        isValid = false;
+      }
     }
 
     if (!formData.address.trim()) {
       errors.address = 'Warehouse address is required';
+      isValid = false;
+    } else if (formData.address.trim().length > 300) {
+      errors.address = 'Address must be 300 characters or less';
       isValid = false;
     }
 
