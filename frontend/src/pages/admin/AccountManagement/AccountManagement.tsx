@@ -456,7 +456,7 @@ export default function AccountManagement() {
                               <button 
                                 title="Reset Password"
                                 onClick={() => setPasswordResetUser(user)}
-                                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#0b8252] hover:bg-emerald-50 transition-colors"
                               >
                                 <span className="material-symbols-outlined text-[18px]">key</span>
                               </button>
@@ -928,7 +928,7 @@ export default function AccountManagement() {
       {passwordResetUser && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-slate-200 transform transition-all scale-100">
-            <div className="mx-auto w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-4 border border-indigo-100">
+            <div className="mx-auto w-16 h-16 bg-emerald-50 text-[#0b8252] rounded-full flex items-center justify-center mb-4 border border-emerald-100">
               <span className="material-symbols-outlined text-[32px]">lock_reset</span>
             </div>
             <h3 className="text-xl font-black text-slate-900 tracking-tight mb-2">Reset Password?</h3>
@@ -945,7 +945,7 @@ export default function AccountManagement() {
               </button>
               <button
                 onClick={confirmResetPassword}
-                className="flex-1 px-4 py-2.5 rounded-xl font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm"
+                className="flex-1 px-4 py-2.5 rounded-xl font-bold text-sm text-white bg-[#0b8252] hover:bg-[#096b43] transition-colors shadow-sm"
               >
                 Yes, Reset
               </button>
